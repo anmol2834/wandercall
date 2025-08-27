@@ -1,0 +1,432 @@
+/* Privacy Policy Container */
+.privacy-page-container {
+  min-height: 100vh;
+  position: relative;
+  overflow-x: hidden;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Floating Elements */
+.privacy-floating-elements {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.privacy-floating-orb {
+  position: absolute;
+  border-radius: 50%;
+  background: radial-gradient(circle at 30% 30%, rgba(99, 102, 241, 0.4), rgba(139, 92, 246, 0.2), transparent);
+  backdrop-filter: blur(15px);
+  box-shadow: 0 8px 32px rgba(99, 102, 241, 0.3);
+}
+
+.privacy-floating-orb.orb-1 {
+  width: 150px;
+  height: 150px;
+  top: 10%;
+  left: 5%;
+  background: radial-gradient(circle at 30% 30%, rgba(236, 72, 153, 0.4), rgba(139, 92, 246, 0.2), transparent);
+}
+
+.privacy-floating-orb.orb-2 {
+  width: 100px;
+  height: 100px;
+  top: 60%;
+  right: 8%;
+  background: radial-gradient(circle at 30% 30%, rgba(16, 185, 129, 0.4), rgba(99, 102, 241, 0.2), transparent);
+}
+
+.privacy-floating-orb.orb-3 {
+  width: 80px;
+  height: 80px;
+  top: 30%;
+  right: 20%;
+  background: radial-gradient(circle at 30% 30%, rgba(245, 158, 11, 0.4), rgba(236, 72, 153, 0.2), transparent);
+}
+
+.privacy-floating-orb.orb-4 {
+  width: 200px;
+  height: 200px;
+  top: 70%;
+  left: 70%;
+  background: radial-gradient(circle at 30% 30%, rgba(99, 102, 241, 0.2), rgba(139, 92, 246, 0.1), transparent);
+}
+
+/* Hero Section */
+.privacy-hero-section {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 30%, #6366f1 70%, #8b5cf6 100%);
+  color: white;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  min-height: 80vh;
+  display: flex;
+  align-items: center;
+}
+
+.privacy-hero-section::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.1);
+}
+
+.privacy-hero-content {
+  position: relative;
+  z-index: 2;
+}
+
+.privacy-hero-chip {
+  background: rgba(255, 255, 255, 0.15) !important;
+  color: white !important;
+  backdrop-filter: blur(20px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.3) !important;
+  font-weight: 600 !important;
+  font-size: 0.9rem !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1) !important;
+  transition: all 0.3s ease !important;
+}
+
+.privacy-hero-chip:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2) !important;
+}
+
+.privacy-hero-title {
+  font-weight: 900 !important;
+  text-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  line-height: 1.1 !important;
+}
+
+.privacy-gradient-text {
+  background: linear-gradient(135deg, #fbbf24, #f59e0b, #ec4899, #8b5cf6);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  background-size: 200% 200%;
+  animation: gradientShift 3s ease-in-out infinite;
+}
+
+@keyframes gradientShift {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+.privacy-hero-subtitle {
+  opacity: 0.9;
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+.privacy-hero-illustration {
+  margin-top: 2rem;
+}
+
+.privacy-main-illustration {
+  width: 100%;
+  max-width: 500px;
+  height: auto;
+  filter: drop-shadow(0 15px 35px rgba(0, 0, 0, 0.2));
+}
+
+/* Content Section */
+.privacy-content-section {
+  position: relative;
+}
+
+.privacy-content-header {
+  text-align: center;
+}
+
+.privacy-section-title {
+  font-weight: 800 !important;
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.privacy-section-subtitle {
+  color: #64748b !important;
+  line-height: 1.6 !important;
+}
+
+/* Accordion Styles */
+.privacy-accordion-container {
+  max-width: 900px;
+  margin: 0 auto;
+  position: relative;
+  z-index: 1;
+}
+
+.privacy-accordion {
+  transition: all 0.3s ease !important;
+  background: rgba(255, 255, 255, 0.05) !important;
+  backdrop-filter: blur(10px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+.privacy-accordion:hover {
+  transform: translateY(-4px) scale(1.02);
+  box-shadow: 0 20px 60px rgba(99, 102, 241, 0.2) !important;
+  background: rgba(255, 255, 255, 0.1) !important;
+}
+
+.privacy-accordion-summary {
+  transition: all 0.3s ease !important;
+}
+
+.privacy-accordion-icon {
+  background: linear-gradient(135deg, #6366f1, #8b5cf6, #ec4899);
+  color: white;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.4s ease;
+  box-shadow: 0 8px 25px rgba(99, 102, 241, 0.4);
+  position: relative;
+  overflow: hidden;
+}
+
+.privacy-accordion-icon::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  transform: rotate(45deg);
+  transition: all 0.6s ease;
+  opacity: 0;
+}
+
+.privacy-accordion-icon:hover::before {
+  opacity: 1;
+  animation: shimmer 1.5s ease-in-out;
+}
+
+@keyframes shimmer {
+  0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+  100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+}
+
+.privacy-accordion-title {
+  font-weight: 700 !important;
+  flex: 1;
+}
+
+.privacy-accordion-details {
+  background: rgba(99, 102, 241, 0.02);
+}
+
+/* Contact Section */
+.privacy-contact-section {
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+}
+
+.privacy-contact-card {
+  border-radius: 24px !important;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1) !important;
+  border: 1px solid rgba(99, 102, 241, 0.1) !important;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.privacy-contact-card:hover {
+  transform: translateY(-8px) scale(1.02);
+  box-shadow: 0 40px 100px rgba(99, 102, 241, 0.3) !important;
+}
+
+.privacy-commitment-card {
+  transition: all 0.4s ease;
+}
+
+.privacy-commitment-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 25px 70px rgba(99, 102, 241, 0.2);
+}
+
+.contact-card-content {
+  text-align: center;
+}
+
+.contact-title {
+  font-weight: 700 !important;
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.contact-description {
+  color: #64748b !important;
+  line-height: 1.6 !important;
+}
+
+/* Footer Section */
+.privacy-footer-section {
+  background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+  color: white;
+}
+
+.privacy-divider {
+  background: rgba(255, 255, 255, 0.1) !important;
+}
+
+.privacy-footer-text {
+  color: rgba(255, 255, 255, 0.8) !important;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+/* Animations */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-50px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+  .privacy-hero-section {
+    min-height: 60vh;
+  }
+  
+  .privacy-hero-title {
+    font-size: 2.5rem !important;
+  }
+  
+  .privacy-hero-subtitle {
+    font-size: 1.1rem !important;
+  }
+  
+  .privacy-accordion-summary {
+    padding: 1rem 1.5rem !important;
+  }
+  
+  .privacy-accordion-details {
+    padding: 0 1.5rem 1.5rem 1.5rem !important;
+  }
+  
+  .privacy-accordion-icon {
+    width: 40px;
+    height: 40px;
+  }
+  
+  .contact-card-content {
+    padding: 2rem !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .privacy-hero-section {
+    min-height: 50vh;
+  }
+  
+  .privacy-hero-title {
+    font-size: 2rem !important;
+  }
+  
+  .privacy-hero-subtitle {
+    font-size: 1rem !important;
+  }
+  
+  .privacy-hero-chip {
+    font-size: 0.8rem !important;
+    padding: 4px 12px !important;
+  }
+  
+  .privacy-accordion-summary {
+    padding: 1rem !important;
+  }
+  
+  .privacy-accordion-details {
+    padding: 0 1rem 1rem 1rem !important;
+  }
+  
+  .privacy-accordion-icon {
+    width: 36px;
+    height: 36px;
+    margin-right: 0.75rem;
+  }
+  
+  .contact-card-content {
+    padding: 1.5rem !important;
+  }
+  
+  .privacy-floating-orb {
+    display: none;
+  }
+  
+  .privacy-main-illustration {
+    max-width: 280px;
+  }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .privacy-section-title {
+    background: linear-gradient(135deg, #818cf8, #a78bfa);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  
+  .contact-title {
+    background: linear-gradient(135deg, #818cf8, #a78bfa);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+}
+
+/* Accessibility improvements */
+@media (prefers-reduced-motion: reduce) {
+  .privacy-floating-shape,
+  .privacy-gradient-text {
+    animation: none;
+  }
+  
+  * {
+    transition: none !important;
+  }
+}
+
+/* High contrast mode */
+@media (prefers-contrast: high) {
+  .privacy-accordion {
+    border: 2px solid currentColor !important;
+  }
+  
+  .privacy-hero-chip {
+    border: 2px solid currentColor !important;
+  }
+}

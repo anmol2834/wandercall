@@ -1,0 +1,291 @@
+/* Profile Page Container */
+.profile-page-container {
+  min-height: 100vh;
+  position: relative;
+  transition: background-color 0.3s ease;
+}
+
+/* Mobile Menu Button */
+.profile-mobile-menu-btn {
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Sidebar */
+.profile-sidebar {
+  backdrop-filter: blur(20px);
+  border-right: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+.profile-menu-content {
+  padding: 2rem 1.5rem;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.profile-menu-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.profile-menu-list {
+  flex: 1;
+  padding: 0;
+}
+
+.profile-menu-item {
+  margin-bottom: 0.5rem !important;
+  border-radius: 12px !important;
+  transition: all 0.3s ease !important;
+  position: relative;
+  overflow: hidden;
+}
+
+.profile-menu-item::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(99, 102, 241, 0.1), transparent);
+  transition: left 0.6s ease;
+}
+
+.profile-menu-item:hover::before {
+  left: 100%;
+}
+
+.profile-menu-item.active {
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(139, 92, 246, 0.1)) !important;
+  border: 1px solid rgba(99, 102, 241, 0.3);
+  box-shadow: 0 4px 20px rgba(99, 102, 241, 0.2);
+}
+
+/* Main Content */
+.profile-main-content {
+  transition: margin-left 0.3s ease;
+  min-height: 100vh;
+}
+
+/* Hero Card */
+.profile-hero-card {
+  border-radius: 20px !important;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1) !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  backdrop-filter: blur(20px) !important;
+}
+
+.profile-avatar-container {
+  position: relative;
+}
+
+.profile-hero-glow {
+  pointer-events: none;
+}
+
+/* Stats Cards */
+.profile-stats-card {
+  background: rgba(255, 255, 255, 0.05) !important;
+  backdrop-filter: blur(10px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  border-radius: 16px !important;
+  transition: all 0.3s ease !important;
+  cursor: pointer;
+}
+
+.profile-stats-card:hover {
+  transform: translateY(-8px) scale(1.02);
+  box-shadow: 0 20px 60px rgba(99, 102, 241, 0.2) !important;
+  background: rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Address Cards */
+.profile-address-card {
+  background: rgba(255, 255, 255, 0.03) !important;
+  backdrop-filter: blur(10px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  border-radius: 12px !important;
+  transition: all 0.3s ease !important;
+}
+
+.profile-address-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.1) !important;
+  background: rgba(255, 255, 255, 0.08) !important;
+}
+
+/* Glassmorphism Effects */
+.glass-card {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.glass-card:hover {
+  background: rgba(255, 255, 255, 0.08);
+  transform: translateY(-2px);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+}
+
+/* Animations */
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+.profile-floating-element {
+  animation: float 6s ease-in-out infinite;
+}
+
+.profile-pulse-element {
+  animation: pulse 3s ease-in-out infinite;
+}
+
+/* Button Animations */
+.profile-animated-button {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.profile-animated-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.6s ease;
+}
+
+.profile-animated-button:hover::before {
+  left: 100%;
+}
+
+.profile-animated-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+  .profile-main-content {
+    margin-left: 0 !important;
+    padding: 1rem !important;
+  }
+
+  .profile-hero-card .MuiCardContent-root {
+    padding: 2rem !important;
+  }
+
+  .profile-menu-content {
+    padding: 1.5rem 1rem;
+  }
+
+  .profile-stats-card {
+    margin-bottom: 1rem;
+  }
+
+  .profile-avatar-container {
+    margin-bottom: 2rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .profile-main-content {
+    padding: 0.75rem !important;
+  }
+
+  .profile-hero-card .MuiCardContent-root {
+    padding: 1.5rem !important;
+  }
+
+  .profile-menu-content {
+    padding: 1rem;
+  }
+
+  .profile-mobile-menu-btn {
+    top: 15px;
+    left: 15px;
+  }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .profile-menu-item {
+    background: rgba(255, 255, 255, 0.02);
+  }
+  
+  .profile-menu-item:hover {
+    background: rgba(255, 255, 255, 0.05);
+  }
+  
+  .profile-menu-item.active {
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.3), rgba(139, 92, 246, 0.2)) !important;
+  }
+}
+
+/* Accessibility improvements */
+@media (prefers-reduced-motion: reduce) {
+  .profile-floating-element,
+  .profile-pulse-element {
+    animation: none;
+  }
+  
+  * {
+    transition: none !important;
+  }
+}
+
+/* High contrast mode */
+@media (prefers-contrast: high) {
+  .profile-menu-item {
+    border: 2px solid currentColor !important;
+  }
+  
+  .profile-hero-card {
+    border: 2px solid currentColor !important;
+  }
+  
+  .glass-card {
+    border: 2px solid currentColor !important;
+  }
+}
+
+/* Custom scrollbar for sidebar */
+.profile-menu-content::-webkit-scrollbar {
+  width: 6px;
+}
+
+.profile-menu-content::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.profile-menu-content::-webkit-scrollbar-thumb {
+  background: rgba(99, 102, 241, 0.3);
+  border-radius: 3px;
+}
+
+.profile-menu-content::-webkit-scrollbar-thumb:hover {
+  background: rgba(99, 102, 241, 0.5);
+}

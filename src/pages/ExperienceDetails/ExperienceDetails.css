@@ -1,0 +1,277 @@
+/* Experience Details - Clean & Minimal Styling */
+
+/* Consistent card heights */
+.MuiCard-root {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.MuiCardContent-root {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Smooth transitions */
+* {
+  transition: all 0.2s ease-in-out;
+}
+
+/* Button styling */
+.MuiButton-root {
+  text-transform: none;
+  font-weight: 600;
+  border-radius: 8px;
+}
+
+.MuiButton-contained {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.MuiButton-contained:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transform: translateY(-1px);
+}
+
+/* Icon button styling */
+.MuiIconButton-root {
+  transition: all 0.2s ease;
+}
+
+.MuiIconButton-root:hover {
+  transform: scale(1.05);
+}
+
+/* Chip styling */
+.MuiChip-root {
+  font-weight: 500;
+  border-radius: 6px;
+}
+
+/* Typography */
+.MuiTypography-h4 {
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.MuiTypography-h6 {
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+.MuiTypography-body1 {
+  line-height: 1.6;
+}
+
+.MuiTypography-body2 {
+  line-height: 1.5;
+}
+
+/* Rating component */
+.MuiRating-root {
+  color: #ffd700;
+}
+
+/* Avatar styling */
+.MuiAvatar-root {
+  font-weight: 600;
+}
+
+/* Paper component */
+.MuiPaper-root {
+  border-radius: 8px;
+}
+
+/* Card content consistent padding */
+.MuiCardContent-root {
+  padding: 16px;
+}
+
+.MuiCardContent-root:last-child {
+  padding-bottom: 16px;
+}
+
+/* Stack spacing */
+.MuiStack-root {
+  align-items: flex-start;
+}
+
+/* Divider styling */
+.MuiDivider-root {
+  margin: 12px 0;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .MuiContainer-root {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+  
+  .MuiTypography-h4 {
+    font-size: 1.5rem;
+  }
+  
+  .MuiCardContent-root {
+    padding: 12px;
+  }
+  
+  .MuiCardContent-root:last-child {
+    padding-bottom: 12px;
+  }
+}
+
+/* Small mobile adjustments */
+@media (max-width: 480px) {
+  .MuiContainer-root {
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+  
+  .MuiTypography-h4 {
+    font-size: 1.25rem;
+  }
+  
+  .MuiButton-root {
+    min-width: auto;
+  }
+}
+
+/* Focus states for accessibility */
+.MuiButton-root:focus,
+.MuiIconButton-root:focus {
+  outline: 2px solid;
+  outline-offset: 2px;
+}
+
+/* High contrast mode */
+@media (prefers-contrast: high) {
+  .MuiCard-root {
+    border: 2px solid;
+  }
+  
+  .MuiButton-outlined {
+    border-width: 2px;
+  }
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.3);
+}
+
+/* Image gallery specific */
+.image-gallery img {
+  transition: transform 0.2s ease;
+}
+
+.image-gallery img:hover {
+  transform: scale(1.02);
+}
+
+/* Consistent grid heights */
+.MuiGrid-item {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Ensure all cards have same height in grid */
+.equal-height-card {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.equal-height-card .MuiCardContent-root {
+  flex: 1;
+}
+
+/* Minimal spacing utilities */
+.compact-spacing {
+  margin: 0 !important;
+  padding: 8px !important;
+}
+
+.tight-spacing {
+  gap: 8px !important;
+}
+
+/* Dark mode specific adjustments */
+@media (prefers-color-scheme: dark) {
+  .MuiCard-root {
+    background-color: rgba(255, 255, 255, 0.05);
+  }
+  
+  .MuiPaper-outlined {
+    border-color: rgba(255, 255, 255, 0.12);
+  }
+}
+
+/* Loading states */
+.loading {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+/* Animation keyframes */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Utility classes */
+.fade-in {
+  animation: fadeIn 0.3s ease-out;
+}
+
+/* Shadow utilities */
+.shadow-sm {
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.shadow-md {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Border radius utilities */
+.rounded-sm {
+  border-radius: 4px;
+}
+
+.rounded-md {
+  border-radius: 8px;
+}
+
+.rounded-lg {
+  border-radius: 12px;
+}

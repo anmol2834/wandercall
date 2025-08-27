@@ -1,0 +1,293 @@
+/* Contact Page Container */
+.contact-page-container {
+  min-height: 100vh;
+  position: relative;
+  overflow-x: hidden;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Floating Elements */
+.contact-floating-elements {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.contact-floating-orb {
+  position: absolute;
+  border-radius: 50%;
+  background: radial-gradient(circle at 30% 30%, rgba(99, 102, 241, 0.3), rgba(139, 92, 246, 0.1), transparent);
+  backdrop-filter: blur(15px);
+  box-shadow: 0 8px 32px rgba(99, 102, 241, 0.2);
+}
+
+.contact-floating-orb.orb-1 {
+  width: 120px;
+  height: 120px;
+  top: 15%;
+  left: 10%;
+  background: radial-gradient(circle at 30% 30%, rgba(16, 185, 129, 0.3), rgba(99, 102, 241, 0.1), transparent);
+}
+
+.contact-floating-orb.orb-2 {
+  width: 80px;
+  height: 80px;
+  top: 60%;
+  right: 15%;
+  background: radial-gradient(circle at 30% 30%, rgba(245, 158, 11, 0.3), rgba(236, 72, 153, 0.1), transparent);
+}
+
+.contact-floating-orb.orb-3 {
+  width: 150px;
+  height: 150px;
+  top: 70%;
+  left: 70%;
+  background: radial-gradient(circle at 30% 30%, rgba(99, 102, 241, 0.2), rgba(139, 92, 246, 0.1), transparent);
+}
+
+/* Hero Section */
+.contact-hero-section {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 30%, #6366f1 70%, #8b5cf6 100%);
+  color: white;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  min-height: 70vh;
+  display: flex;
+  align-items: center;
+}
+
+.contact-hero-section::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.1);
+}
+
+.contact-hero-chip {
+  background: rgba(255, 255, 255, 0.15) !important;
+  color: white !important;
+  backdrop-filter: blur(20px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.3) !important;
+  font-weight: 600 !important;
+  font-size: 0.9rem !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1) !important;
+  transition: all 0.3s ease !important;
+}
+
+.contact-hero-chip:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2) !important;
+}
+
+.contact-hero-title {
+  font-weight: 900 !important;
+  text-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  line-height: 1.1 !important;
+}
+
+.contact-gradient-text {
+  background: linear-gradient(135deg, #fbbf24, #f59e0b, #ec4899, #8b5cf6);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  background-size: 200% 200%;
+  animation: gradientShift 3s ease-in-out infinite;
+}
+
+@keyframes gradientShift {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+.contact-hero-subtitle {
+  opacity: 0.9;
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+/* Contact Method Cards */
+.contact-method-card {
+  transition: all 0.4s ease;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+
+.contact-method-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+  transition: left 0.6s ease;
+}
+
+.contact-method-card:hover::before {
+  left: 100%;
+}
+
+.contact-method-card:hover {
+  transform: translateY(-8px) scale(1.02);
+  box-shadow: 0 20px 60px rgba(99, 102, 241, 0.2);
+  background: rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Form Styling */
+.MuiTextField-root {
+  margin-bottom: 1rem;
+}
+
+.MuiTextField-root .MuiOutlinedInput-root {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  border-radius: 12px;
+  transition: all 0.3s ease;
+}
+
+.MuiTextField-root .MuiOutlinedInput-root:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.MuiTextField-root .MuiOutlinedInput-root.Mui-focused {
+  background: rgba(255, 255, 255, 0.1);
+  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.3);
+}
+
+/* Support Category Cards */
+.support-category-card {
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.support-category-card:hover {
+  transform: translateY(-5px) scale(1.02);
+  box-shadow: 0 15px 40px rgba(99, 102, 241, 0.15);
+  background: rgba(255, 255, 255, 0.08) !important;
+}
+
+/* Social Icons */
+.social-icon-button {
+  transition: all 0.3s ease;
+}
+
+.social-icon-button:hover {
+  transform: translateY(-3px) scale(1.1);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+}
+
+/* Animations */
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+/* Glassmorphism Effects */
+.glass-card {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+.glass-card:hover {
+  background: rgba(255, 255, 255, 0.08);
+  transform: translateY(-2px);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+  .contact-hero-section {
+    min-height: 60vh;
+  }
+  
+  .contact-hero-title {
+    font-size: 2.5rem !important;
+  }
+  
+  .contact-hero-subtitle {
+    font-size: 1.1rem !important;
+  }
+  
+  .contact-method-card {
+    margin-bottom: 1rem;
+  }
+  
+  .contact-floating-orb {
+    display: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .contact-hero-section {
+    min-height: 50vh;
+  }
+  
+  .contact-hero-title {
+    font-size: 2rem !important;
+  }
+  
+  .contact-hero-subtitle {
+    font-size: 1rem !important;
+  }
+  
+  .contact-hero-chip {
+    font-size: 0.8rem !important;
+    padding: 4px 12px !important;
+  }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .contact-method-card {
+    background: rgba(255, 255, 255, 0.03) !important;
+  }
+  
+  .contact-method-card:hover {
+    background: rgba(255, 255, 255, 0.08) !important;
+  }
+}
+
+/* Accessibility improvements */
+@media (prefers-reduced-motion: reduce) {
+  .contact-floating-orb,
+  .contact-gradient-text {
+    animation: none;
+  }
+  
+  * {
+    transition: none !important;
+  }
+}
+
+/* High contrast mode */
+@media (prefers-contrast: high) {
+  .contact-method-card {
+    border: 2px solid currentColor !important;
+  }
+  
+  .contact-hero-chip {
+    border: 2px solid currentColor !important;
+  }
+}

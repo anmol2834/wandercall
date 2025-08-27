@@ -1,0 +1,96 @@
+.background-animation {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: -1;
+  overflow: hidden;
+}
+
+.morphing-blob {
+  position: absolute;
+  width: 200px;
+  height: 200px;
+  background: linear-gradient(45deg, rgba(99, 102, 241, 0.15), rgba(139, 92, 246, 0.1));
+  filter: blur(3px);
+}
+
+.morphing-blob:nth-child(2n) {
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.12), rgba(249, 115, 22, 0.08));
+  width: 150px;
+  height: 150px;
+}
+
+.morphing-blob:nth-child(3n) {
+  background: linear-gradient(225deg, rgba(16, 185, 129, 0.1), rgba(5, 150, 105, 0.06));
+  width: 180px;
+  height: 180px;
+}
+
+.floating-particle {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  background: radial-gradient(circle, rgba(99, 102, 241, 0.6), transparent);
+  border-radius: 50%;
+}
+
+.floating-particle:nth-child(odd) {
+  background: radial-gradient(circle, rgba(245, 158, 11, 0.5), transparent);
+  width: 6px;
+  height: 6px;
+}
+
+.floating-particle:nth-child(3n) {
+  background: radial-gradient(circle, rgba(139, 92, 246, 0.4), transparent);
+  width: 10px;
+  height: 10px;
+}
+
+.spiral-wave {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 600px;
+  height: 600px;
+  transform: translate(-50%, -50%);
+  background: conic-gradient(
+    from 0deg,
+    transparent,
+    rgba(99, 102, 241, 0.05),
+    transparent,
+    rgba(139, 92, 246, 0.08),
+    transparent
+  );
+  border-radius: 50%;
+  filter: blur(2px);
+}
+
+@media (max-width: 768px) {
+  .morphing-blob {
+    width: 120px;
+    height: 120px;
+  }
+  
+  .morphing-blob:nth-child(2n) {
+    width: 100px;
+    height: 100px;
+  }
+  
+  .morphing-blob:nth-child(3n) {
+    width: 110px;
+    height: 110px;
+  }
+  
+  .spiral-wave {
+    width: 300px;
+    height: 300px;
+  }
+  
+  .floating-particle {
+    width: 6px;
+    height: 6px;
+  }
+}
