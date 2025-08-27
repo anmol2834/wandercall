@@ -22,6 +22,7 @@ const ExperienceDetails = () => {
   const [expandedDescription, setExpandedDescription] = useState(false);
   const [reviewLikes, setReviewLikes] = useState({});
   const [reviewDislikes, setReviewDislikes] = useState({});
+  const [currentReviewIndex, setCurrentReviewIndex] = useState(0);
 
   const experience = {
     id: id,
@@ -127,13 +128,12 @@ const ExperienceDetails = () => {
         borderColor: 'divider',
         width: '100%'
       }}>
-        <Container maxWidth="lg">
+        <Container maxWidth="lg" sx={{ px: { xs: 2, sm: 3, md: 4 } }}>
           <Box sx={{ 
             display: 'flex', 
             justifyContent: 'space-between', 
             alignItems: 'center', 
-            py: 2,
-            width: '100%'
+            py: 2
           }}>
             <motion.div 
               whileHover={{ scale: 1.1, x: -3 }} 
@@ -173,14 +173,14 @@ const ExperienceDetails = () => {
       </Box>
 
       {/* Main Content */}
-      <Container maxWidth="lg" sx={{ py: 3, width: '100%' }}>
+      <Container maxWidth="lg" sx={{ py: 3, px: { xs: 2, sm: 3, md: 4 } }}>
         {/* Title Section */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
         >
-          <Box sx={{ mb: 3, width: '100%' }}>
+          <Box sx={{ mb: 3 }}>
             <Box sx={{ display: 'flex', gap: 1, mb: 2, flexWrap: 'wrap' }}>
               <motion.div
                 initial={{ opacity: 0, scale: 0.8 }}
@@ -210,7 +210,7 @@ const ExperienceDetails = () => {
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.6, delay: 0.4 }}
             >
-              <Typography variant="h4" fontWeight={700} mb={2} sx={{ width: '100%' }}>
+              <Typography variant="h4" fontWeight={700} mb={2}>
                 {experience.title}
               </Typography>
             </motion.div>
@@ -260,10 +260,10 @@ const ExperienceDetails = () => {
         </motion.div>
 
         {/* Two Column Layout */}
-        <Grid container spacing={3} sx={{ width: '100%' }}>
+        <Grid container spacing={3}>
           {/* Main Column */}
-          <Grid item xs={12} md={8} sx={{ width: '100%' }}>
-            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3, width: '100%' }}>
+          <Grid item xs={12} md={8}>
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
               
               {/* Image Gallery */}
               <motion.div
@@ -272,8 +272,8 @@ const ExperienceDetails = () => {
                 transition={{ duration: 0.6, delay: 0.2 }}
                 whileHover={{ scale: 1.02 }}
               >
-                <Card sx={{ width: '100%', overflow: 'hidden' }}>
-                  <Box sx={{ position: 'relative', height: { xs: 250, md: 400 }, width: '100%' }}>
+                <Card sx={{ overflow: 'hidden' }}>
+                  <Box sx={{ position: 'relative', height: { xs: 250, md: 400 } }}>
                     <AnimatePresence mode="wait">
                       <motion.img
                         key={currentImageIndex}
@@ -386,7 +386,7 @@ const ExperienceDetails = () => {
                 transition={{ duration: 0.6, delay: 0.4 }}
                 whileHover={{ y: -2 }}
               >
-                <Card sx={{ width: '100%' }}>
+                <Card>
                   <CardContent>
                     <Typography variant="h6" fontWeight={600} mb={2}>
                       About This Experience
@@ -414,7 +414,7 @@ const ExperienceDetails = () => {
                 transition={{ duration: 0.6, delay: 0.6 }}
                 whileHover={{ y: -2 }}
               >
-                <Card sx={{ width: '100%' }}>
+                <Card>
                   <CardContent>
                     <Typography variant="h6" fontWeight={600} mb={2}>
                       What's Included
@@ -445,10 +445,83 @@ const ExperienceDetails = () => {
                 </Card>
               </motion.div>
 
+              {/* Mobile Booking Section */}
+              {isMobile && (
+                <motion.div
+                  initial={{ opacity: 0, y: 30 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.6, delay: 0.8 }}
+                  whileHover={{ y: -2 }}
+                >
+                  <Card sx={{ border: 1, borderColor: 'primary.main' }}>
+                    <CardContent>
+                      <Typography variant="h6" fontWeight={600} mb={2} textAlign="center">
+                        Book Your Adventure
+                      </Typography>
+                      
+                      <Box sx={{ textAlign: 'center', mb: 2 }}>
+                        <Box sx={{ display: 'flex', gap: 1, alignItems: 'baseline', justifyContent: 'center', mb: 0.5 }}>
+                          <Typography variant="h4" fontWeight={700} color="primary.main">
+                            ${experience.price}
+                          </Typography>
+                          <Typography variant="body2" sx={{ textDecoration: 'line-through' }} color="text.secondary">
+                            ${experience.originalPrice}
+                          </Typography>
+                        </Box>
+                        <Typography variant="body2" color="text.secondary">
+                          per person • Save ${experience.originalPrice - experience.price}!
+                        </Typography>
+                      </Box>
+
+                      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+                        <Button
+                          variant="contained"
+                          fullWidth
+                          onClick={handleBookNow}
+                          sx={{ py: 1.5, fontWeight: 600 }}
+                        >
+                          Book Now - ${experience.price}
+                        </Button>
+                        
+                        <Box sx={{ display: 'flex', gap: 1 }}>
+                          <Button
+                            variant="outlined"
+                            fullWidth
+                            startIcon={isWishlisted ? <Bookmark /> : <BookmarkBorder />}
+                            onClick={handleWishlistToggle}
+                            color={isWishlisted ? "primary" : "inherit"}
+                            size="small"
+                            sx={{ 
+                              '& .MuiButton-startIcon': { 
+                                marginRight: 1,
+                                marginLeft: 0
+                              }
+                            }}
+                          >
+                            {isWishlisted ? 'Saved' : 'Save'}
+                          </Button>
+                          
+                          <IconButton onClick={handleShare} sx={{ border: 1, borderColor: 'divider' }}>
+                            <Share fontSize="small" />
+                          </IconButton>
+                        </Box>
+                      </Box>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              )}
+
               {/* Guest Reviews */}
-              <Card sx={{ width: '100%' }}>
+              <Card>
                 <CardContent>
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                  <Box sx={{ 
+                    display: 'flex', 
+                    flexDirection: { xs: 'column', sm: 'row' },
+                    justifyContent: 'space-between', 
+                    alignItems: { xs: 'flex-start', sm: 'center' },
+                    gap: { xs: 1, sm: 0 },
+                    mb: 2 
+                  }}>
                     <Typography variant="h6" fontWeight={600}>
                       Guest Reviews ({experience.reviewCount})
                     </Typography>
@@ -460,51 +533,105 @@ const ExperienceDetails = () => {
                     </Box>
                   </Box>
                   
-                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                    {experience.reviews.map((review) => (
-                      <Paper key={review.id} variant="outlined" sx={{ p: 2 }}>
-                        <Box sx={{ display: 'flex', gap: 1.5, mb: 1 }}>
-                          <Avatar sx={{ bgcolor: 'primary.main', width: 32, height: 32, fontSize: '0.875rem' }}>
-                            {review.avatar}
-                          </Avatar>
-                          <Box sx={{ flex: 1 }}>
-                            <Typography variant="subtitle2" fontWeight={600}>
-                              {review.name}
-                            </Typography>
-                            <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
-                              <Rating value={review.rating} size="small" readOnly />
-                              <Typography variant="caption" color="text.secondary">
-                                {review.date}
-                              </Typography>
-                            </Box>
-                          </Box>
-                        </Box>
-                        
-                        <Typography variant="body2" lineHeight={1.5} mb={1}>
-                          {review.comment}
-                        </Typography>
-                        
-                        <Box sx={{ display: 'flex', gap: 1 }}>
-                          <Button
-                            size="small"
-                            startIcon={<ThumbUp sx={{ fontSize: 14 }} />}
-                            onClick={() => handleReviewLike(review.id)}
-                            color={reviewLikes[review.id] ? 'success' : 'inherit'}
-                          >
-                            Helpful
-                          </Button>
-                          <Button
-                            size="small"
-                            startIcon={<ThumbDown sx={{ fontSize: 14 }} />}
-                            onClick={() => handleReviewDislike(review.id)}
-                            color={reviewDislikes[review.id] ? 'error' : 'inherit'}
-                          >
-                            Not Helpful
-                          </Button>
-                        </Box>
-                      </Paper>
-                    ))}
+                  {/* Review Navigation */}
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                    <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
+                      <IconButton 
+                        onClick={() => setCurrentReviewIndex(prev => prev === 0 ? Math.max(0, experience.reviews.length - 3) : Math.max(0, prev - 3))}
+                        size="small"
+                        disabled={experience.reviews.length <= 1}
+                      >
+                        <NavigateBefore />
+                      </IconButton>
+                    </motion.div>
+                    
+                    <Typography variant="body2" color="text.secondary">
+                      {Math.floor(currentReviewIndex / 3) + 1} of {Math.ceil(experience.reviews.length / 3)}
+                    </Typography>
+                    
+                    <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
+                      <IconButton 
+                        onClick={() => setCurrentReviewIndex(prev => prev + 3 >= experience.reviews.length ? 0 : prev + 3)}
+                        size="small"
+                        disabled={experience.reviews.length <= 1}
+                      >
+                        <NavigateNext />
+                      </IconButton>
+                    </motion.div>
                   </Box>
+                  
+                  {/* Current Reviews (3 at a time) */}
+                  <AnimatePresence mode="wait">
+                    <motion.div
+                      key={Math.floor(currentReviewIndex / 3)}
+                      initial={{ opacity: 0, x: 50 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: -50 }}
+                      transition={{ duration: 0.3 }}
+                    >
+                      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                        {experience.reviews.slice(currentReviewIndex, currentReviewIndex + 3).map((review) => (
+                          <Paper key={review.id} variant="outlined" sx={{ p: 2 }}>
+                            <Box sx={{ display: 'flex', gap: 1.5, mb: 1 }}>
+                              <Avatar sx={{ bgcolor: 'primary.main', width: 32, height: 32, fontSize: '0.875rem' }}>
+                                {review.avatar}
+                              </Avatar>
+                              <Box sx={{ flex: 1 }}>
+                                <Typography variant="subtitle2" fontWeight={600}>
+                                  {review.name}
+                                </Typography>
+                                <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+                                  <Rating value={review.rating} size="small" readOnly />
+                                  <Typography variant="caption" color="text.secondary">
+                                    {review.date}
+                                  </Typography>
+                                </Box>
+                              </Box>
+                            </Box>
+                            
+                            <Typography variant="body2" lineHeight={1.5} mb={1}>
+                              {review.comment}
+                            </Typography>
+                            
+                            <Box sx={{ display: 'flex', gap: 1 }}>
+                              <Button
+                                size="small"
+                                startIcon={<ThumbUp sx={{ fontSize: 14 }} />}
+                                onClick={() => handleReviewLike(review.id)}
+                                sx={{
+                                  color: reviewLikes[review.id] ? '#ffffff' : 'inherit',
+                                  backgroundColor: reviewLikes[review.id] ? '#10b981' : 'transparent',
+                                  border: reviewLikes[review.id] ? '1px solid #10b981' : '1px solid rgba(0, 0, 0, 0.12)',
+                                  '&:hover': {
+                                    backgroundColor: reviewLikes[review.id] ? '#059669' : 'rgba(16, 185, 129, 0.1)',
+                                    color: reviewLikes[review.id] ? '#ffffff' : '#10b981'
+                                  }
+                                }}
+                              >
+                                Helpful
+                              </Button>
+                              <Button
+                                size="small"
+                                startIcon={<ThumbDown sx={{ fontSize: 14 }} />}
+                                onClick={() => handleReviewDislike(review.id)}
+                                sx={{
+                                  color: reviewDislikes[review.id] ? '#ffffff' : 'inherit',
+                                  backgroundColor: reviewDislikes[review.id] ? '#ef4444' : 'transparent',
+                                  border: reviewDislikes[review.id] ? '1px solid #ef4444' : '1px solid rgba(0, 0, 0, 0.12)',
+                                  '&:hover': {
+                                    backgroundColor: reviewDislikes[review.id] ? '#dc2626' : 'rgba(239, 68, 68, 0.1)',
+                                    color: reviewDislikes[review.id] ? '#ffffff' : '#ef4444'
+                                  }
+                                }}
+                              >
+                                Not Helpful
+                              </Button>
+                            </Box>
+                          </Paper>
+                        ))}
+                      </Box>
+                    </motion.div>
+                  </AnimatePresence>
                 </CardContent>
               </Card>
 
@@ -512,128 +639,8 @@ const ExperienceDetails = () => {
           </Grid>
 
           {/* Sidebar Column */}
-          <Grid item xs={12} md={4} sx={{ width: '100%' }}>
-            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3, width: '100%' }}>
-              
-              {/* Book Your Adventure */}
-              <motion.div
-                initial={{ opacity: 0, x: 30 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.6, delay: 0.3 }}
-                whileHover={{ scale: 1.02, y: -5 }}
-              >
-                <Card sx={{ 
-                  position: { md: 'sticky' }, 
-                  top: { md: 100 },
-                  width: '100%',
-                  border: 1, 
-                  borderColor: 'primary.main' 
-                }}>
-                <CardContent>
-                  <Typography variant="h6" fontWeight={600} mb={2} textAlign="center">
-                    Book Your Adventure
-                  </Typography>
-                  
-                  <Box sx={{ textAlign: 'center', mb: 2 }}>
-                    <motion.div
-                      animate={{ y: [0, -5, 0] }}
-                      transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
-                    >
-                      <Box sx={{ display: 'flex', gap: 1, alignItems: 'baseline', justifyContent: 'center', mb: 0.5 }}>
-                        <motion.div
-                          whileHover={{ scale: 1.1 }}
-                          animate={{ 
-                            textShadow: [
-                              "0px 0px 0px rgba(99, 102, 241, 0)",
-                              "0px 0px 20px rgba(99, 102, 241, 0.5)",
-                              "0px 0px 0px rgba(99, 102, 241, 0)"
-                            ]
-                          }}
-                          transition={{ duration: 2, repeat: Infinity }}
-                        >
-                          <Typography variant="h4" fontWeight={700} color="primary.main">
-                            ${experience.price}
-                          </Typography>
-                        </motion.div>
-                        <Typography variant="body2" sx={{ textDecoration: 'line-through' }} color="text.secondary">
-                          ${experience.originalPrice}
-                        </Typography>
-                      </Box>
-                    </motion.div>
-                    <Typography variant="body2" color="text.secondary">
-                      per person • Save ${experience.originalPrice - experience.price}!
-                    </Typography>
-                  </Box>
-
-                  <Grid container spacing={1} sx={{ mb: 2 }}>
-                    <Grid item xs={6}>
-                      <Paper variant="outlined" sx={{ p: 1, textAlign: 'center' }}>
-                        <AccessTime color="primary" sx={{ fontSize: 16, mb: 0.5 }} />
-                        <Typography variant="caption" display="block" color="text.secondary">
-                          Opening Time
-                        </Typography>
-                        <Typography variant="body2" fontWeight={600}>
-                          {experience.timings.start}
-                        </Typography>
-                      </Paper>
-                    </Grid>
-                    <Grid item xs={6}>
-                      <Paper variant="outlined" sx={{ p: 1, textAlign: 'center' }}>
-                        <Schedule color="primary" sx={{ fontSize: 16, mb: 0.5 }} />
-                        <Typography variant="caption" display="block" color="text.secondary">
-                          Closing Time
-                        </Typography>
-                        <Typography variant="body2" fontWeight={600}>
-                          {experience.timings.end}
-                        </Typography>
-                      </Paper>
-                    </Grid>
-
-                  </Grid>
-
-                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
-                    <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-                      <Button
-                        variant="contained"
-                        fullWidth
-                        onClick={handleBookNow}
-                        sx={{ py: 1, fontWeight: 600 }}
-                      >
-                        Book Now - ${experience.price}
-                      </Button>
-                    </motion.div>
-                    
-                    <Box sx={{ display: 'flex', gap: 1 }}>
-                      <motion.div style={{ flex: 1 }} whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-                        <Button
-                          variant="outlined"
-                          fullWidth
-                          startIcon={
-                            <motion.div
-                              animate={isWishlisted ? { scale: [1, 1.3, 1] } : {}}
-                              transition={{ duration: 0.3 }}
-                            >
-                              {isWishlisted ? <Bookmark /> : <BookmarkBorder />}
-                            </motion.div>
-                          }
-                          onClick={handleWishlistToggle}
-                          color={isWishlisted ? "primary" : "inherit"}
-                          size="small"
-                        >
-                          {isWishlisted ? 'Saved' : 'Save'}
-                        </Button>
-                      </motion.div>
-                      
-                      <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
-                        <IconButton onClick={handleShare} sx={{ border: 1, borderColor: 'divider' }}>
-                          <Share fontSize="small" />
-                        </IconButton>
-                      </motion.div>
-                    </Box>
-                  </Box>
-                </CardContent>
-                </Card>
-              </motion.div>
+          <Grid item xs={12} md={4}>
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
 
               {/* Quick Info */}
               <motion.div
@@ -642,7 +649,7 @@ const ExperienceDetails = () => {
                 transition={{ duration: 0.6, delay: 0.5 }}
                 whileHover={{ scale: 1.02, y: -2 }}
               >
-                <Card sx={{ width: '100%' }}>
+                <Card>
                 <CardContent>
                   <Typography variant="h6" fontWeight={600} mb={2}>
                     Quick Info
@@ -728,39 +735,40 @@ const ExperienceDetails = () => {
             zIndex: 1000,
             backgroundColor: 'background.paper',
             borderTop: 1,
-            borderColor: 'divider',
-            p: 2
+            borderColor: 'divider'
           }}>
-            <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
-              <Box sx={{ flex: 1 }}>
-                <Typography variant="h6" fontWeight={600} color="primary.main">
-                  ${experience.price}
-                </Typography>
-                <Typography variant="caption" color="text.secondary">
-                  per person
-                </Typography>
+            <Container maxWidth="lg" sx={{ px: { xs: 2, sm: 3, md: 4 }, py: 2 }}>
+              <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+                <Box sx={{ flex: 1 }}>
+                  <Typography variant="h6" fontWeight={600} color="primary.main">
+                    ${experience.price}
+                  </Typography>
+                  <Typography variant="caption" color="text.secondary">
+                    per person
+                  </Typography>
+                </Box>
+                <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                  <Button
+                    variant="outlined"
+                    startIcon={isWishlisted ? <Bookmark /> : <BookmarkBorder />}
+                    onClick={handleWishlistToggle}
+                    color={isWishlisted ? "primary" : "inherit"}
+                    size="small"
+                  >
+                    Save
+                  </Button>
+                </motion.div>
+                <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                  <Button
+                    variant="contained"
+                    onClick={handleBookNow}
+                    sx={{ fontWeight: 600 }}
+                  >
+                    Book Now
+                  </Button>
+                </motion.div>
               </Box>
-              <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                <Button
-                  variant="outlined"
-                  startIcon={isWishlisted ? <Bookmark /> : <BookmarkBorder />}
-                  onClick={handleWishlistToggle}
-                  color={isWishlisted ? "primary" : "inherit"}
-                  size="small"
-                >
-                  Save
-                </Button>
-              </motion.div>
-              <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                <Button
-                  variant="contained"
-                  onClick={handleBookNow}
-                  sx={{ fontWeight: 600 }}
-                >
-                  Book Now
-                </Button>
-              </motion.div>
-            </Box>
+            </Container>
           </Box>
         </motion.div>
       )}
