@@ -16,6 +16,11 @@ import Privacy from './pages/Privacy/Privacy';
 import Profile from './pages/Profile/Profile';
 import ExperienceDetails from './pages/ExperienceDetails/ExperienceDetails';
 
+import Ticket from './pages/Ticket/Ticket';
+import ProviderRegistration from './pages/ProviderRegistration/ProviderRegistration';
+import Waitlist from './pages/Waitlist/Waitlist';
+import Booking from './pages/Booking/Booking';
+
 function App() {
   const { mode } = useSelector((state) => state.theme);
   const theme = getTheme(mode);
@@ -57,6 +62,10 @@ function App() {
             </ProtectedRoute>
           } />
           <Route path="/experience/:id" element={<ExperienceDetails />} />
+          <Route path="/booking/:id" element={<Booking/>} />
+          <Route path="/ticket/:id" element={<Ticket/>} />
+          <Route path="/become-provider" element={<ProviderRegistration />} />
+          <Route path="/waitlist" element={<Waitlist />} />
         </Routes>
       </Router>
     </ThemeProvider>

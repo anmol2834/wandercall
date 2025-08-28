@@ -147,14 +147,48 @@ const Slideshow = () => {
           animate={{ y: 0, opacity: 1, scale: 1 }}
           transition={{ duration: 0.8, delay: 0.9 }}
         >
-          <Button
-            variant="contained"
-            size="large"
-            onClick={scrollToExperiences}
-            className="explore-btn"
-          >
-            Explore Experiences
-          </Button>
+          <Box sx={{ 
+            display: 'flex', 
+            gap: { xs: 2, sm: 3 }, 
+            flexDirection: { xs: 'column', sm: 'row' }, 
+            alignItems: 'center',
+            justifyContent: 'center'
+          }}>
+            <Button
+              variant="contained"
+              size="large"
+              onClick={scrollToExperiences}
+              className="explore-btn"
+              sx={{
+                px: { xs: 3, sm: 4 },
+                py: { xs: 1, sm: 1.5 },
+                fontSize: { xs: '0.9rem', sm: '1rem' }
+              }}
+            >
+              Explore Experiences
+            </Button>
+            <Button
+              variant="outlined"
+              size="large"
+              onClick={() => navigate('/waitlist')}
+              sx={{
+                borderColor: 'white',
+                color: 'white',
+                borderWidth: 2,
+                px: { xs: 3, sm: 4 },
+                py: { xs: 1, sm: 1.5 },
+                fontSize: { xs: '0.9rem', sm: '1rem' },
+                fontWeight: 600,
+                '&:hover': {
+                  borderColor: 'white',
+                  backgroundColor: 'rgba(255, 255, 255, 0.15)',
+                  borderWidth: 2
+                }
+              }}
+            >
+              Join Waitlist
+            </Button>
+          </Box>
         </motion.div>
       </Box>
       

@@ -1,0 +1,321 @@
+/* Booking Page - Modern & Professional Styling */
+
+/* Smooth transitions for all elements */
+* {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Custom gradient backgrounds */
+.booking-gradient {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+}
+
+.booking-gradient-dark {
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+}
+
+/* Glassmorphism effect */
+.glass-card {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 16px;
+}
+
+/* Enhanced button styles */
+.MuiButton-contained {
+  border-radius: 12px;
+  text-transform: none;
+  font-weight: 600;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.MuiButton-contained:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+}
+
+.MuiButton-outlined {
+  border-radius: 12px;
+  text-transform: none;
+  font-weight: 600;
+  border-width: 2px;
+  transition: all 0.3s ease;
+}
+
+.MuiButton-outlined:hover {
+  transform: translateY(-1px);
+  border-width: 2px;
+}
+
+/* Card enhancements */
+.MuiCard-root {
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  overflow: hidden;
+}
+
+.MuiCard-root:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+}
+
+/* Input field styling */
+.MuiTextField-root {
+  border-radius: 12px;
+}
+
+.MuiOutlinedInput-root {
+  border-radius: 12px;
+  transition: all 0.3s ease;
+}
+
+.MuiOutlinedInput-root:hover {
+  transform: translateY(-1px);
+}
+
+.MuiOutlinedInput-root.Mui-focused {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 20px rgba(102, 126, 234, 0.2);
+}
+
+/* Stepper customization */
+.MuiStepIcon-root {
+  border-radius: 50%;
+  transition: all 0.3s ease;
+}
+
+.MuiStepIcon-root.Mui-active {
+  transform: scale(1.1);
+}
+
+.MuiStepIcon-root.Mui-completed {
+  transform: scale(1.05);
+}
+
+/* Payment option cards */
+.payment-option {
+  transition: all 0.3s ease;
+  cursor: pointer;
+  border-radius: 12px;
+  padding: 16px;
+  text-align: center;
+  border: 2px solid transparent;
+}
+
+.payment-option:hover {
+  transform: translateY(-4px);
+  border-color: #667eea;
+  box-shadow: 0 8px 25px rgba(102, 126, 234, 0.2);
+}
+
+.payment-option.selected {
+  border-color: #667eea;
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+}
+
+/* Coupon section styling */
+.coupon-success {
+  animation: slideInUp 0.3s ease-out;
+}
+
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Progress bar animation */
+.progress-bar {
+  height: 4px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 2px;
+  transition: width 0.5s ease;
+}
+
+/* Mobile optimizations */
+@media (max-width: 768px) {
+  .MuiContainer-root {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+  
+  .MuiCard-root {
+    margin-bottom: 16px;
+  }
+  
+  .MuiButton-root {
+    min-height: 48px;
+  }
+  
+  .MuiTextField-root {
+    margin-bottom: 16px;
+  }
+}
+
+/* Small mobile adjustments */
+@media (max-width: 480px) {
+  .MuiContainer-root {
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+  
+  .MuiTypography-h5 {
+    font-size: 1.25rem;
+  }
+  
+  .MuiCardContent-root {
+    padding: 16px;
+  }
+}
+
+/* Accessibility enhancements */
+.MuiButton-root:focus,
+.MuiTextField-root:focus-within,
+.payment-option:focus {
+  outline: 2px solid #667eea;
+  outline-offset: 2px;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .MuiCard-root {
+    border: 2px solid;
+  }
+  
+  .MuiButton-outlined {
+    border-width: 3px;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
+}
+
+/* Loading states */
+.loading {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+/* Success animations */
+.success-bounce {
+  animation: successBounce 0.6s ease-out;
+}
+
+@keyframes successBounce {
+  0% { transform: scale(0.8); opacity: 0; }
+  50% { transform: scale(1.1); opacity: 0.8; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+/* Error shake animation */
+.error-shake {
+  animation: errorShake 0.5s ease-in-out;
+}
+
+@keyframes errorShake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  75% { transform: translateX(5px); }
+}
+
+/* Floating elements */
+.float-animation {
+  animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+}
+
+/* Gradient text */
+.gradient-text {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Pulse effect for important elements */
+.pulse {
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% { box-shadow: 0 0 0 0 rgba(102, 126, 234, 0.4); }
+  70% { box-shadow: 0 0 0 10px rgba(102, 126, 234, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(102, 126, 234, 0); }
+}
+
+/* Booking summary sticky positioning */
+.booking-summary {
+  position: sticky;
+  top: 120px;
+  max-height: calc(100vh - 140px);
+  overflow-y: auto;
+}
+
+/* Form validation styling */
+.MuiTextField-root.error .MuiOutlinedInput-root {
+  border-color: #f44336;
+  animation: errorShake 0.5s ease-in-out;
+}
+
+.MuiTextField-root.success .MuiOutlinedInput-root {
+  border-color: #4caf50;
+}
+
+/* Step transition effects */
+.step-enter {
+  opacity: 0;
+  transform: translateX(50px);
+}
+
+.step-enter-active {
+  opacity: 1;
+  transform: translateX(0);
+  transition: all 0.3s ease;
+}
+
+.step-exit {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.step-exit-active {
+  opacity: 0;
+  transform: translateX(-50px);
+  transition: all 0.3s ease;
+}

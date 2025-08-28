@@ -26,9 +26,9 @@ const ExperienceDetails = () => {
 
   const experience = {
     id: id,
-    title: "Sunset Desert Safari Adventure",
+    title: "Sunset Desert Safari experience",
     location: "Dubai, UAE",
-    category: "Adventure",
+    category: "experience",
     price: 299,
     originalPrice: 399,
     rating: 4.8,
@@ -43,8 +43,8 @@ const ExperienceDetails = () => {
       "https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=1200&h=800&fit=crop"
     ],
     badges: ['Best Seller', 'Trending'],
-    description: "Experience the magic of the Arabian desert with our premium sunset safari adventure. This unforgettable journey takes you through golden sand dunes where you'll witness breathtaking sunset views.",
-    fullDescription: "Experience the magic of the Arabian desert with our premium sunset safari adventure. This unforgettable journey takes you through golden sand dunes where you'll witness breathtaking sunset views, enjoy traditional Bedouin hospitality, and create memories that will last a lifetime. Our expert guides will ensure your safety while providing insights into the rich culture and history of the region.",
+    description: "Experience the magic of the Arabian desert with our premium sunset safari experience. This unforgettable journey takes you through golden sand dunes where you'll witness breathtaking sunset views.",
+    fullDescription: "Experience the magic of the Arabian desert with our premium sunset safari experience. This unforgettable journey takes you through golden sand dunes where you'll witness breathtaking sunset views, enjoy traditional Bedouin hospitality, and create memories that will last a lifetime. Our expert guides will ensure your safety while providing insights into the rich culture and history of the region.",
     timings: { start: "3:00 PM", end: "9:00 PM", days: "Daily" },
     highlights: [
       "Professional 4x4 dune bashing",
@@ -69,7 +69,7 @@ const ExperienceDetails = () => {
         avatar: "MC",
         rating: 5,
         date: "1 week ago",
-        comment: "Perfect adventure for families. Kids loved the camel riding and the food was delicious."
+        comment: "Perfect experience for families. Kids loved the camel riding and the food was delicious."
       },
       {
         id: 3,
@@ -94,7 +94,7 @@ const ExperienceDetails = () => {
   const handleNextImage = () => setCurrentImageIndex(prev => prev === experience.images.length - 1 ? 0 : prev + 1);
   const handleWishlistToggle = () => setIsWishlisted(!isWishlisted);
   const handleShare = () => navigator.share?.({ title: experience.title, url: window.location.href });
-  const handleBookNow = () => navigate('/booking', { state: { experience } });
+  const handleBookNow = () => navigate(`/booking/${id}`, { state: { experience } });
   const handleLocationClick = () => window.open(`https://maps.google.com/?q=${encodeURIComponent(experience.location)}`, '_blank');
 
   const handleReviewLike = (reviewId) => {
@@ -456,7 +456,7 @@ const ExperienceDetails = () => {
                   <Card sx={{ border: 1, borderColor: 'primary.main' }}>
                     <CardContent>
                       <Typography variant="h6" fontWeight={600} mb={2} textAlign="center">
-                        Book Your Adventure
+                        Book Your experience
                       </Typography>
                       
                       <Box sx={{ textAlign: 'center', mb: 2 }}>
@@ -641,6 +641,132 @@ const ExperienceDetails = () => {
           {/* Sidebar Column */}
           <Grid item xs={12} md={4}>
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+              
+              {/* Book Your Adventure - Desktop */}
+              {!isMobile && (
+                <motion.div
+                  initial={{ opacity: 0, x: 30 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.6, delay: 0.3 }}
+                  whileHover={{ scale: 1.02, y: -5 }}
+                >
+                  <Card sx={{ 
+                    position: 'sticky', 
+                    top: 100,
+                    border: 1, 
+                    borderColor: 'primary.main' 
+                  }}>
+                    <CardContent>
+                      <Typography variant="h6" fontWeight={600} mb={2} textAlign="center">
+                        Book Your Adventure
+                      </Typography>
+                      
+                      <Box sx={{ textAlign: 'center', mb: 2 }}>
+                        <motion.div
+                          animate={{ y: [0, -5, 0] }}
+                          transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+                        >
+                          <Box sx={{ display: 'flex', gap: 1, alignItems: 'baseline', justifyContent: 'center', mb: 0.5 }}>
+                            <motion.div
+                              whileHover={{ scale: 1.1 }}
+                              animate={{ 
+                                textShadow: [
+                                  "0px 0px 0px rgba(99, 102, 241, 0)",
+                                  "0px 0px 20px rgba(99, 102, 241, 0.5)",
+                                  "0px 0px 0px rgba(99, 102, 241, 0)"
+                                ]
+                              }}
+                              transition={{ duration: 2, repeat: Infinity }}
+                            >
+                              <Typography variant="h4" fontWeight={700} color="primary.main">
+                                ${experience.price}
+                              </Typography>
+                            </motion.div>
+                            <Typography variant="body2" sx={{ textDecoration: 'line-through' }} color="text.secondary">
+                              ${experience.originalPrice}
+                            </Typography>
+                          </Box>
+                        </motion.div>
+                        <Typography variant="body2" color="text.secondary">
+                          per person • Save ${experience.originalPrice - experience.price}!
+                        </Typography>
+                      </Box>
+
+                      <Grid container spacing={1} sx={{ mb: 2 }}>
+                        <Grid item xs={6}>
+                          <Paper variant="outlined" sx={{ p: 1, textAlign: 'center' }}>
+                            <AccessTime color="primary" sx={{ fontSize: 16, mb: 0.5 }} />
+                            <Typography variant="caption" display="block" color="text.secondary">
+                              Opening Time
+                            </Typography>
+                            <Typography variant="body2" fontWeight={600}>
+                              {experience.timings.start}
+                            </Typography>
+                          </Paper>
+                        </Grid>
+                        <Grid item xs={6}>
+                          <Paper variant="outlined" sx={{ p: 1, textAlign: 'center' }}>
+                            <Schedule color="primary" sx={{ fontSize: 16, mb: 0.5 }} />
+                            <Typography variant="caption" display="block" color="text.secondary">
+                              Closing Time
+                            </Typography>
+                            <Typography variant="body2" fontWeight={600}>
+                              {experience.timings.end}
+                            </Typography>
+                          </Paper>
+                        </Grid>
+                      </Grid>
+
+                      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+                        <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                          <Button
+                            variant="contained"
+                            fullWidth
+                            onClick={handleBookNow}
+                            sx={{ py: 1, fontWeight: 600 }}
+                          >
+                            Book Now - ${experience.price}
+                          </Button>
+                        </motion.div>
+                        
+                        <Box sx={{ display: 'flex', gap: 1 }}>
+                          <motion.div style={{ flex: 1 }} whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                            <Button
+                              variant="outlined"
+                              fullWidth
+                              startIcon={
+                                <motion.div
+                                  animate={isWishlisted ? { scale: [1, 1.3, 1] } : {}}
+                                  transition={{ duration: 0.3 }}
+                                >
+                                  {isWishlisted ? <Bookmark /> : <BookmarkBorder />}
+                                </motion.div>
+                              }
+                              onClick={handleWishlistToggle}
+                              color={isWishlisted ? "primary" : "inherit"}
+                              size="small"
+                              sx={{ 
+                                '& .MuiButton-startIcon': { 
+                                  marginRight: 1,
+                                  marginLeft: 0
+                                }
+                              }}
+                            >
+                              {isWishlisted ? 'Saved' : 'Save'}
+                            </Button>
+                          </motion.div>
+                          
+                          <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
+                            <IconButton onClick={handleShare} sx={{ border: 1, borderColor: 'divider' }}>
+                              <Share fontSize="small" />
+                            </IconButton>
+                          </motion.div>
+                        </Box>
+                      </Box>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              )}
 
               {/* Quick Info */}
               <motion.div

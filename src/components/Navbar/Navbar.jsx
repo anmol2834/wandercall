@@ -59,6 +59,14 @@ const Navbar = () => {
     navigate(route);
   };
 
+  const handleJoinWaitlist = () => {
+    navigate('/waitlist');
+  };
+
+  const handleBecomeProvider = () => {
+    navigate('/become-provider');
+  };
+
   const drawer = (
     <Box className="mobile-drawer">
       <Box className="drawer-header">
@@ -78,10 +86,10 @@ const Navbar = () => {
         <Box className="theme-toggle-container">
           <ThemeToggle />
         </Box>
-        <Button variant="contained" color="primary" fullWidth className="drawer-btn">
-          Get in First
+        <Button variant="contained" color="primary" fullWidth className="drawer-btn" onClick={handleJoinWaitlist}>
+          Join Waitlist 
         </Button>
-        <Button variant="contained" color="secondary" fullWidth className="drawer-btn">
+        <Button variant="contained" color="secondary" fullWidth className="drawer-btn" onClick={handleBecomeProvider}>
           Become a Provider
         </Button>
       </Box>
@@ -151,10 +159,10 @@ const Navbar = () => {
                   </IconButton>
                 ))}
                 
-                <Button variant="contained" color="primary" className="cta-btn primary-cta">
-                  Get in First
+                <Button variant="contained" color="primary" className="cta-btn primary-cta" onClick={handleJoinWaitlist}>
+                  Join Waitlist
                 </Button>
-                <Button variant="contained" color="secondary" className="cta-btn secondary-cta">
+                <Button variant="contained" color="secondary" className="cta-btn secondary-cta" onClick={handleBecomeProvider}>
                   Become a Provider
                 </Button>
                 
