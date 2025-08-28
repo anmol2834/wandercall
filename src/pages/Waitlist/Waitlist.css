@@ -1,15 +1,30 @@
-/* Remove Chrome autofill background */
+/* Remove Chrome autofill background - Default light mode */
 .MuiTextField-root .MuiOutlinedInput-root input:-webkit-autofill,
 .MuiTextField-root .MuiOutlinedInput-root input:-webkit-autofill:hover,
 .MuiTextField-root .MuiOutlinedInput-root input:-webkit-autofill:focus,
 .MuiTextField-root .MuiOutlinedInput-root input:-webkit-autofill:active {
-  -webkit-box-shadow: 0 0 0 30px transparent inset !important;
-  -webkit-text-fill-color: white !important;
+  -webkit-box-shadow: 0 0 0 30px #ffffff inset !important;
+  -webkit-text-fill-color: #000000 !important;
   transition: background-color 5000s ease-in-out 0s !important;
+  caret-color: #000000 !important;
 }
 
-/* Ensure autofill works with disabled state */
 .MuiTextField-root .MuiOutlinedInput-root.Mui-disabled input:-webkit-autofill {
-  -webkit-box-shadow: 0 0 0 30px transparent inset !important;
+  -webkit-box-shadow: 0 0 0 30px #f9fafb inset !important;
+  -webkit-text-fill-color: #6b7280 !important;
+}
+
+/* Dark theme class override */
+[data-theme="dark"] .MuiTextField-root .MuiOutlinedInput-root input:-webkit-autofill,
+[data-theme="dark"] .MuiTextField-root .MuiOutlinedInput-root input:-webkit-autofill:hover,
+[data-theme="dark"] .MuiTextField-root .MuiOutlinedInput-root input:-webkit-autofill:focus,
+[data-theme="dark"] .MuiTextField-root .MuiOutlinedInput-root input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 30px #1a1a1a inset !important;
+  -webkit-text-fill-color: #ffffff !important;
+  caret-color: #ffffff !important;
+}
+
+[data-theme="dark"] .MuiTextField-root .MuiOutlinedInput-root.Mui-disabled input:-webkit-autofill {
+  -webkit-box-shadow: 0 0 0 30px #0f0f0f inset !important;
   -webkit-text-fill-color: rgba(255, 255, 255, 0.5) !important;
 }

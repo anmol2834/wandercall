@@ -129,20 +129,20 @@
   box-shadow: 0 8px 25px rgba(102, 126, 234, 0.2);
 }
 
-/* Remove Chrome autofill background */
+/* Remove Chrome autofill background - Always white with black text */
 .signup-input .MuiOutlinedInput-root input:-webkit-autofill,
 .signup-input .MuiOutlinedInput-root input:-webkit-autofill:hover,
 .signup-input .MuiOutlinedInput-root input:-webkit-autofill:focus,
 .signup-input .MuiOutlinedInput-root input:-webkit-autofill:active {
-  -webkit-box-shadow: 0 0 0 30px transparent inset !important;
-  -webkit-text-fill-color: #374151 !important;
+  -webkit-box-shadow: 0 0 0 30px #ffffff inset !important;
+  -webkit-text-fill-color: #000000 !important;
   transition: background-color 5000s ease-in-out 0s !important;
+  caret-color: #000000 !important;
 }
 
-/* Ensure autofill works with disabled state */
 .signup-input .MuiOutlinedInput-root.Mui-disabled input:-webkit-autofill {
-  -webkit-box-shadow: 0 0 0 30px transparent inset !important;
-  -webkit-text-fill-color: #9ca3af !important;
+  -webkit-box-shadow: 0 0 0 30px #f9fafb inset !important;
+  -webkit-text-fill-color: #6b7280 !important;
 }
 
 .terms-checkbox {
