@@ -11,6 +11,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTheme } from '@mui/material/styles';
+import './Waitlist.css';
 
 const Waitlist = () => {
   const navigate = useNavigate();

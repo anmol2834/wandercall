@@ -128,6 +128,22 @@
   box-shadow: 0 8px 25px rgba(102, 126, 234, 0.2);
 }
 
+/* Remove Chrome autofill background */
+.signin-input .MuiOutlinedInput-root input:-webkit-autofill,
+.signin-input .MuiOutlinedInput-root input:-webkit-autofill:hover,
+.signin-input .MuiOutlinedInput-root input:-webkit-autofill:focus,
+.signin-input .MuiOutlinedInput-root input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 30px transparent inset !important;
+  -webkit-text-fill-color: #374151 !important;
+  transition: background-color 5000s ease-in-out 0s !important;
+}
+
+/* Ensure autofill works with disabled state */
+.signin-input .MuiOutlinedInput-root.Mui-disabled input:-webkit-autofill {
+  -webkit-box-shadow: 0 0 0 30px transparent inset !important;
+  -webkit-text-fill-color: #9ca3af !important;
+}
+
 .form-options {
   display: flex;
   justify-content: flex-end;

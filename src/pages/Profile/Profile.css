@@ -289,3 +289,19 @@
 .profile-menu-content::-webkit-scrollbar-thumb:hover {
   background: rgba(99, 102, 241, 0.5);
 }
+
+/* Remove Chrome autofill background for profile forms */
+.MuiTextField-root .MuiOutlinedInput-root input:-webkit-autofill,
+.MuiTextField-root .MuiOutlinedInput-root input:-webkit-autofill:hover,
+.MuiTextField-root .MuiOutlinedInput-root input:-webkit-autofill:focus,
+.MuiTextField-root .MuiOutlinedInput-root input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 30px transparent inset !important;
+  -webkit-text-fill-color: white !important;
+  transition: background-color 5000s ease-in-out 0s !important;
+}
+
+/* Ensure autofill works with disabled state */
+.MuiTextField-root .MuiOutlinedInput-root.Mui-disabled input:-webkit-autofill {
+  -webkit-box-shadow: 0 0 0 30px transparent inset !important;
+  -webkit-text-fill-color: rgba(255, 255, 255, 0.3) !important;
+}

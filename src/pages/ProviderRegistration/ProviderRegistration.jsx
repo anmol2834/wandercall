@@ -11,6 +11,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTheme } from '@mui/material/styles';
+import './ProviderRegistration.css';
 
 const ProviderRegistration = () => {
   const navigate = useNavigate();
