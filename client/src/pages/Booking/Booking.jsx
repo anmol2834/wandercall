@@ -1,7 +1,8 @@
 import {
   Box, Container, Typography, Button, Card, CardContent, Grid, TextField,
   IconButton, useTheme, useMediaQuery, Divider, Alert,
-  Paper, InputAdornment, Chip, FormControl, InputLabel, Select, MenuItem
+  Paper, InputAdornment, Chip, FormControl, InputLabel, Select, MenuItem,
+  CircularProgress
 } from '@mui/material';
 import {
   ArrowBack, CalendarToday, Person, Email, Phone, LocalOffer,
@@ -13,6 +14,8 @@ import { useNavigate, useLocation, useParams } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchProductById } from '../../redux/slices/productsSlice';
+import { createPaymentSession, setBookingData } from '../../redux/slices/checkoutSlice';
+import { useAuth } from '../../contexts/AuthContext';
 
 const Booking = () => {
   const navigate = useNavigate();
@@ -20,8 +23,13 @@ const Booking = () => {
   const { id } = useParams();
   const dispatch = useDispatch();
   const { selectedProduct: product, productLoading, error } = useSelector(state => state.products);
+  const { loading: checkoutLoading, paymentSession, error: checkoutError } = useSelector(state => state.checkout);
+  const { user } = useAuth();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+  
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [paymentInitiated, setPaymentInitiated] = useState(false);
   
   const [activeStep, setActiveStep] = useState(0);
   const [selectedDate, setSelectedDate] = useState(null);
@@ -47,7 +55,69 @@ const Booking = () => {
     if (id) {
       dispatch(fetchProductById(id));
     }
-  }, [dispatch, id]);
+    if (user) {
+      fetchUserData();
+    }
+  }, [dispatch, id, user]);
+
+  const loadCashfreeScript = () => {
+    return new Promise((resolve) => {
+      if (window.Cashfree) {
+        resolve(true);
+        return;
+      }
+      const script = document.createElement('script');
+      script.src = 'https://sdk.cashfree.com/js/v3/cashfree.js';
+      script.onload = () => {
+        console.log('Cashfree SDK loaded successfully');
+        resolve(true);
+      };
+      script.onerror = () => {
+        console.error('Failed to load Cashfree SDK');
+        resolve(false);
+      };
+      document.body.appendChild(script);
+    });
+  };
+
+  const fetchUserData = async () => {
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5002'}/api/users/profile`, {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }
+      });
+      const data = await response.json();
+      const userData = data.user;
+      setGuestInfo({
+        name: userData.name || '',
+        email: userData.email || '',
+        phone: userData.phone || ''
+      });
+      
+      // If phone is missing, stay on step 1 to collect it
+      if (!userData.phone && activeStep === 2) {
+        setActiveStep(1);
+      }
+    } catch (error) {
+      console.error('Error fetching user data:', error);
+    }
+  };
+
+  const updateUserData = async (phoneNumber) => {
+    try {
+      await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5002'}/api/users/profile`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        },
+        body: JSON.stringify({ phone: phoneNumber })
+      });
+    } catch (error) {
+      console.error('Error updating user data:', error);
+    }
+  };
 
   // Loading and error states
   if (productLoading) {
@@ -134,9 +204,12 @@ const Booking = () => {
     } else if (step === 1) {
       if (!guestInfo.name.trim()) errors.name = 'Name is required';
       if (!guestInfo.email.trim()) errors.email = 'Email is required';
-      if (!guestInfo.phone.trim()) errors.phone = 'Phone is required';
+      if (!guestInfo.phone.trim()) errors.phone = 'Phone number is required';
       if (guestInfo.email && !/\S+@\S+\.\S+/.test(guestInfo.email)) {
         errors.email = 'Please enter a valid email';
+      }
+      if (guestInfo.phone && !/^[+]?[1-9]\d{1,14}$/.test(guestInfo.phone.replace(/\s/g, ''))) {
+        errors.phone = 'Please enter a valid phone number';
       }
     }
     
@@ -144,8 +217,11 @@ const Booking = () => {
     return Object.keys(errors).length === 0;
   };
 
-  const handleNext = () => {
+  const handleNext = async () => {
     if (validateStep(activeStep)) {
+      if (activeStep === 1 && guestInfo.phone && user) {
+        await updateUserData(guestInfo.phone);
+      }
       if (activeStep < steps.length - 1) {
         setActiveStep(prev => prev + 1);
       }
@@ -160,17 +236,94 @@ const Booking = () => {
     }
   };
 
-  const handleBooking = () => {
-    if (validateStep(activeStep)) {
-      // Simulate payment success and redirect to ticket page
+  const handleBooking = async () => {
+    if (!validateStep(activeStep) || isProcessing || paymentInitiated) return;
+    
+    if (!user) {
+      navigate('/signin');
+      return;
+    }
+
+    // Check if phone number is missing
+    if (!guestInfo.phone.trim()) {
+      setValidationErrors({ phone: 'Phone number is required' });
+      setActiveStep(1); // Go back to user info step
+      return;
+    }
+
+    setIsProcessing(true);
+    setPaymentInitiated(true);
+
+    try {
+      // Update user phone if needed
+      if (guestInfo.phone && user) {
+        await updateUserData(guestInfo.phone);
+      }
+
+      const scriptLoaded = await loadCashfreeScript();
+      if (!scriptLoaded) {
+        throw new Error('Failed to load Cashfree SDK');
+      }
+
+      // Create payment session using Redux
+      const sessionResult = await dispatch(createPaymentSession({ amount: totalPrice }));
+      
+      if (createPaymentSession.rejected.match(sessionResult)) {
+        throw new Error(sessionResult.payload);
+      }
+      
+      const sessionData = sessionResult.payload;
+      
+      // Store booking data in Redux
       const bookingData = {
-        experience,
-        selectedDate,
+        productId: product._id,
+        title: product.title,
+        state: product.location?.state || '',
+        city: product.location?.city || '',
+        companyName: product.company_Name || '',
+        providerName: product.provider_Name || '',
+        selectedDate: selectedDate.toISOString(),
         participants,
-        guestInfo,
-        totalPrice
+        guestInfo: {
+          ...guestInfo,
+          phone: guestInfo.phone || user.phone
+        },
+        totalPrice,
+        gst,
+        discount
       };
-      navigate(`/ticket/${id}`, { state: bookingData });
+      
+      dispatch(setBookingData(bookingData));
+      localStorage.setItem('pendingBooking', JSON.stringify(bookingData));
+      
+      // Initialize Cashfree SDK
+      const cashfree = window.Cashfree({
+        mode: 'sandbox' // Use 'production' for live
+      });
+
+      // Open Cashfree checkout with success/failure callbacks
+      const checkoutOptions = {
+        paymentSessionId: sessionData.payment_session_id,
+        redirectTarget: '_modal', // Opens as overlay
+        onSuccess: function(data) {
+          console.log('Payment successful:', data);
+          // Redirect to ticket page on success
+          window.location.href = `${window.location.origin}/ticket/${id}?order_id=${sessionData.order_id}`;
+        },
+        onFailure: function(data) {
+          console.log('Payment failed:', data);
+          setIsProcessing(false);
+          setPaymentInitiated(false);
+          alert('Payment failed. Please try again.');
+        }
+      };
+
+      cashfree.checkout(checkoutOptions);
+      
+    } catch (error) {
+      console.error('Payment initiation failed:', error);
+      setIsProcessing(false);
+      setPaymentInitiated(false);
     }
   };
 
@@ -766,10 +919,12 @@ const Booking = () => {
                           variant="contained"
                           size="large"
                           onClick={handleBooking}
+                          disabled={isProcessing || paymentInitiated}
+                          startIcon={isProcessing ? <CircularProgress size={20} /> : <CreditCard />}
                           sx={{
                             py: 2,
-                            px: 6,
-                            fontSize: '1.2rem',
+                            px: { xs: 3, sm: 6 },
+                            fontSize: { xs: '0.9rem', sm: '1.2rem' },
                             fontWeight: 700,
                             borderRadius: 3,
                             background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
@@ -778,14 +933,14 @@ const Booking = () => {
                             }
                           }}
                         >
-                          Pay via Cashfree - ₹{totalPrice.toFixed(2)}
+                          {isProcessing ? 'Processing...' : `Pay via Cashfree - ₹${totalPrice.toFixed(2)}`}
                         </Button>
                         
                         <Typography variant="body2" color="text.secondary" sx={{ mt: 2 }}>
                           Secure payment powered by Cashfree
                         </Typography>
                         
-                        <Box sx={{ display: 'flex', justifyContent: 'center', gap: 2, mt: 2 }}>
+                        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1, mt: 2 }}>
                           <Chip icon={<CheckCircle />} label="256-bit SSL Encrypted" size="small" />
                           <Chip icon={<CheckCircle />} label="PCI DSS Compliant" size="small" />
                         </Box>

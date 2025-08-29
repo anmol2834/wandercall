@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_BASE_URL = 'http://localhost:5000/api';
+const API_BASE_URL = 'http://localhost:5002/api';
 
 const api = axios.create({
   baseURL: API_BASE_URL,
@@ -62,6 +62,11 @@ export const addressAPI = {
 export const userAPI = {
   getProfile: () => api.get('/users/profile'),
   updateProfile: (userData) => api.put('/users/profile', userData),
+  sendPhoneOTP: (phone) => api.post('/users/send-phone-otp', { phone }),
+  verifyPhoneOTP: (phone, otp) => api.post('/users/verify-phone-otp', { phone, otp }),
+  sendEmailOTP: () => api.post('/users/send-email-otp'),
+  updatePassword: (currentPassword, newPassword) => api.put('/users/update-password', { currentPassword, newPassword }),
+  updatePasswordWithEmail: (emailOtp, newPassword) => api.put('/users/update-password-email', { emailOtp, newPassword }),
 };
 
 export const productAPI = {
@@ -75,6 +80,18 @@ export const wishlistAPI = {
   addToWishlist: (productId) => api.post('/wishlist', { productId }),
   removeFromWishlist: (productId) => api.delete(`/wishlist/${productId}`),
   checkWishlistStatus: (productId) => api.get(`/wishlist/check/${productId}`),
+};
+
+export const ticketAPI = {
+  getMyBookings: () => api.get('/tickets/my-bookings'),
+  getTicket: (ticketId) => api.get(`/tickets/${ticketId}`),
+  markAsDownloaded: (ticketId) => api.patch(`/tickets/${ticketId}/download`),
+};
+
+export const paymentAPI = {
+  createPaymentSession: (data) => api.post('/create-payment-session', data),
+  verifyPayment: (data) => api.post('/verify-payment', data),
+  createBooking: (data) => api.post('/checkout', data),
 };
 
 export default api;

@@ -1,6 +1,6 @@
 import {
   Box, Container, Typography, Button, Card, CardContent, Grid, Divider,
-  IconButton, useTheme, useMediaQuery, Chip, Paper
+  IconButton, useTheme, useMediaQuery, Chip, Paper, CircularProgress
 } from '@mui/material';
 import {
   ArrowBack, CheckCircle, LocationOn, CalendarToday, Group, 
@@ -10,16 +10,24 @@ import {
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate, useLocation, useParams } from 'react-router-dom';
 import { useState, useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { createBooking, clearBookingData } from '../../redux/slices/checkoutSlice';
+import { useAuth } from '../../contexts/AuthContext';
 
 const Ticket = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { id } = useParams();
+  const { user } = useAuth();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+  const dispatch = useDispatch();
+  const { createdTicket, loading: checkoutLoading } = useSelector(state => state.checkout);
   const [showConfetti, setShowConfetti] = useState(true);
+  const [isVerifying, setIsVerifying] = useState(false);
+  const [ticketData, setTicketData] = useState(null);
   
-  const bookingData = location.state || {
+  const bookingData = ticketData || location.state || {
     experience: {
       id: id,
       title: "Sunset Desert Safari Adventure",
@@ -35,12 +43,91 @@ const Ticket = () => {
     totalPrice: 656.82
   };
 
-  const ticketNumber = `WC${Date.now().toString().slice(-8)}`;
+  // Show loading state while verifying payment or creating booking
+  if (isVerifying || checkoutLoading) {
+    return (
+      <Box sx={{ 
+        minHeight: '100vh',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        background: theme.palette.mode === 'dark'
+          ? 'linear-gradient(135deg, #0f0f23 0%, #1a1a2e 25%, #16213e 50%, #0f3460 75%, #1e3c72 100%)'
+          : 'white'
+      }}>
+        <Box sx={{ textAlign: 'center' }}>
+          <CircularProgress size={60} />
+          <Typography variant="h6" sx={{ mt: 2 }}>Verifying Payment...</Typography>
+          <Typography variant="body2" color="text.secondary">Please wait while we confirm your booking</Typography>
+        </Box>
+      </Box>
+    );
+  }
+
+  const ticketNumber = ticketData?.ticket?.ticketNumber || `WC${Date.now().toString().slice(-8)}`;
 
   useEffect(() => {
     const timer = setTimeout(() => setShowConfetti(false), 3000);
     return () => clearTimeout(timer);
   }, []);
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const orderId = params.get('order_id');
+    if (orderId && !ticketData) {
+      verifyPaymentAndCreateBooking(orderId);
+    }
+  }, [location.search, ticketData]);
+
+  const verifyPaymentAndCreateBooking = async (orderId) => {
+    setIsVerifying(true);
+    try {
+      // Get booking data from localStorage
+      const storedBooking = localStorage.getItem('pendingBooking');
+      if (!storedBooking) {
+        throw new Error('No booking data found');
+      }
+      
+      const bookingData = JSON.parse(storedBooking);
+      
+      // Create booking using Redux
+      const bookingResult = await dispatch(createBooking({
+        ...bookingData,
+        orderId: orderId,
+        paymentId: `payment_${Date.now()}`
+      }));
+
+      if (createBooking.fulfilled.match(bookingResult)) {
+        // Clear pending booking
+        localStorage.removeItem('pendingBooking');
+        
+        // Set ticket data from Redux state
+        const ticket = bookingResult.payload.ticket;
+        setTicketData({
+          experience: {
+            title: bookingData.title,
+            location: `${bookingData.city}, ${bookingData.state}`,
+            rating: 4.8,
+            duration: '6 hours'
+          },
+          selectedDate: new Date(bookingData.selectedDate),
+          participants: bookingData.participants,
+          guestInfo: bookingData.guestInfo,
+          totalPrice: bookingData.totalPrice,
+          ticket: ticket
+        });
+        
+        // Clear booking data from Redux
+        dispatch(clearBookingData());
+      } else {
+        throw new Error(bookingResult.payload || 'Failed to create booking');
+      }
+    } catch (error) {
+      console.error('Booking creation failed:', error);
+    } finally {
+      setIsVerifying(false);
+    }
+  };
 
   return (
     <Box sx={{ 

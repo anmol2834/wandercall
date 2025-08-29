@@ -1,26 +1,40 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Box, Container, Typography, Card, CardContent, Grid, 
-  Chip, Button, Avatar, LinearProgress, Tab, Tabs, Paper
+  Chip, Button, Tab, Tabs, Paper, CircularProgress
 } from '@mui/material';
 import {
-  Explore, Schedule, LocationOn, Star, 
-  CheckCircle, Cancel, Pending, CalendarToday, AccessTime
+  Explore, LocationOn, Star, 
+  CheckCircle, Cancel, Schedule, CalendarToday, Download
 } from '@mui/icons-material';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTheme } from '@mui/material/styles';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchMyBookings, markTicketAsDownloaded } from '../../../redux/slices/ticketSlice';
 
 const BookingsPage = () => {
   const theme = useTheme();
+  const dispatch = useDispatch();
   const [tabValue, setTabValue] = useState(0);
+  const { bookings, loading, error } = useSelector(state => state.tickets);
 
-  const bookings = [];
+  useEffect(() => {
+    dispatch(fetchMyBookings());
+  }, [dispatch]);
+
+  const handleDownloadTicket = async (ticketId) => {
+    try {
+      await dispatch(markTicketAsDownloaded(ticketId));
+      alert('Ticket download started!');
+    } catch (error) {
+      console.error('Error downloading ticket:', error);
+    }
+  };
 
   const getStatusColor = (status) => {
     switch (status) {
-      case 'confirmed': return '#10b981';
-      case 'pending': return '#f59e0b';
-      case 'completed': return '#6366f1';
+      case 'active': return '#10b981';
+      case 'used': return '#6366f1';
       case 'cancelled': return '#ef4444';
       default: return '#6b7280';
     }
@@ -28,25 +42,51 @@ const BookingsPage = () => {
 
   const getStatusIcon = (status) => {
     switch (status) {
-      case 'confirmed': return <CheckCircle />;
-      case 'pending': return <Pending />;
-      case 'completed': return <Star />;
+      case 'active': return <CheckCircle />;
+      case 'used': return <Star />;
       case 'cancelled': return <Cancel />;
       default: return <Schedule />;
     }
   };
 
+  const getStatusLabel = (status) => {
+    switch (status) {
+      case 'active': return 'Confirmed';
+      case 'used': return 'Completed';
+      case 'cancelled': return 'Cancelled';
+      default: return status;
+    }
+  };
+
   const filteredBookings = bookings.filter(booking => {
-    if (tabValue === 0) return true; // All
-    if (tabValue === 1) return booking.status === 'confirmed' || booking.status === 'pending'; // Upcoming
-    if (tabValue === 2) return booking.status === 'completed'; // Completed
-    if (tabValue === 3) return booking.status === 'cancelled'; // Cancelled
+    if (tabValue === 0) return true;
+    if (tabValue === 1) return booking.status === 'active';
+    if (tabValue === 2) return booking.status === 'used';
+    if (tabValue === 3) return booking.status === 'cancelled';
     return true;
   });
 
+  if (loading) {
+    return (
+      <Container maxWidth="lg" sx={{ py: 4, textAlign: 'center' }}>
+        <CircularProgress size={60} />
+        <Typography variant="h6" sx={{ mt: 2 }}>Loading your bookings...</Typography>
+      </Container>
+    );
+  }
+
+  if (error) {
+    return (
+      <Container maxWidth="lg" sx={{ py: 4, textAlign: 'center' }}>
+        <Typography variant="h6" color="error" sx={{ mb: 2 }}>Error loading bookings</Typography>
+        <Typography variant="body2" color="text.secondary">{error}</Typography>
+        <Button onClick={() => dispatch(fetchMyBookings())} sx={{ mt: 2 }}>Retry</Button>
+      </Container>
+    );
+  }
+
   return (
     <Container maxWidth="lg" sx={{ py: 4 }}>
-      {/* Header Section */}
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -61,19 +101,6 @@ const BookingsPage = () => {
           position: 'relative',
           overflow: 'hidden'
         }}>
-          <motion.div
-            animate={{ rotate: [0, 360] }}
-            transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-            style={{
-              position: 'absolute',
-              top: -50,
-              right: -50,
-              width: 150,
-              height: 150,
-              background: 'radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%)',
-              borderRadius: '50%'
-            }}
-          />
           <CardContent sx={{ p: { xs: 3, sm: 4 }, position: 'relative', zIndex: 1 }}>
             <Grid container spacing={3} alignItems="center">
               <Grid item xs={12} md={8}>
@@ -85,27 +112,14 @@ const BookingsPage = () => {
                 </Typography>
                 <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
                   <Chip label={`${bookings.length} Total Bookings`} sx={{ backgroundColor: 'rgba(255, 255, 255, 0.2)', color: 'white' }} />
-                  <Chip label={`${bookings.filter(b => b.status === 'confirmed').length} Confirmed`} sx={{ backgroundColor: 'rgba(255, 255, 255, 0.2)', color: 'white' }} />
+                  <Chip label={`${bookings.filter(b => b.status === 'active').length} Active`} sx={{ backgroundColor: 'rgba(255, 255, 255, 0.2)', color: 'white' }} />
                 </Box>
-              </Grid>
-              <Grid item xs={12} md={4}>
-                <motion.div
-                  animate={{ y: [0, -10, 0] }}
-                  transition={{ duration: 3, repeat: Infinity }}
-                  style={{ textAlign: 'center' }}
-                >
-                  <svg width="120" height="120" viewBox="0 0 120 120">
-                    <circle cx="60" cy="60" r="50" fill="rgba(255,255,255,0.1)" />
-                    <text x="60" y="70" textAnchor="middle" fill="white" fontSize="40">🎯</text>
-                  </svg>
-                </motion.div>
               </Grid>
             </Grid>
           </CardContent>
         </Card>
       </motion.div>
 
-      {/* Filter Tabs */}
       <Box sx={{ mb: 3 }}>
         <Tabs
           value={tabValue}
@@ -127,7 +141,6 @@ const BookingsPage = () => {
         </Tabs>
       </Box>
 
-      {/* Bookings Grid */}
       <AnimatePresence mode="wait">
         <motion.div
           key={tabValue}
@@ -138,7 +151,7 @@ const BookingsPage = () => {
         >
           <Grid container spacing={3}>
             {filteredBookings.map((booking, index) => (
-              <Grid item xs={12} md={6} lg={4} key={booking.id}>
+              <Grid item xs={12} md={6} lg={4} key={booking._id}>
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -157,7 +170,6 @@ const BookingsPage = () => {
                     display: 'flex',
                     flexDirection: 'column'
                   }}>
-                    {/* Image Section */}
                     <Box sx={{ 
                       height: 180, 
                       background: `linear-gradient(45deg, ${getStatusColor(booking.status)}40, ${getStatusColor(booking.status)}20)`,
@@ -166,19 +178,11 @@ const BookingsPage = () => {
                       alignItems: 'center',
                       justifyContent: 'center'
                     }}>
-                      <motion.div
-                        animate={{ rotate: [0, 5, -5, 0] }}
-                        transition={{ duration: 4, repeat: Infinity }}
-                      >
-                        <Typography sx={{ fontSize: '4rem' }}>
-                          {booking.category === 'Adventure' ? '🏔️' : 
-                           booking.category === 'Wildlife' ? '🦁' : '🌌'}
-                        </Typography>
-                      </motion.div>
+                      <Typography sx={{ fontSize: '4rem' }}>🎫</Typography>
                       
                       <Chip
                         icon={getStatusIcon(booking.status)}
-                        label={booking.status.toUpperCase()}
+                        label={getStatusLabel(booking.status)}
                         sx={{
                           position: 'absolute',
                           top: 12,
@@ -199,58 +203,45 @@ const BookingsPage = () => {
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
                         <LocationOn fontSize="small" color="primary" />
                         <Typography variant="body2" color="text.secondary" sx={{ fontSize: { xs: '0.8rem', sm: '0.875rem' } }}>
-                          {booking.location}
+                          {booking.city}, {booking.state}
                         </Typography>
                       </Box>
                       
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
                         <CalendarToday fontSize="small" color="primary" />
                         <Typography variant="body2" color="text.secondary" sx={{ fontSize: { xs: '0.8rem', sm: '0.875rem' } }}>
-                          {new Date(booking.date).toLocaleDateString()} - {new Date(booking.endDate).toLocaleDateString()}
+                          {new Date(booking.selectedDate).toLocaleDateString()}
+                        </Typography>
+                      </Box>
+
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+                        <Typography variant="body2" color="text.secondary" sx={{ fontSize: { xs: '0.8rem', sm: '0.875rem' } }}>
+                          Participants: {booking.participants}
                         </Typography>
                       </Box>
 
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
-                        <AccessTime fontSize="small" color="primary" />
                         <Typography variant="body2" color="text.secondary" sx={{ fontSize: { xs: '0.8rem', sm: '0.875rem' } }}>
-                          {booking.duration}
+                          Ticket: {booking.ticketNumber}
                         </Typography>
                       </Box>
-
-                      {booking.status === 'completed' && (
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
-                          <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                            {[...Array(5)].map((_, i) => (
-                              <Star 
-                                key={i} 
-                                fontSize="small" 
-                                sx={{ 
-                                  color: i < Math.floor(booking.rating) ? '#ffd700' : '#e0e0e0',
-                                  fontSize: '1rem'
-                                }} 
-                              />
-                            ))}
-                          </Box>
-                          <Typography variant="caption" sx={{ fontSize: '0.75rem' }}>
-                            {booking.rating}
-                          </Typography>
-                        </Box>
-                      )}
                       
-                      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: 2 }}>
+                      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: 2, gap: 1 }}>
                         <Typography variant="h6" sx={{ fontWeight: 700, color: getStatusColor(booking.status), fontSize: { xs: '1rem', sm: '1.1rem' } }}>
-                          {booking.price}
+                          ₹{booking.totalPrice.toFixed(2)}
                         </Typography>
                         <Button 
                           variant="outlined" 
                           size="small"
+                          startIcon={<Download />}
+                          onClick={() => handleDownloadTicket(booking._id)}
                           sx={{ 
                             borderRadius: 2,
                             fontSize: { xs: '0.7rem', sm: '0.8rem' },
                             px: 2
                           }}
                         >
-                          View Details
+                          Download
                         </Button>
                       </Box>
                     </CardContent>

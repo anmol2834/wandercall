@@ -11,7 +11,7 @@ connectDB();
 startRewardExpiryChecker();
 
 const app = express();
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 5002;
 
 // Middleware
 app.use(cors());
@@ -33,6 +33,8 @@ app.use('/api/experiences', require('./routes/experienceRoutes'));
 app.use('/api/bookings', require('./routes/bookingRoutes'));
 app.use('/api/products', require('./routes/productRoutes'));
 app.use('/api/wishlist', require('./routes/wishlistRoutes'));
+app.use('/api/tickets', require('./routes/ticketRoutes'));
+app.use('/api', require('./routes/paymentRoutes'));
 
 // Health check
 app.get('/health', (req, res) => {

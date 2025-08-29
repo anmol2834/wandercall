@@ -15,6 +15,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { userAPI, addressAPI } from '../../services/api';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchUserRewards } from '../../redux/slices/rewardsSlice';
+import EditProfileModal from '../../components/EditProfileModal';
 import './Profile.css';
 import RewardsPage from './components/RewardsPage';
 import BookingsPage from './components/BookingsPage';
@@ -35,7 +36,6 @@ const Profile = () => {
   const dispatch = useDispatch();
   const xpBalance = useSelector(state => state.rewards?.xpBalance || 0);
   const [editing, setEditing] = useState(false);
-  const [formData, setFormData] = useState({ name: '', email: '' });
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [showBackToTop, setShowBackToTop] = useState(false);
   const [activeSection, setActiveSection] = useState('profile');
@@ -97,7 +97,6 @@ const Profile = () => {
 
   useEffect(() => {
     if (user) {
-      setFormData({ name: user.name, email: user.email });
       if (user.id) {
         dispatch(fetchUserRewards(user.id));
       }
@@ -165,13 +164,14 @@ const Profile = () => {
     navigate('/');
   };
 
-  const handleUpdateProfile = async () => {
+  const handleUpdateProfile = async (updateData) => {
     try {
-      const response = await userAPI.updateProfile(formData);
+      const response = await userAPI.updateProfile(updateData);
       updateUser(response.data.user);
-      setEditing(false);
+      return response.data;
     } catch (error) {
       console.error('Failed to update profile:', error);
+      throw error;
     }
   };
 
@@ -707,81 +707,12 @@ const Profile = () => {
       </AnimatePresence>
 
       {/* Edit Profile Modal */}
-      <AnimatePresence>
-        {editing && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            style={{
-              position: 'fixed',
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: 0,
-              backgroundColor: 'rgba(0, 0, 0, 0.5)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              zIndex: 2000
-            }}
-            onClick={() => setEditing(false)}
-          >
-            <motion.div
-              initial={{ scale: 0.8, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.8, opacity: 0 }}
-              onClick={(e) => e.stopPropagation()}
-              style={{
-                backgroundColor: theme.palette.background.paper,
-                borderRadius: 16,
-                padding: 24,
-                maxWidth: 400,
-                width: '90%'
-              }}
-            >
-              <Typography variant="h5" sx={{ mb: 3, textAlign: 'center', fontWeight: 700 }}>
-                Edit Profile
-              </Typography>
-              <Box sx={{ mb: 3 }}>
-                <TextField
-                  fullWidth
-                  label="Name"
-                  value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  sx={{ mb: 2 }}
-                  variant="outlined"
-                />
-                <TextField
-                  fullWidth
-                  label="Email"
-                  type="email"
-                  value={formData.email}
-                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                  variant="outlined"
-                  disabled
-                  helperText="Email cannot be changed"
-                />
-              </Box>
-              <Box sx={{ display: 'flex', gap: 2, justifyContent: 'center' }}>
-                <Button 
-                  variant="contained" 
-                  onClick={handleUpdateProfile}
-                  disabled={!formData.name.trim()}
-                >
-                  Save Changes
-                </Button>
-                <Button variant="outlined" onClick={() => {
-                  setEditing(false);
-                  setFormData({ name: user?.name || '', email: user?.email || '' });
-                }}>
-                  Cancel
-                </Button>
-              </Box>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      <EditProfileModal
+        open={editing}
+        onClose={() => setEditing(false)}
+        user={user}
+        onUpdate={handleUpdateProfile}
+      />
 
       {/* Back to Top Button */}
       <AnimatePresence>

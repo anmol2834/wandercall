@@ -5,6 +5,16 @@
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>Vite + React</title>
+    <script>
+      // Suppress Cashfree WebSocket warnings
+      const originalConsoleWarn = console.warn;
+      console.warn = function(...args) {
+        if (args[0] && args[0].includes && args[0].includes('WebSocket connection')) {
+          return; // Suppress WebSocket warnings
+        }
+        originalConsoleWarn.apply(console, args);
+      };
+    </script>
   </head>
   <body>
     <div id="root"></div>
