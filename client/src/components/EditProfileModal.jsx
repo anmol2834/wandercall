@@ -24,13 +24,9 @@ const EditProfileModal = ({ open, onClose, user, onUpdate }) => {
     email: user?.email || ''
   });
 
-  // Phone Verification State
+  // Phone State
   const [phoneData, setPhoneData] = useState({
-    phone: user?.phone || '',
-    otp: '',
-    isVerified: !!user?.phoneVerified,
-    otpSent: false,
-    step: 0
+    phone: user?.phone || ''
   });
 
   // Password Update State
@@ -56,7 +52,7 @@ const EditProfileModal = ({ open, onClose, user, onUpdate }) => {
     return password.length >= 6;
   };
 
-  const handleSendOTP = async () => {
+  const handleUpdatePhone = async () => {
     if (!validatePhone(phoneData.phone)) {
       setErrors({ phone: 'Please enter a valid phone number' });
       return;
@@ -64,35 +60,12 @@ const EditProfileModal = ({ open, onClose, user, onUpdate }) => {
 
     setLoading(true);
     try {
-      const response = await userAPI.sendPhoneOTP(phoneData.phone);
-      setPhoneData(prev => ({ ...prev, otpSent: true, step: 1 }));
+      const updateData = { phone: phoneData.phone };
+      await onUpdate(updateData);
       setErrors({});
-      if (response.data.otp) {
-        alert(`Development OTP: ${response.data.otp}`);
-      }
+      alert('Phone number updated successfully!');
     } catch (error) {
-      setErrors({ phone: error.response?.data?.message || 'Failed to send OTP' });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleVerifyOTP = async () => {
-    if (phoneData.otp.length !== 6) {
-      setErrors({ otp: 'Please enter 6-digit OTP' });
-      return;
-    }
-
-    setLoading(true);
-    try {
-      const response = await userAPI.verifyPhoneOTP(phoneData.phone, phoneData.otp);
-      setPhoneData(prev => ({ ...prev, isVerified: true }));
-      setErrors({});
-      if (onUpdate && response.data.user) {
-        await onUpdate(response.data.user);
-      }
-    } catch (error) {
-      setErrors({ otp: error.response?.data?.message || 'Invalid OTP' });
+      setErrors({ phone: error.response?.data?.message || 'Failed to update phone number' });
     } finally {
       setLoading(false);
     }
@@ -219,99 +192,45 @@ const EditProfileModal = ({ open, onClose, user, onUpdate }) => {
     </Box>
   );
 
-  const renderPhoneVerification = () => (
+  const renderPhoneUpdate = () => (
     <Box sx={{ p: 3 }}>
       <Typography variant={isMobile ? 'subtitle1' : 'h6'} sx={{ mb: 3, display: 'flex', alignItems: 'center', gap: 1, fontSize: isMobile ? '1rem' : '1.1rem' }}>
         <Phone color="primary" />
-        Phone Verification
+        Phone Number
       </Typography>
 
-      {phoneData.isVerified ? (
-        <Paper sx={{ p: 3, bgcolor: 'success.light', color: 'success.contrastText', textAlign: 'center' }}>
-          <CheckCircle sx={{ fontSize: 48, mb: 2 }} />
-          <Typography variant="h6" sx={{ mb: 1 }}>Phone Verified!</Typography>
-          <Typography variant="body2">
-            Your phone number {phoneData.phone} is verified and secure.
-          </Typography>
-        </Paper>
-      ) : (
-        <Box>
-          {phoneData.step === 0 ? (
-            <Box>
-              <TextField
-                fullWidth
-                label="Phone Number"
-                value={phoneData.phone}
-                onChange={(e) => setPhoneData(prev => ({ ...prev, phone: e.target.value }))}
-                error={!!errors.phone}
-                helperText={errors.phone || 'Enter your phone number with country code'}
-                variant="outlined"
-                sx={{ mb: 3 }}
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <Phone color="action" />
-                    </InputAdornment>
-                  )
-                }}
-              />
-              <Button
-                fullWidth
-                variant="contained"
-                onClick={handleSendOTP}
-                disabled={loading || !phoneData.phone}
-                startIcon={loading ? <CircularProgress size={20} /> : <Send />}
-                sx={{ py: isMobile ? 1.2 : 1.5 }}
-              >
-                {loading ? 'Sending...' : 'Send OTP'}
-              </Button>
-            </Box>
-          ) : (
-            <Box>
-              <Alert severity="info" sx={{ mb: 3 }}>
-                We've sent a 6-digit OTP to {phoneData.phone}
-              </Alert>
-              <TextField
-                fullWidth
-                label="Enter OTP"
-                value={phoneData.otp}
-                onChange={(e) => setPhoneData(prev => ({ ...prev, otp: e.target.value }))}
-                error={!!errors.otp}
-                helperText={errors.otp}
-                variant="outlined"
-                sx={{ mb: 3 }}
-                inputProps={{ maxLength: 6, style: { textAlign: 'center', fontSize: '1.5rem', letterSpacing: '0.5rem' } }}
-              />
-              <Box sx={{ display: 'flex', gap: 2 }}>
-                <Button
-                  variant="outlined"
-                  onClick={() => setPhoneData(prev => ({ ...prev, step: 0, otp: '', otpSent: false }))}
-                  sx={{ 
-                    flex: 1,
-                    py: isMobile ? 1 : 1.2,
-                    fontSize: isMobile ? '0.75rem' : '0.8rem'
-                  }}
-                >
-                  Change Number
-                </Button>
-                <Button
-                  variant="contained"
-                  onClick={handleVerifyOTP}
-                  disabled={loading || phoneData.otp.length !== 6}
-                  startIcon={loading ? <CircularProgress size={20} /> : <CheckCircle />}
-                  sx={{ 
-                    flex: 1,
-                    py: isMobile ? 1 : 1.2,
-                    fontSize: isMobile ? '0.75rem' : '0.8rem'
-                  }}
-                >
-                  {loading ? 'Verifying...' : 'Verify'}
-                </Button>
-              </Box>
-            </Box>
-          )}
-        </Box>
-      )}
+      <Grid container spacing={3}>
+        <Grid item xs={12}>
+          <TextField
+            fullWidth
+            label="Phone Number"
+            value={phoneData.phone}
+            onChange={(e) => setPhoneData(prev => ({ ...prev, phone: e.target.value }))}
+            error={!!errors.phone}
+            helperText={errors.phone || 'Enter your phone number with country code'}
+            variant="outlined"
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <Phone color="action" />
+                </InputAdornment>
+              )
+            }}
+          />
+        </Grid>
+        <Grid item xs={12}>
+          <Button
+            fullWidth
+            variant="contained"
+            onClick={handleUpdatePhone}
+            disabled={loading || !phoneData.phone}
+            startIcon={loading ? <CircularProgress size={20} /> : <CheckCircle />}
+            sx={{ py: 1.5 }}
+          >
+            {loading ? 'Updating...' : 'Save Phone Number'}
+          </Button>
+        </Grid>
+      </Grid>
     </Box>
   );
 
@@ -532,7 +451,7 @@ const EditProfileModal = ({ open, onClose, user, onUpdate }) => {
             transition={{ duration: 0.3 }}
           >
             {activeTab === 0 && renderBasicInfo()}
-            {activeTab === 1 && renderPhoneVerification()}
+            {activeTab === 1 && renderPhoneUpdate()}
             {activeTab === 2 && renderPasswordUpdate()}
           </motion.div>
         </AnimatePresence>
