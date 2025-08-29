@@ -1,7 +1,7 @@
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 
-exports.protect = async (req, res, next) => {
+const auth = async (req, res, next) => {
   try {
     let token;
     
@@ -27,3 +27,5 @@ exports.protect = async (req, res, next) => {
     res.status(401).json({ success: false, message: 'Invalid token' });
   }
 };
+
+module.exports = auth;

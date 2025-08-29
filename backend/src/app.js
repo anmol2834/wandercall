@@ -31,6 +31,8 @@ app.use('/api/addresses', require('./routes/addressRoutes'));
 app.use('/api/users', require('./routes/userRoutes'));
 app.use('/api/experiences', require('./routes/experienceRoutes'));
 app.use('/api/bookings', require('./routes/bookingRoutes'));
+app.use('/api/products', require('./routes/productRoutes'));
+app.use('/api/wishlist', require('./routes/wishlistRoutes'));
 
 // Health check
 app.get('/health', (req, res) => {

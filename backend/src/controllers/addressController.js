@@ -3,7 +3,11 @@ const User = require('../models/User');
 // Get user addresses
 const getUserAddresses = async (req, res) => {
   try {
-    const user = await User.findById(req.user.id).select('addresses');
+    const user = await User.findById(req.user.id);
+    if (!user.addresses) {
+      user.addresses = [];
+      await user.save();
+    }
     res.json({ success: true, addresses: user.addresses || [] });
   } catch (error) {
     console.error('Get addresses error:', error);
@@ -21,6 +25,11 @@ const addAddress = async (req, res) => {
     }
 
     const user = await User.findById(req.user.id);
+    
+    // Initialize addresses array if it doesn't exist
+    if (!user.addresses) {
+      user.addresses = [];
+    }
     
     // Check address limit
     if (user.addresses.length >= 2) {
