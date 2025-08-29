@@ -64,4 +64,17 @@ export const userAPI = {
   updateProfile: (userData) => api.put('/users/profile', userData),
 };
 
+export const productAPI = {
+  getAllProducts: () => api.get('/products'),
+  getProductById: (productId) => api.get(`/products/${productId}`),
+  searchProducts: (params) => api.get('/products/search', { params }),
+};
+
+export const wishlistAPI = {
+  getWishlist: () => api.get('/wishlist'),
+  addToWishlist: (productId) => api.post('/wishlist', { productId }),
+  removeFromWishlist: (productId) => api.delete(`/wishlist/${productId}`),
+  checkWishlistStatus: (productId) => api.get(`/wishlist/check/${productId}`),
+};
+
 export default api;

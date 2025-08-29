@@ -24,7 +24,7 @@ const Ticket = () => {
       id: id,
       title: "Sunset Desert Safari Adventure",
       location: "Dubai, UAE",
-      price: 299,
+      price: 999,
       rating: 4.8,
       duration: "6 hours",
       images: ["https://images.unsplash.com/photo-1539650116574-75c0c6d73c6e?w=400&h=300&fit=crop"]
@@ -221,7 +221,10 @@ const Ticket = () => {
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
                         <LocationOn sx={{ fontSize: 16, color: '#90caf9' }} />
                         <Typography variant="body2" fontWeight={400} sx={{ color: theme.palette.mode === 'dark' ? 'grey.300' : 'grey.600' }}>
-                          {bookingData.experience.location}
+                          {bookingData.experience.fullAddress || 
+                           (typeof bookingData.experience.location === 'object' 
+                             ? `${bookingData.experience.location.address}, ${bookingData.experience.location.city}, ${bookingData.experience.location.state} ${bookingData.experience.location.pincode}`
+                             : bookingData.experience.location)}
                         </Typography>
                       </Box>
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
@@ -396,7 +399,7 @@ const Ticket = () => {
                       
                       <Box sx={{ mt: 3, pt: 2, borderTop: '1px solid rgba(255,255,255,0.2)' }}>
                         <Typography variant="h6" fontWeight={700}>
-                          ${bookingData.totalPrice.toFixed(2)}
+                          ₹{bookingData.totalPrice.toFixed(2)}
                         </Typography>
                         <Typography variant="caption" sx={{ opacity: 0.8 }}>
                           Total Amount Paid

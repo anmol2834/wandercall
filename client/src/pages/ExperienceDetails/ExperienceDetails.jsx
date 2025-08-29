@@ -3,57 +3,142 @@ import {
   IconButton, Rating, useTheme, useMediaQuery, Fab, Stack, Paper, Divider
 } from '@mui/material';
 import {
-  ArrowBack, Share, LocationOn, BookmarkBorder, Bookmark, Schedule,
+  ArrowBack, Share, LocationOn, FavoriteBorder, Favorite, Schedule,
   KeyboardArrowUp, ExpandMore, ExpandLess, Star, NavigateNext, NavigateBefore,
   AccessTime, Group, Language, CheckCircle, ThumbUp, ThumbDown
 } from '@mui/icons-material';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useState, useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchProductById } from '../../redux/slices/productsSlice';
+import { wishlistAPI } from '../../services/api';
+import { useAuth } from '../../contexts/AuthContext';
+import { CircularProgress } from '@mui/material';
 
 const ExperienceDetails = () => {
   const navigate = useNavigate();
   const { id } = useParams();
+  const dispatch = useDispatch();
+  const { selectedProduct: product, productLoading, error } = useSelector(state => state.products);
+  const { user } = useAuth();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const [showBackToTop, setShowBackToTop] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isWishlisted, setIsWishlisted] = useState(false);
+  const [wishlistLoading, setWishlistLoading] = useState(false);
+  const [imageLoaded, setImageLoaded] = useState(false);
   const [expandedDescription, setExpandedDescription] = useState(false);
   const [reviewLikes, setReviewLikes] = useState({});
   const [reviewDislikes, setReviewDislikes] = useState({});
   const [currentReviewIndex, setCurrentReviewIndex] = useState(0);
 
+  useEffect(() => {
+    if (id) {
+      dispatch(fetchProductById(id));
+      if (user) {
+        checkWishlistStatus();
+      }
+    }
+  }, [dispatch, id, user]);
+
+  const checkWishlistStatus = async () => {
+    if (!user || !id) return;
+    try {
+      const response = await wishlistAPI.checkWishlistStatus(id);
+      setIsWishlisted(response.data.isWishlisted);
+    } catch (error) {
+      console.error('Error checking wishlist status:', error);
+    }
+  };
+
+  useEffect(() => {
+    const handleScroll = () => setShowBackToTop(window.scrollY > 300);
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  // Loading and error states
+  if (productLoading) {
+    return (
+      <Box sx={{ 
+        minHeight: '100vh', 
+        backgroundColor: theme.palette.background.default,
+        background: theme.palette.mode === 'dark' 
+          ? 'linear-gradient(135deg, #0f0f23 0%, #1a1a2e 25%, #16213e 50%, #0f3460 75%, #1e3c72 100%)'
+          : 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)',
+        p: 3
+      }}>
+        <Container maxWidth="lg">
+          <Grid container spacing={3}>
+            <Grid item xs={12} md={8}>
+              <Box sx={{ mb: 3, display: 'flex', gap: 1 }}>
+                {[1,2,3].map(i => (
+                  <motion.div key={i} animate={{ opacity: [0.3, 0.7, 0.3] }} transition={{ duration: 1.5, repeat: Infinity, delay: i * 0.2 }}>
+                    <Box sx={{ width: 80, height: 24, bgcolor: 'rgba(255,255,255,0.1)', borderRadius: 3 }} />
+                  </motion.div>
+                ))}
+              </Box>
+              <motion.div animate={{ opacity: [0.3, 0.7, 0.3] }} transition={{ duration: 1.5, repeat: Infinity }}>
+                <Box sx={{ width: '70%', height: 40, bgcolor: 'rgba(255,255,255,0.1)', borderRadius: 2, mb: 2 }} />
+              </motion.div>
+              <motion.div animate={{ opacity: [0.3, 0.7, 0.3] }} transition={{ duration: 1.5, repeat: Infinity, delay: 0.3 }}>
+                <Box sx={{ width: { xs: '100%', md: '100%' }, height: { xs: 250, md: 450 }, bgcolor: 'rgba(255,255,255,0.1)', borderRadius: 3, mb: 3 }} />
+              </motion.div>
+              {[1,2].map(i => (
+                <motion.div key={i} animate={{ opacity: [0.3, 0.7, 0.3] }} transition={{ duration: 1.5, repeat: Infinity, delay: i * 0.4 }}>
+                  <Box sx={{ width: '100%', height: 120, bgcolor: 'rgba(255,255,255,0.1)', borderRadius: 2, mb: 2 }} />
+                </motion.div>
+              ))}
+            </Grid>
+            <Grid item xs={12} md={4}>
+              <motion.div animate={{ opacity: [0.3, 0.7, 0.3] }} transition={{ duration: 1.5, repeat: Infinity, delay: 0.6 }}>
+                <Box sx={{ width: '100%', height: 300, bgcolor: 'rgba(255,255,255,0.1)', borderRadius: 2, mb: 2 }} />
+              </motion.div>
+              <motion.div animate={{ opacity: [0.3, 0.7, 0.3] }} transition={{ duration: 1.5, repeat: Infinity, delay: 0.8 }}>
+                <Box sx={{ width: '100%', height: 200, bgcolor: 'rgba(255,255,255,0.1)', borderRadius: 2 }} />
+              </motion.div>
+            </Grid>
+          </Grid>
+        </Container>
+      </Box>
+    );
+  }
+
+  if (error || !product) {
+    return (
+      <Box sx={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+        <Typography variant="h5" sx={{ mb: 2 }}>Experience not found</Typography>
+        <Button onClick={() => navigate('/')} sx={{ mt: 2 }}>Back to Home</Button>
+      </Box>
+    );
+  }
+
+  // Map product data to experience format for UI compatibility
   const experience = {
-    id: id,
-    title: "Sunset Desert Safari experience",
-    location: "Dubai, UAE",
-    category: "experience",
-    price: 299,
-    originalPrice: 399,
-    rating: 4.8,
-    reviewCount: 247,
-    duration: "6 hours",
-    groupSize: "2-15 people",
-    language: "English, Arabic",
-    images: [
-      "https://images.unsplash.com/photo-1539650116574-75c0c6d73c6e?w=1200&h=800&fit=crop",
-      "https://images.unsplash.com/photo-1544735716-392fe2489ffa?w=1200&h=800&fit=crop",
-      "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=1200&h=800&fit=crop",
-      "https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=1200&h=800&fit=crop"
-    ],
-    badges: ['Best Seller', 'Trending'],
-    description: "Experience the magic of the Arabian desert with our premium sunset safari experience. This unforgettable journey takes you through golden sand dunes where you'll witness breathtaking sunset views.",
-    fullDescription: "Experience the magic of the Arabian desert with our premium sunset safari experience. This unforgettable journey takes you through golden sand dunes where you'll witness breathtaking sunset views, enjoy traditional Bedouin hospitality, and create memories that will last a lifetime. Our expert guides will ensure your safety while providing insights into the rich culture and history of the region.",
-    timings: { start: "3:00 PM", end: "9:00 PM", days: "Daily" },
-    highlights: [
-      "Professional 4x4 dune bashing",
-      "Camel riding experience", 
-      "Traditional BBQ dinner",
-      "Live entertainment shows",
-      "Henna painting & Arabic coffee",
-      "Hotel pickup & drop-off"
-    ],
+    id: product._id,
+    title: product.title,
+    location: `${product.location.city}, ${product.location.state}`,
+    category: product.company_Name,
+    price: product.price,
+    originalPrice: product.mrp,
+    rating: product.rating,
+    reviewCount: 247, // Static for now
+    duration: (() => {
+      const start = new Date(`1970-01-01 ${product.openTime}`);
+      const end = new Date(`1970-01-01 ${product.closeTime}`);
+      const diff = (end - start) / (1000 * 60 * 60);
+      return `${diff} hours`;
+    })(),
+    groupSize: "2-15 people", // Static for now
+    language: "English, Hindi", // Static for now
+    images: [product.img1, product.img2, product.img3, product.img4].filter(Boolean),
+    badges: ['Best Seller', 'Trending'], // Static for now
+    description: product.description,
+    fullDescription: product.description,
+    timings: { start: product.openTime, end: product.closeTime, days: "Daily" },
+    highlights: product.whatsIncluded,
     reviews: [
       {
         id: 1,
@@ -82,20 +167,34 @@ const ExperienceDetails = () => {
     ]
   };
 
-  useEffect(() => {
-    const handleScroll = () => setShowBackToTop(window.scrollY > 300);
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
   const scrollToTop = () => window.scrollTo({ top: 0, behavior: 'smooth' });
   const handleImageChange = (index) => setCurrentImageIndex(index);
   const handlePrevImage = () => setCurrentImageIndex(prev => prev === 0 ? experience.images.length - 1 : prev - 1);
   const handleNextImage = () => setCurrentImageIndex(prev => prev === experience.images.length - 1 ? 0 : prev + 1);
-  const handleWishlistToggle = () => setIsWishlisted(!isWishlisted);
+  const handleWishlistToggle = async () => {
+    if (!user) {
+      navigate('/auth');
+      return;
+    }
+    
+    setWishlistLoading(true);
+    try {
+      if (isWishlisted) {
+        await wishlistAPI.removeFromWishlist(id);
+        setIsWishlisted(false);
+      } else {
+        await wishlistAPI.addToWishlist(id);
+        setIsWishlisted(true);
+      }
+    } catch (error) {
+      console.error('Error toggling wishlist:', error);
+    } finally {
+      setWishlistLoading(false);
+    }
+  };
   const handleShare = () => navigator.share?.({ title: experience.title, url: window.location.href });
   const handleBookNow = () => navigate(`/booking/${id}`, { state: { experience } });
-  const handleLocationClick = () => window.open(`https://maps.google.com/?q=${encodeURIComponent(experience.location)}`, '_blank');
+  const handleLocationClick = () => window.open(product.location.mapLink || `https://maps.google.com/?q=${encodeURIComponent(experience.location)}`, '_blank');
 
   const handleReviewLike = (reviewId) => {
     setReviewLikes(prev => ({ ...prev, [reviewId]: !prev[reviewId] }));
@@ -114,7 +213,10 @@ const ExperienceDetails = () => {
   return (
     <Box sx={{ 
       minHeight: '100vh', 
-      backgroundColor: 'background.default',
+      backgroundColor: theme.palette.background.default,
+      background: theme.palette.mode === 'dark' 
+        ? 'linear-gradient(135deg, #0f0f23 0%, #1a1a2e 25%, #16213e 50%, #0f3460 75%, #1e3c72 100%)'
+        : 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)',
       width: '100%',
       overflow: 'hidden'
     }}>
@@ -123,9 +225,9 @@ const ExperienceDetails = () => {
         position: 'sticky', 
         top: 0, 
         zIndex: 1100,
-        backgroundColor: 'background.paper',
-        borderBottom: 1,
-        borderColor: 'divider',
+        background: 'rgba(255, 255, 255, 0.05)',
+        backdropFilter: 'blur(20px)',
+        borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
         width: '100%'
       }}>
         <Container maxWidth="lg" sx={{ px: { xs: 2, sm: 3, md: 4 } }}>
@@ -153,7 +255,11 @@ const ExperienceDetails = () => {
                     animate={isWishlisted ? { scale: [1, 1.3, 1], rotate: [0, 15, -15, 0] } : {}}
                     transition={{ duration: 0.5 }}
                   >
-                    {isWishlisted ? <Bookmark /> : <BookmarkBorder />}
+                    {wishlistLoading ? (
+                      <CircularProgress size={20} sx={{ color: 'white' }} />
+                    ) : (
+                      isWishlisted ? <Favorite sx={{ color: 'white' }} /> : <FavoriteBorder sx={{ color: 'white' }} />
+                    )}
                   </motion.div>
                 </IconButton>
               </motion.div>
@@ -187,7 +293,7 @@ const ExperienceDetails = () => {
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.4, delay: 0.2 }}
               >
-                <Chip label={experience.category} color="primary" size="small" />
+                <Chip label="SOON" sx={{ backgroundColor: '#667eea', color: 'white' }} size="small" />
               </motion.div>
               {experience.badges.map((badge, index) => (
                 <motion.div
@@ -272,8 +378,13 @@ const ExperienceDetails = () => {
                 transition={{ duration: 0.6, delay: 0.2 }}
                 whileHover={{ scale: 1.02 }}
               >
-                <Card sx={{ overflow: 'hidden' }}>
-                  <Box sx={{ position: 'relative', height: { xs: 250, md: 400 } }}>
+                <Card sx={{ 
+                  overflow: 'hidden',
+                  background: 'rgba(255, 255, 255, 0.05)',
+                  backdropFilter: 'blur(10px)',
+                  border: '1px solid rgba(255, 255, 255, 0.1)'
+                }}>
+                  <Box sx={{ position: 'relative', height: { xs: 250, md: 450 } }}>
                     <AnimatePresence mode="wait">
                       <motion.img
                         key={currentImageIndex}
@@ -386,7 +497,11 @@ const ExperienceDetails = () => {
                 transition={{ duration: 0.6, delay: 0.4 }}
                 whileHover={{ y: -2 }}
               >
-                <Card>
+                <Card sx={{
+                  background: 'rgba(255, 255, 255, 0.05)',
+                  backdropFilter: 'blur(10px)',
+                  border: '1px solid rgba(255, 255, 255, 0.1)'
+                }}>
                   <CardContent>
                     <Typography variant="h6" fontWeight={600} mb={2}>
                       About This Experience
@@ -414,7 +529,11 @@ const ExperienceDetails = () => {
                 transition={{ duration: 0.6, delay: 0.6 }}
                 whileHover={{ y: -2 }}
               >
-                <Card>
+                <Card sx={{
+                  background: 'rgba(255, 255, 255, 0.05)',
+                  backdropFilter: 'blur(10px)',
+                  border: '1px solid rgba(255, 255, 255, 0.1)'
+                }}>
                   <CardContent>
                     <Typography variant="h6" fontWeight={600} mb={2}>
                       What's Included
@@ -453,7 +572,11 @@ const ExperienceDetails = () => {
                   transition={{ duration: 0.6, delay: 0.8 }}
                   whileHover={{ y: -2 }}
                 >
-                  <Card sx={{ border: 1, borderColor: 'primary.main' }}>
+                  <Card sx={{ 
+                    background: 'rgba(255, 255, 255, 0.05)',
+                    backdropFilter: 'blur(10px)',
+                    border: '1px solid rgba(99, 102, 241, 0.3)'
+                  }}>
                     <CardContent>
                       <Typography variant="h6" fontWeight={600} mb={2} textAlign="center">
                         Book Your experience
@@ -462,10 +585,10 @@ const ExperienceDetails = () => {
                       <Box sx={{ textAlign: 'center', mb: 2 }}>
                         <Box sx={{ display: 'flex', gap: 1, alignItems: 'baseline', justifyContent: 'center', mb: 0.5 }}>
                           <Typography variant="h4" fontWeight={700} color="primary.main">
-                            ${experience.price}
+                            ₹{experience.price}
                           </Typography>
                           <Typography variant="body2" sx={{ textDecoration: 'line-through' }} color="text.secondary">
-                            ${experience.originalPrice}
+                            ₹{experience.originalPrice}
                           </Typography>
                         </Box>
                         <Typography variant="body2" color="text.secondary">
@@ -480,14 +603,14 @@ const ExperienceDetails = () => {
                           onClick={handleBookNow}
                           sx={{ py: 1.5, fontWeight: 600 }}
                         >
-                          Book Now - ${experience.price}
+                          Book Now - ₹{experience.price}
                         </Button>
                         
                         <Box sx={{ display: 'flex', gap: 1 }}>
                           <Button
                             variant="outlined"
                             fullWidth
-                            startIcon={isWishlisted ? <Bookmark /> : <BookmarkBorder />}
+                            startIcon={wishlistLoading ? <CircularProgress size={16} sx={{ color: 'white' }} /> : (isWishlisted ? <Favorite sx={{ color: 'white' }} /> : <FavoriteBorder sx={{ color: 'white' }} />)}
                             onClick={handleWishlistToggle}
                             color={isWishlisted ? "primary" : "inherit"}
                             size="small"
@@ -653,8 +776,9 @@ const ExperienceDetails = () => {
                   <Card sx={{ 
                     position: 'sticky', 
                     top: 100,
-                    border: 1, 
-                    borderColor: 'primary.main' 
+                    background: 'rgba(255, 255, 255, 0.05)',
+                    backdropFilter: 'blur(10px)',
+                    border: '1px solid rgba(99, 102, 241, 0.3)'
                   }}>
                     <CardContent>
                       <Typography variant="h6" fontWeight={600} mb={2} textAlign="center">
@@ -663,27 +787,17 @@ const ExperienceDetails = () => {
                       
                       <Box sx={{ textAlign: 'center', mb: 2 }}>
                         <motion.div
-                          animate={{ y: [0, -5, 0] }}
-                          transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
                         >
                           <Box sx={{ display: 'flex', gap: 1, alignItems: 'baseline', justifyContent: 'center', mb: 0.5 }}>
                             <motion.div
-                              whileHover={{ scale: 1.1 }}
-                              animate={{ 
-                                textShadow: [
-                                  "0px 0px 0px rgba(99, 102, 241, 0)",
-                                  "0px 0px 20px rgba(99, 102, 241, 0.5)",
-                                  "0px 0px 0px rgba(99, 102, 241, 0)"
-                                ]
-                              }}
-                              transition={{ duration: 2, repeat: Infinity }}
+                          
                             >
                               <Typography variant="h4" fontWeight={700} color="primary.main">
-                                ${experience.price}
+                                ₹{experience.price}
                               </Typography>
                             </motion.div>
                             <Typography variant="body2" sx={{ textDecoration: 'line-through' }} color="text.secondary">
-                              ${experience.originalPrice}
+                              ₹{experience.originalPrice}
                             </Typography>
                           </Box>
                         </motion.div>
@@ -725,7 +839,7 @@ const ExperienceDetails = () => {
                             onClick={handleBookNow}
                             sx={{ py: 1, fontWeight: 600 }}
                           >
-                            Book Now - ${experience.price}
+                            Book Now - ₹{experience.price}
                           </Button>
                         </motion.div>
                         
@@ -739,7 +853,11 @@ const ExperienceDetails = () => {
                                   animate={isWishlisted ? { scale: [1, 1.3, 1] } : {}}
                                   transition={{ duration: 0.3 }}
                                 >
-                                  {isWishlisted ? <Bookmark /> : <BookmarkBorder />}
+                                  {wishlistLoading ? (
+                                    <CircularProgress size={16} sx={{ color: 'white' }} />
+                                  ) : (
+                                    isWishlisted ? <Favorite sx={{ color: 'white' }} /> : <FavoriteBorder sx={{ color: 'white' }} />
+                                  )}
                                 </motion.div>
                               }
                               onClick={handleWishlistToggle}
@@ -775,7 +893,11 @@ const ExperienceDetails = () => {
                 transition={{ duration: 0.6, delay: 0.5 }}
                 whileHover={{ scale: 1.02, y: -2 }}
               >
-                <Card>
+                <Card sx={{
+                  background: 'rgba(255, 255, 255, 0.05)',
+                  backdropFilter: 'blur(10px)',
+                  border: '1px solid rgba(255, 255, 255, 0.1)'
+                }}>
                 <CardContent>
                   <Typography variant="h6" fontWeight={600} mb={2}>
                     Quick Info
@@ -867,7 +989,7 @@ const ExperienceDetails = () => {
               <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
                 <Box sx={{ flex: 1 }}>
                   <Typography variant="h6" fontWeight={600} color="primary.main">
-                    ${experience.price}
+                    ₹{experience.price}
                   </Typography>
                   <Typography variant="caption" color="text.secondary">
                     per person
@@ -876,7 +998,7 @@ const ExperienceDetails = () => {
                 <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
                   <Button
                     variant="outlined"
-                    startIcon={isWishlisted ? <Bookmark /> : <BookmarkBorder />}
+                    startIcon={isWishlisted ? <Favorite /> : <FavoriteBorder />}
                     onClick={handleWishlistToggle}
                     color={isWishlisted ? "primary" : "inherit"}
                     size="small"

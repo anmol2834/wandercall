@@ -4,6 +4,7 @@ import { Container, Typography, Grid, Box, Button } from '@mui/material';
 import { ArrowBack, ArrowForward } from '@mui/icons-material';
 import { motion } from 'framer-motion';
 import { nextPage, prevPage } from '../../redux/slices/experiencesSlice';
+import { fetchProducts } from '../../redux/slices/productsSlice';
 import { useAuth } from '../../contexts/AuthContext';
 import Slideshow from '../../components/Slideshow/Slideshow';
 import ExperienceCard from '../../components/ExperienceCard/ExperienceCard';
@@ -16,14 +17,20 @@ import './Home.css';
 
 const Home = () => {
   const dispatch = useDispatch();
-  const { experiences, currentPage, itemsPerPage, loading } = useSelector((state) => state.experiences);
+  const { experiences, currentPage, itemsPerPage } = useSelector((state) => state.experiences);
+  const { products, loading } = useSelector((state) => state.products);
   const { user, isAuthenticated } = useAuth();
 
-  const currentExperiences = experiences.slice(
+  useEffect(() => {
+    dispatch(fetchProducts());
+  }, [dispatch]);
+
+  // Use products data instead of experiences
+  const currentExperiences = products.slice(
     currentPage * itemsPerPage, 
     (currentPage + 1) * itemsPerPage
   );
-  const totalPages = Math.ceil(experiences.length / itemsPerPage);
+  const totalPages = Math.ceil(products.length / itemsPerPage);
 
   return (
     <Box className="home-container">
@@ -55,7 +62,7 @@ const Home = () => {
           ) : (
             currentExperiences.map((experience, index) => (
               <div 
-                key={experience.id}
+                key={experience._id}
                 style={{ animationDelay: `${index * 0.1}s` }}
               >
                 <ExperienceCard experience={experience} />

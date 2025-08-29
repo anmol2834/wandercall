@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Box, Container, Typography, Card, CardContent, Grid, 
-  IconButton, Button, Rating, Chip, Paper, Fab
+  IconButton, Button, Rating, Chip, Paper, Fab, CircularProgress
 } from '@mui/material';
 import {
   FavoriteBorder, LocationOn, Star, 
@@ -9,74 +9,50 @@ import {
 } from '@mui/icons-material';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTheme } from '@mui/material/styles';
+import { wishlistAPI } from '../../../services/api';
+import { useAuth } from '../../../contexts/AuthContext';
+import { useNavigate } from 'react-router-dom';
 
 const WishlistPage = () => {
   const theme = useTheme();
-  const [removedItems, setRemovedItems] = useState(new Set());
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const [wishlistItems, setWishlistItems] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [removingItems, setRemovingItems] = useState(new Set());
 
-  const wishlistItems = [
-    {
-      id: 1,
-      title: 'Northern Lights Adventure',
-      location: 'Iceland, Reykjavik',
-      rating: 4.8,
-      reviews: 124,
-      price: '$2,199',
-      originalPrice: '$2,599',
-      image: '/api/placeholder/350/220',
-      category: 'Nature',
-      duration: '5 days',
-      difficulty: 'Easy',
-      discount: 15
-    },
-    {
-      id: 2,
-      title: 'Desert Safari Experience',
-      location: 'Dubai, UAE',
-      rating: 4.6,
-      reviews: 89,
-      price: '$599',
-      originalPrice: '$799',
-      image: '/api/placeholder/350/220',
-      category: 'Adventure',
-      duration: '3 days',
-      difficulty: 'Medium',
-      discount: 25
-    },
-    {
-      id: 3,
-      title: 'Tropical Paradise Getaway',
-      location: 'Maldives',
-      rating: 4.9,
-      reviews: 256,
-      price: '$3,299',
-      originalPrice: '$3,899',
-      image: '/api/placeholder/350/220',
-      category: 'Luxury',
-      duration: '7 days',
-      difficulty: 'Easy',
-      discount: 15
-    },
-    {
-      id: 4,
-      title: 'Mountain Hiking Expedition',
-      location: 'Nepal, Himalayas',
-      rating: 4.7,
-      reviews: 78,
-      price: '$1,899',
-      originalPrice: '$2,299',
-      image: '/api/placeholder/350/220',
-      category: 'Adventure',
-      duration: '10 days',
-      difficulty: 'Hard',
-      discount: 17
+  useEffect(() => {
+    if (user) {
+      fetchWishlist();
     }
-  ];
+  }, [user]);
 
-  const removeItem = (itemId) => {
-    const newRemovedItems = new Set(removedItems);
-    newRemovedItems.add(itemId);
-    setRemovedItems(newRemovedItems);
+  const fetchWishlist = async () => {
+    try {
+      setLoading(true);
+      const response = await wishlistAPI.getWishlist();
+      setWishlistItems(response.data.data || []);
+    } catch (error) {
+      console.error('Error fetching wishlist:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const removeItem = async (productId) => {
+    setRemovingItems(prev => new Set([...prev, productId]));
+    try {
+      await wishlistAPI.removeFromWishlist(productId);
+      setWishlistItems(prev => prev.filter(item => item.product._id !== productId));
+    } catch (error) {
+      console.error('Error removing from wishlist:', error);
+    } finally {
+      setRemovingItems(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(productId);
+        return newSet;
+      });
+    }
   };
 
   const getCategoryColor = (category) => {
@@ -130,15 +106,17 @@ const WishlistPage = () => {
           <CardContent sx={{ p: { xs: 3, sm: 4 }, position: 'relative', zIndex: 1 }}>
             <Grid container spacing={3} alignItems="center">
               <Grid item xs={12} md={8}>
-                <Typography variant="h4" sx={{ fontWeight: 700, mb: 1, fontSize: { xs: '1.5rem', sm: '2rem' } }}>
-                  💖 My Wishlist
-                </Typography>
-                <Typography variant="body1" sx={{ opacity: 0.9, mb: 2, fontSize: { xs: '0.9rem', sm: '1rem' } }}>
-                  Your saved experiences and dream destinations
-                </Typography>
-                <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
-                  <Chip label={`${wishlistItems.length} Saved Items`} sx={{ backgroundColor: 'rgba(255, 255, 255, 0.2)', color: 'white' }} />
-                  <Chip label="Ready to Book" sx={{ backgroundColor: 'rgba(255, 255, 255, 0.2)', color: 'white' }} />
+                <Box sx={{ textAlign: { xs: 'center', md: 'left' } }}>
+                  <Typography variant="h4" sx={{ fontWeight: 700, mb: 1, fontSize: { xs: '1.5rem', sm: '2rem' } }}>
+                    💖 My Wishlist
+                  </Typography>
+                  <Typography variant="body1" sx={{ opacity: 0.9, mb: 2, fontSize: { xs: '0.9rem', sm: '1rem' } }}>
+                    Your saved experiences and dream destinations
+                  </Typography>
+                  <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap', justifyContent: { xs: 'center', md: 'flex-start' } }}>
+                    <Chip label={`${wishlistItems.length} Saved Items`} sx={{ backgroundColor: 'rgba(255, 255, 255, 0.2)', color: 'white' }} />
+                    <Chip label="Ready to Book" sx={{ backgroundColor: 'rgba(255, 255, 255, 0.2)', color: 'white' }} />
+                  </Box>
                 </Box>
               </Grid>
               <Grid item xs={12} md={4}>
@@ -158,17 +136,51 @@ const WishlistPage = () => {
         </Card>
       </motion.div>
 
-      {/* Header */}
-      <Box sx={{ mb: 3 }}>
-        <Typography variant="h6" sx={{ fontWeight: 600, fontSize: { xs: '1rem', sm: '1.25rem' } }}>
-          {wishlistItems.filter(item => !removedItems.has(item.id)).length} Dream Destinations
-        </Typography>
-      </Box>
+      {/* Loading State */}
+      {loading ? (
+        <Grid container spacing={3}>
+          {[1,2,3,4,5,6].map(i => (
+            <Grid item xs={12} sm={6} md={4} key={i}>
+              <motion.div
+                animate={{ opacity: [0.3, 0.7, 0.3] }}
+                transition={{ duration: 1.5, repeat: Infinity, delay: i * 0.1 }}
+              >
+                <Card sx={{
+                  background: 'rgba(255, 255, 255, 0.05)',
+                  backdropFilter: 'blur(10px)',
+                  border: '1px solid rgba(255, 255, 255, 0.1)',
+                  borderRadius: 3,
+                  height: 480
+                }}>
+                  <Box sx={{ height: 220, bgcolor: 'rgba(255,255,255,0.1)', borderRadius: '12px 12px 0 0' }} />
+                  <CardContent sx={{ p: 3 }}>
+                    <Box sx={{ width: '80%', height: 20, bgcolor: 'rgba(255,255,255,0.1)', borderRadius: 2, mb: 1 }} />
+                    <Box sx={{ width: '60%', height: 16, bgcolor: 'rgba(255,255,255,0.1)', borderRadius: 2, mb: 2 }} />
+                    <Box sx={{ width: '90%', height: 14, bgcolor: 'rgba(255,255,255,0.1)', borderRadius: 2, mb: 1 }} />
+                    <Box sx={{ width: '70%', height: 14, bgcolor: 'rgba(255,255,255,0.1)', borderRadius: 2, mb: 3 }} />
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <Box sx={{ width: '40%', height: 24, bgcolor: 'rgba(255,255,255,0.1)', borderRadius: 2 }} />
+                      <Box sx={{ width: 80, height: 32, bgcolor: 'rgba(255,255,255,0.1)', borderRadius: 2 }} />
+                    </Box>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            </Grid>
+          ))}
+        </Grid>
+      ) : (
+        <>
+          {/* Header */}
+          <Box sx={{ mb: 3 }}>
+            <Typography variant="h6" sx={{ fontWeight: 600, fontSize: { xs: '1rem', sm: '1.25rem' } }}>
+              {wishlistItems.length} Dream Destinations
+            </Typography>
+          </Box>
 
-      {/* Wishlist Items */}
-      <Grid container spacing={3}>
-        {wishlistItems.filter(item => !removedItems.has(item.id)).map((item, index) => (
-          <Grid item xs={12} sm={6} md={4} key={item.id}>
+          {/* Wishlist Items */}
+          <Grid container spacing={3}>
+            {wishlistItems.map((item, index) => (
+          <Grid item xs={12} sm={6} md={4} key={item._id}>
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -191,28 +203,42 @@ const WishlistPage = () => {
                   <Box sx={{ 
                     height: 220,
                     width: '100%',
-                    background: `linear-gradient(45deg, ${getCategoryColor(item.category)}40, ${getCategoryColor(item.category)}20)`,
                     position: 'relative',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
+                    overflow: 'hidden',
                     flexShrink: 0
                   }}>
-                    <motion.div
-                      animate={{ scale: [1, 1.1, 1] }}
-                      transition={{ duration: 3, repeat: Infinity }}
-                    >
-                      <Typography sx={{ fontSize: '3rem' }}>
-                        {getCategoryEmoji(item.category)}
-                      </Typography>
-                    </motion.div>
+                    <img
+                      src={item.product.img1}
+                      alt={item.product.title}
+                      style={{
+                        width: '100%',
+                        height: '100%',
+                        objectFit: 'cover'
+                      }}
+                    />
+                    
+                    {/* SOON Tag */}
+                    <Chip
+                      label="SOON"
+                      size="small"
+                      sx={{
+                        position: 'absolute',
+                        top: 8,
+                        left: 8,
+                        backgroundColor: '#667eea',
+                        color: 'white',
+                        fontWeight: 600,
+                        fontSize: '0.7rem'
+                      }}
+                    />
 
                     {/* Action Buttons */}
                     <Box sx={{ position: 'absolute', top: 8, right: 8, display: 'flex', gap: 1.5 }}>
                       <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
                         <IconButton
                           size="small"
-                          onClick={() => removeItem(item.id)}
+                          onClick={() => removeItem(item.product._id)}
+                          disabled={removingItems.has(item.product._id)}
                           sx={{
                             backgroundColor: 'rgba(0, 0, 0, 0.6)',
                             color: 'white',
@@ -221,7 +247,11 @@ const WishlistPage = () => {
                             '&:hover': { backgroundColor: 'rgba(0, 0, 0, 0.8)' }
                           }}
                         >
-                          <DeleteOutline sx={{ fontSize: '1.2rem' }} />
+                          {removingItems.has(item.product._id) ? (
+                            <CircularProgress size={16} sx={{ color: 'white' }} />
+                          ) : (
+                            <DeleteOutline sx={{ fontSize: '1.2rem' }} />
+                          )}
                         </IconButton>
                       </motion.div>
                       <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
@@ -255,31 +285,22 @@ const WishlistPage = () => {
                     <Box>
                       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1 }}>
                         <Typography variant="h6" sx={{ fontWeight: 600, fontSize: { xs: '1rem', sm: '1.1rem' } }}>
-                          {item.title}
+                          {item.product.title}
                         </Typography>
-                        <Chip 
-                          label={item.category}
-                          size="small"
-                          sx={{ 
-                            backgroundColor: getCategoryColor(item.category),
-                            color: 'white',
-                            fontSize: '0.7rem'
-                          }}
-                        />
                       </Box>
                       
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
                         <LocationOn fontSize="small" color="primary" />
                         <Typography variant="body2" color="text.secondary" sx={{ fontSize: { xs: '0.8rem', sm: '0.875rem' } }}>
-                          {item.location}
+                          {item.product.location?.city}, {item.product.location?.state}
                         </Typography>
                       </Box>
                       
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                          <Rating value={item.rating} precision={0.1} size="small" readOnly />
+                          <Rating value={item.product.rating} precision={0.1} size="small" readOnly />
                           <Typography variant="body2" color="text.secondary" sx={{ fontSize: { xs: '0.75rem', sm: '0.8rem' } }}>
-                            {item.rating} ({item.reviews})
+                            {item.product.rating} (247)
                           </Typography>
                         </Box>
                       </Box>
@@ -293,12 +314,12 @@ const WishlistPage = () => {
                     <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: 2 }}>
                       <Box>
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                          <Typography variant="h6" sx={{ fontWeight: 700, color: getCategoryColor(item.category), fontSize: { xs: '1rem', sm: '1.1rem' } }}>
-                            {item.price}
+                          <Typography variant="h6" sx={{ fontWeight: 700, color: getCategoryColor(item.product.company_Name), fontSize: { xs: '1rem', sm: '1.1rem' } }}>
+                            ₹{item.product.price}
                           </Typography>
-                          {item.originalPrice && (
+                          {item.product.mrp && (
                             <Typography variant="body2" sx={{ textDecoration: 'line-through', color: 'text.secondary', fontSize: { xs: '0.8rem', sm: '0.875rem' } }}>
-                              {item.originalPrice}
+                              ₹{item.product.mrp}
                             </Typography>
                           )}
                         </Box>
@@ -322,9 +343,11 @@ const WishlistPage = () => {
             </motion.div>
           </Grid>
         ))}
-      </Grid>
+          </Grid>
+        </>
+      )}
 
-      {wishlistItems.filter(item => !removedItems.has(item.id)).length === 0 && (
+      {!loading && wishlistItems.length === 0 && (
         <Paper sx={{ 
           p: 6, 
           textAlign: 'center', 
@@ -342,7 +365,12 @@ const WishlistPage = () => {
           <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
             Start adding experiences you'd love to try!
           </Typography>
-          <Button variant="contained" size="large" sx={{ borderRadius: 3 }}>
+          <Button 
+            variant="contained" 
+            size="large" 
+            onClick={() => navigate('/')}
+            sx={{ borderRadius: 3 }}
+          >
             Explore Experiences
           </Button>
         </Paper>

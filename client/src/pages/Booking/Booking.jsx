@@ -11,26 +11,18 @@ import {
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate, useLocation, useParams } from 'react-router-dom';
 import { useState, useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchProductById } from '../../redux/slices/productsSlice';
 
 const Booking = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { id } = useParams();
+  const dispatch = useDispatch();
+  const { selectedProduct: product, productLoading, error } = useSelector(state => state.products);
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   
-  const experience = location.state?.experience || {
-    id: id,
-    title: "Sunset Desert Safari Adventure",
-    location: "Dubai, UAE",
-    price: 299,
-    originalPrice: 399,
-    rating: 4.8,
-    duration: "6 hours",
-    groupSize: "2-15 people",
-    images: ["https://images.unsplash.com/photo-1539650116574-75c0c6d73c6e?w=400&h=300&fit=crop"]
-  };
-
   const [activeStep, setActiveStep] = useState(0);
   const [selectedDate, setSelectedDate] = useState(null);
   const [participants, setParticipants] = useState(2);
@@ -50,6 +42,68 @@ const Booking = () => {
     '2025-01-01': false, '2025-01-02': true, '2025-01-03': true,
     '2025-01-04': true, '2025-01-05': false, '2025-01-06': true
   });
+  
+  useEffect(() => {
+    if (id) {
+      dispatch(fetchProductById(id));
+    }
+  }, [dispatch, id]);
+
+  // Loading and error states
+  if (productLoading) {
+    return (
+      <Box sx={{ 
+        minHeight: '100vh', 
+        backgroundColor: theme.palette.background.default,
+        background: theme.palette.mode === 'dark' 
+          ? 'linear-gradient(135deg, #0f0f23 0%, #1a1a2e 25%, #16213e 50%, #0f3460 75%, #1e3c72 100%)'
+          : 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)',
+        p: 3
+      }}>
+        <Container maxWidth="lg">
+          <Grid container spacing={4}>
+            <Grid item xs={12} lg={8}>
+              <motion.div animate={{ opacity: [0.3, 0.7, 0.3] }} transition={{ duration: 1.5, repeat: Infinity }}>
+                <Box sx={{ width: '100%', height: 400, bgcolor: 'rgba(255,255,255,0.1)', borderRadius: 2, mb: 3 }} />
+              </motion.div>
+            </Grid>
+            <Grid item xs={12} lg={4}>
+              <motion.div animate={{ opacity: [0.3, 0.7, 0.3] }} transition={{ duration: 1.5, repeat: Infinity, delay: 0.3 }}>
+                <Box sx={{ width: '100%', height: 350, bgcolor: 'rgba(255,255,255,0.1)', borderRadius: 2 }} />
+              </motion.div>
+            </Grid>
+          </Grid>
+        </Container>
+      </Box>
+    );
+  }
+
+  if (error || !product) {
+    return (
+      <Box sx={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+        <Typography variant="h5" sx={{ mb: 2 }}>Experience not found</Typography>
+        <Button onClick={() => navigate('/')} sx={{ mt: 2 }}>Back to Home</Button>
+      </Box>
+    );
+  }
+
+  // Map product data to experience format for UI compatibility
+  const experience = {
+    id: product._id,
+    title: product.title,
+    location: `${product.location.city}, ${product.location.state}`,
+    price: product.price,
+    originalPrice: product.mrp,
+    rating: product.rating,
+    duration: (() => {
+      const start = new Date(`1970-01-01 ${product.openTime}`);
+      const end = new Date(`1970-01-01 ${product.closeTime}`);
+      const diff = (end - start) / (1000 * 60 * 60);
+      return `${diff} hours`;
+    })(),
+    groupSize: "2-15 people", // Static for now
+    images: [product.img1, product.img2, product.img3, product.img4].filter(Boolean)
+  };
 
   const steps = [
     { label: 'Booking Details', icon: <CalendarToday /> },
@@ -166,20 +220,19 @@ const Booking = () => {
   return (
     <Box sx={{ 
       minHeight: '100vh', 
-      backgroundColor: theme.palette.mode === 'dark' ? 'background.default' : 'white',
+      backgroundColor: theme.palette.background.default,
       background: theme.palette.mode === 'dark' 
-        ? 'linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)'
-        : 'white'
+        ? 'linear-gradient(135deg, #0f0f23 0%, #1a1a2e 25%, #16213e 50%, #0f3460 75%, #1e3c72 100%)'
+        : 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)'
     }}>
       {/* Header */}
       <Paper elevation={0} sx={{ 
         position: 'sticky', 
         top: 0, 
         zIndex: 1100,
-        backgroundColor: 'background.paper/90',
+        background: 'rgba(255, 255, 255, 0.05)',
         backdropFilter: 'blur(20px)',
-        borderBottom: 1,
-        borderColor: 'divider'
+        borderBottom: '1px solid rgba(255, 255, 255, 0.1)'
       }}>
         <Container maxWidth="lg" sx={{ px: { xs: 2, sm: 3, md: 4 } }}>
           <Box sx={{ display: 'flex', alignItems: 'center', py: 2, gap: 2 }}>
@@ -293,7 +346,12 @@ const Booking = () => {
                 
                 {/* Step 1: Booking Details */}
                 {activeStep === 0 && (
-                  <Card sx={{ mb: 3 }}>
+                  <Card sx={{ 
+                    mb: 3,
+                    background: 'rgba(255, 255, 255, 0.05)',
+                    backdropFilter: 'blur(10px)',
+                    border: '1px solid rgba(255, 255, 255, 0.1)'
+                  }}>
                     <CardContent sx={{ p: 3 }}>
                       <Typography variant="h5" fontWeight={700} mb={3}>
                         Select Date & Participants
@@ -315,7 +373,8 @@ const Booking = () => {
                               p: { xs: 1, sm: 2 }, 
                               border: validationErrors.date ? '2px solid #f44336' : '1px solid #e0e0e0',
                               borderRadius: 3,
-                              width: '100%'
+                              width: { xs: '100%', md: '80%' },
+                              mx: { md: 'auto' }
                             }}>
                               {/* Calendar Header */}
                               <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
@@ -555,7 +614,12 @@ const Booking = () => {
 
                 {/* Step 2: Guest Information */}
                 {activeStep === 1 && (
-                  <Card sx={{ mb: 3 }}>
+                  <Card sx={{ 
+                    mb: 3,
+                    background: 'rgba(255, 255, 255, 0.05)',
+                    backdropFilter: 'blur(10px)',
+                    border: '1px solid rgba(255, 255, 255, 0.1)'
+                  }}>
                     <CardContent sx={{ p: 3 }}>
                       <Typography variant="h5" fontWeight={700} mb={3}>
                         User Information
@@ -686,7 +750,12 @@ const Booking = () => {
 
                 {/* Step 3: Payment */}
                 {activeStep === 2 && (
-                  <Card sx={{ mb: 3 }}>
+                  <Card sx={{ 
+                    mb: 3,
+                    background: 'rgba(255, 255, 255, 0.05)',
+                    backdropFilter: 'blur(10px)',
+                    border: '1px solid rgba(255, 255, 255, 0.1)'
+                  }}>
                     <CardContent sx={{ p: 3 }}>
                       <Typography variant="h5" fontWeight={700} mb={3}>
                         Complete Payment
@@ -709,7 +778,7 @@ const Booking = () => {
                             }
                           }}
                         >
-                          Pay via Cashfree - ${totalPrice.toFixed(2)}
+                          Pay via Cashfree - ₹{totalPrice.toFixed(2)}
                         </Button>
                         
                         <Typography variant="body2" color="text.secondary" sx={{ mt: 2 }}>
@@ -736,6 +805,8 @@ const Booking = () => {
                   onClick={handleBack}
                   startIcon={<ArrowBack />}
                   sx={{
+                    minWidth: 140,
+                    height: 48,
                     color: 'text.primary',
                     borderColor: 'divider',
                     '&:hover': {
@@ -754,7 +825,8 @@ const Booking = () => {
                   variant="contained" 
                   onClick={activeStep === steps.length - 1 ? handleBooking : handleNext}
                   sx={{ 
-                    px: 4,
+                    minWidth: 140,
+                    height: 48,
                     background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
                     '&:hover': {
                       background: 'linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%)'
@@ -777,12 +849,9 @@ const Booking = () => {
               <Card sx={{ 
                 position: 'sticky', 
                 top: 120,
-                background: theme.palette.mode === 'dark'
-                  ? 'linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%)'
-                  : 'linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0.7) 100%)',
+                background: 'rgba(255, 255, 255, 0.05)',
                 backdropFilter: 'blur(20px)',
-                border: 1,
-                borderColor: 'primary.main'
+                border: '1px solid rgba(99, 102, 241, 0.3)'
               }}>
                 <CardContent sx={{ p: 3 }}>
                   <Typography variant="h6" fontWeight={700} mb={3}>
@@ -862,9 +931,9 @@ const Booking = () => {
                     
                     <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
                       <Typography variant="body2" color="text.secondary">
-                        Base Price ({participants} × ${experience.price})
+                        Base Price ({participants} × ₹{experience.price})
                       </Typography>
-                      <Typography variant="body2">${basePrice}</Typography>
+                      <Typography variant="body2">₹{basePrice}</Typography>
                     </Box>
                     
                     {couponApplied && (
@@ -873,7 +942,7 @@ const Booking = () => {
                           Discount (10%)
                         </Typography>
                         <Typography variant="body2" color="success.main">
-                          -${discount.toFixed(2)}
+                          -₹{discount.toFixed(2)}
                         </Typography>
                       </Box>
                     )}
@@ -882,7 +951,7 @@ const Booking = () => {
                       <Typography variant="body2" color="text.secondary">
                         GST (18%)
                       </Typography>
-                      <Typography variant="body2">${gst.toFixed(2)}</Typography>
+                      <Typography variant="body2">₹{gst.toFixed(2)}</Typography>
                     </Box>
                     
                     <Divider sx={{ my: 2 }} />
@@ -892,7 +961,7 @@ const Booking = () => {
                         Total Amount
                       </Typography>
                       <Typography variant="h6" fontWeight={700} color="primary.main">
-                        ${totalPrice.toFixed(2)}
+                        ₹{totalPrice.toFixed(2)}
                       </Typography>
                     </Box>
                   </Box>

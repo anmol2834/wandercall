@@ -53,11 +53,6 @@ function App() {
           <Route path="/terms" element={<Navigate to="/terms-and-conditions" replace />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/privacy" element={<Privacy />} />
-          <Route path="/profile" element={
-            <ProtectedRoute>
-              <Profile />
-            </ProtectedRoute>
-          } />
           <Route path="/profile/*" element={
             <ProtectedRoute>
               <Profile />
