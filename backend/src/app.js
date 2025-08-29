@@ -16,10 +16,8 @@ const PORT = process.env.PORT || 5002;
 // Middleware
 const corsOptions = {
   origin: [
-    'http://localhost:5173',
     'https://wandercall.vercel.app',
-    'http://wandercall.vercel.app',
-    'http://wandercall.com'
+    'https://wandercall.com'
   ],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
