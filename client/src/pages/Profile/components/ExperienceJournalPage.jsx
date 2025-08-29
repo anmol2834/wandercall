@@ -25,8 +25,8 @@ const ExperienceJournalPage = () => {
       title: 'Himalayan Trek Adventure',
       location: 'Nepal, Everest Base Camp',
       date: '2024-01-15',
-      rating: 5,
-      photos: 12,
+      rating: 0,
+      photos: 0,
       content: 'An absolutely breathtaking experience! The journey to Everest Base Camp was challenging but incredibly rewarding. The views of the snow-capped peaks were beyond words.',
       tags: ['Adventure', 'Mountains', 'Trekking'],
       mood: '🏔️',
@@ -40,8 +40,8 @@ const ExperienceJournalPage = () => {
       title: 'Safari Experience',
       location: 'Kenya, Maasai Mara',
       date: '2024-01-08',
-      rating: 4,
-      photos: 25,
+      rating: 0,
+      photos: 0,
       content: 'Witnessed the Great Migration! Saw thousands of wildebeest crossing the river. The wildlife photography opportunities were endless.',
       tags: ['Wildlife', 'Photography', 'Nature'],
       mood: '🦁',
@@ -55,8 +55,8 @@ const ExperienceJournalPage = () => {
       title: 'Northern Lights Tour',
       location: 'Iceland, Reykjavik',
       date: '2024-01-01',
-      rating: 5,
-      photos: 8,
+      rating: 0,
+      photos: 0,
       content: 'New Year\'s Eve under the Aurora Borealis! The dancing lights in the sky were magical. Perfect way to start the new year.',
       tags: ['Nature', 'Aurora', 'Winter'],
       mood: '🌌',
@@ -237,165 +237,64 @@ const ExperienceJournalPage = () => {
         </Tabs>
       </Box>
 
-      {/* Journal Entries */}
-      <AnimatePresence mode="wait">
+      {/* Coming Soon Section */}
+      <Paper sx={{ 
+        p: 8, 
+        textAlign: 'center', 
+        background: 'rgba(255, 255, 255, 0.05)',
+        backdropFilter: 'blur(20px)',
+        borderRadius: 4,
+        border: '1px solid rgba(255, 255, 255, 0.1)',
+        position: 'relative',
+        overflow: 'hidden'
+      }}>
         <motion.div
-          key={tabValue}
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -20 }}
-          transition={{ duration: 0.3 }}
+          animate={{ y: [0, -20, 0], rotate: [0, 5, -5, 0] }}
+          transition={{ duration: 4, repeat: Infinity }}
         >
-          <Grid container spacing={3}>
-            {filteredEntries.map((entry, index) => (
-              <Grid item xs={12} md={6} lg={4} key={entry.id}>
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.1 }}
-                  whileHover={{ scale: 1.03, y: -8 }}
-                >
-                  <Card sx={{
-                    background: 'rgba(255, 255, 255, 0.05)',
-                    backdropFilter: 'blur(10px)',
-                    border: '1px solid rgba(255, 255, 255, 0.1)',
-                    borderRadius: 3,
-                    overflow: 'hidden',
-                    height: 420,
-                    display: 'flex',
-                    flexDirection: 'column'
-                  }}>
-                    {/* Entry Header */}
-                    <Box sx={{ 
-                      height: 120,
-                      background: `linear-gradient(45deg, ${getCategoryColor(entry.category)}40, ${getCategoryColor(entry.category)}20)`,
-                      position: 'relative',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center'
-                    }}>
-                      <motion.div
-                        animate={{ scale: [1, 1.1, 1] }}
-                        transition={{ duration: 3, repeat: Infinity }}
-                      >
-                        <Typography sx={{ fontSize: '3rem' }}>
-                          {entry.mood}
-                        </Typography>
-                      </motion.div>
-                      
-                      <Box sx={{ position: 'absolute', top: 8, right: 8, display: 'flex', gap: 0.5 }}>
-                        <IconButton size="small" onClick={() => handleEditEntry(entry)} sx={{ backgroundColor: 'rgba(0, 0, 0, 0.6)', color: 'white' }}>
-                          <Edit fontSize="small" />
-                        </IconButton>
-                        <IconButton size="small" sx={{ backgroundColor: 'rgba(0, 0, 0, 0.6)', color: 'white' }}>
-                          <Share fontSize="small" />
-                        </IconButton>
-                      </Box>
-
-                      <Chip
-                        label={entry.category}
-                        sx={{
-                          position: 'absolute',
-                          top: 8,
-                          left: 8,
-                          backgroundColor: getCategoryColor(entry.category),
-                          color: 'white',
-                          fontWeight: 600,
-                          fontSize: '0.7rem'
-                        }}
-                      />
-                    </Box>
-
-                    <CardContent sx={{ p: 3, flex: 1, display: 'flex', flexDirection: 'column' }}>
-                      <Typography variant="h6" sx={{ fontWeight: 600, mb: 1, fontSize: { xs: '1rem', sm: '1.1rem' } }}>
-                        {entry.title}
-                      </Typography>
-                      
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
-                        <LocationOn fontSize="small" color="primary" />
-                        <Typography variant="body2" color="text.secondary" sx={{ fontSize: { xs: '0.8rem', sm: '0.875rem' } }}>
-                          {entry.location}
-                        </Typography>
-                      </Box>
-                      
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
-                        <CalendarToday fontSize="small" color="primary" />
-                        <Typography variant="body2" color="text.secondary" sx={{ fontSize: { xs: '0.8rem', sm: '0.875rem' } }}>
-                          {new Date(entry.date).toLocaleDateString()}
-                        </Typography>
-                      </Box>
-
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
-                        <Rating value={entry.rating} size="small" readOnly />
-                        <Typography variant="caption" sx={{ fontSize: '0.75rem' }}>
-                          ({entry.rating}/5)
-                        </Typography>
-                      </Box>
-
-                      <Typography variant="body2" sx={{ 
-                        mb: 2, 
-                        flex: 1,
-                        overflow: 'hidden',
-                        display: '-webkit-box',
-                        WebkitLineClamp: 3,
-                        WebkitBoxOrient: 'vertical',
-                        fontSize: { xs: '0.8rem', sm: '0.875rem' }
-                      }}>
-                        {entry.content}
-                      </Typography>
-
-                      <Box sx={{ display: 'flex', gap: 0.5, mb: 2, flexWrap: 'wrap' }}>
-                        {entry.tags.slice(0, 2).map((tag, idx) => (
-                          <Chip key={idx} label={tag} size="small" variant="outlined" sx={{ fontSize: '0.7rem' }} />
-                        ))}
-                        {entry.tags.length > 2 && (
-                          <Chip label={`+${entry.tags.length - 2}`} size="small" variant="outlined" sx={{ fontSize: '0.7rem' }} />
-                        )}
-                      </Box>
-
-                      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                          <Camera fontSize="small" color="primary" />
-                          <Typography variant="caption" sx={{ fontSize: '0.75rem' }}>
-                            {entry.photos} photos
-                          </Typography>
-                        </Box>
-                        <Button size="small" variant="outlined" sx={{ borderRadius: 2, fontSize: '0.7rem' }}>
-                          View Full
-                        </Button>
-                      </Box>
-                    </CardContent>
-                  </Card>
-                </motion.div>
-              </Grid>
-            ))}
-          </Grid>
-
-          {filteredEntries.length === 0 && (
-            <Paper sx={{ 
-              p: 6, 
-              textAlign: 'center', 
-              background: 'rgba(255, 255, 255, 0.05)',
-              backdropFilter: 'blur(10px)',
-              borderRadius: 3
-            }}>
-              <motion.div
-                animate={{ y: [0, -10, 0] }}
-                transition={{ duration: 2, repeat: Infinity }}
-              >
-                <MenuBook sx={{ fontSize: 64, color: 'text.secondary', mb: 2 }} />
-              </motion.div>
-              <Typography variant="h5" sx={{ mb: 2, fontWeight: 600 }}>No journal entries yet</Typography>
-              <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-                Start documenting your amazing travel experiences!
-              </Typography>
-              <Button variant="contained" size="large" startIcon={<Add />} onClick={handleAddEntry}>
-                Create First Entry
-              </Button>
-            </Paper>
-          )}
+          <Typography sx={{ fontSize: '4rem', mb: 2 }}>📖</Typography>
         </motion.div>
-      </AnimatePresence>
+        
+        <Typography variant="h3" sx={{ 
+          fontWeight: 800, 
+          mb: 2,
+          fontSize: { xs: '2rem', sm: '3rem' },
+          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%)',
+          backgroundClip: 'text',
+          WebkitBackgroundClip: 'text',
+          WebkitTextFillColor: 'transparent'
+        }}>
+          Coming Soon
+        </Typography>
+        
+        <Typography variant="h6" sx={{ mb: 3, opacity: 0.8, fontSize: { xs: '1rem', sm: '1.25rem' } }}>
+          Experience Journal Feature
+        </Typography>
+        
+        <Typography variant="body1" sx={{ 
+          mb: 4, 
+          maxWidth: 600, 
+          mx: 'auto',
+          opacity: 0.7,
+          lineHeight: 1.6,
+          fontSize: { xs: '0.9rem', sm: '1rem' }
+        }}>
+          We're working on an amazing feature that will let you document and relive your travel experiences.
+        </Typography>
+        
+        <Chip 
+          label="🚀 Feature in Development" 
+          sx={{ 
+            backgroundColor: 'rgba(102, 126, 234, 0.2)',
+            color: '#667eea',
+            fontWeight: 600,
+            fontSize: '0.9rem',
+            py: 2,
+            px: 1
+          }} 
+        />
+      </Paper>
+
 
       {/* Floating Action Button */}
       <Fab

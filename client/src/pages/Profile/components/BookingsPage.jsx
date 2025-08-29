@@ -4,7 +4,7 @@ import {
   Chip, Button, Avatar, LinearProgress, Tab, Tabs, Paper
 } from '@mui/material';
 import {
-  FlightTakeoff, Schedule, LocationOn, Star, 
+  Explore, Schedule, LocationOn, Star, 
   CheckCircle, Cancel, Pending, CalendarToday, AccessTime
 } from '@mui/icons-material';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -14,47 +14,7 @@ const BookingsPage = () => {
   const theme = useTheme();
   const [tabValue, setTabValue] = useState(0);
 
-  const bookings = [
-    {
-      id: 1,
-      title: 'Himalayan Trek Adventure',
-      location: 'Nepal, Everest Base Camp',
-      date: '2024-03-15',
-      endDate: '2024-03-22',
-      status: 'confirmed',
-      image: '/api/placeholder/400/250',
-      price: '$1,299',
-      rating: 4.8,
-      duration: '7 days',
-      category: 'Adventure'
-    },
-    {
-      id: 2,
-      title: 'Safari Experience',
-      location: 'Kenya, Maasai Mara',
-      date: '2024-04-20',
-      endDate: '2024-04-25',
-      status: 'pending',
-      image: '/api/placeholder/400/250',
-      price: '$899',
-      rating: 4.6,
-      duration: '5 days',
-      category: 'Wildlife'
-    },
-    {
-      id: 3,
-      title: 'Northern Lights Tour',
-      location: 'Iceland, Reykjavik',
-      date: '2024-02-10',
-      endDate: '2024-02-14',
-      status: 'completed',
-      image: '/api/placeholder/400/250',
-      price: '$1,599',
-      rating: 4.9,
-      duration: '4 days',
-      category: 'Nature'
-    }
-  ];
+  const bookings = [];
 
   const getStatusColor = (status) => {
     switch (status) {
@@ -118,7 +78,7 @@ const BookingsPage = () => {
             <Grid container spacing={3} alignItems="center">
               <Grid item xs={12} md={8}>
                 <Typography variant="h4" sx={{ fontWeight: 700, mb: 1, fontSize: { xs: '1.5rem', sm: '2rem' } }}>
-                  ✈️ My Bookings
+                  🎯 My Bookings
                 </Typography>
                 <Typography variant="body1" sx={{ opacity: 0.9, mb: 2, fontSize: { xs: '0.9rem', sm: '1rem' } }}>
                   Track and manage your travel experiences
@@ -136,7 +96,7 @@ const BookingsPage = () => {
                 >
                   <svg width="120" height="120" viewBox="0 0 120 120">
                     <circle cx="60" cy="60" r="50" fill="rgba(255,255,255,0.1)" />
-                    <text x="60" y="70" textAnchor="middle" fill="white" fontSize="40">✈️</text>
+                    <text x="60" y="70" textAnchor="middle" fill="white" fontSize="40">🎯</text>
                   </svg>
                 </motion.div>
               </Grid>
@@ -312,7 +272,7 @@ const BookingsPage = () => {
                 animate={{ y: [0, -10, 0] }}
                 transition={{ duration: 2, repeat: Infinity }}
               >
-                <FlightTakeoff sx={{ fontSize: 64, color: 'text.secondary', mb: 2 }} />
+                <Explore sx={{ fontSize: 64, color: 'text.secondary', mb: 2 }} />
               </motion.div>
               <Typography variant="h5" sx={{ mb: 2, fontWeight: 600 }}>No bookings found</Typography>
               <Typography variant="body1" color="text.secondary">

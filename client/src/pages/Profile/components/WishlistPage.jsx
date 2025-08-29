@@ -257,6 +257,7 @@ const WishlistPage = () => {
                       <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
                         <IconButton
                           size="small"
+                          onClick={() => navigator.share?.({ title: item.product.title, url: `${window.location.origin}/experience/${item.product._id}` })}
                           sx={{
                             backgroundColor: 'rgba(0, 0, 0, 0.6)',
                             color: 'white',
@@ -327,9 +328,10 @@ const WishlistPage = () => {
                       <Button 
                         variant="contained" 
                         size="small"
+                        onClick={() => navigate(`/booking/${item.product._id}`)}
                         sx={{ 
                           borderRadius: 2,
-                          background: `linear-gradient(45deg, ${getCategoryColor(item.category)}, ${getCategoryColor(item.category)}80)`,
+                          background: `linear-gradient(45deg, ${getCategoryColor(item.product.company_Name)}, ${getCategoryColor(item.product.company_Name)}80)`,
                           fontSize: { xs: '0.7rem', sm: '0.8rem' },
                           px: 2
                         }}

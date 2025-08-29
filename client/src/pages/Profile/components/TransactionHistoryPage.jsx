@@ -17,52 +17,7 @@ const TransactionHistoryPage = () => {
   const [tabValue, setTabValue] = useState(0);
   const [searchQuery, setSearchQuery] = useState('');
 
-  const transactions = [
-    {
-      id: 'TXN001',
-      type: 'booking',
-      title: 'Himalayan Trek Adventure',
-      amount: 1299.00,
-      status: 'completed',
-      date: '2024-01-15',
-      method: 'Credit Card',
-      reference: 'REF123456',
-      category: 'Adventure'
-    },
-    {
-      id: 'TXN002',
-      type: 'refund',
-      title: 'Safari Experience Refund',
-      amount: -899.00,
-      status: 'completed',
-      date: '2024-01-10',
-      method: 'Credit Card',
-      reference: 'REF123457',
-      category: 'Wildlife'
-    },
-    {
-      id: 'TXN003',
-      type: 'booking',
-      title: 'Northern Lights Tour',
-      amount: 1599.00,
-      status: 'pending',
-      date: '2024-01-08',
-      method: 'PayPal',
-      reference: 'REF123458',
-      category: 'Nature'
-    },
-    {
-      id: 'TXN004',
-      type: 'reward',
-      title: 'XP Reward Redemption',
-      amount: -50.00,
-      status: 'completed',
-      date: '2024-01-05',
-      method: 'Reward Points',
-      reference: 'REF123459',
-      category: 'Reward'
-    }
-  ];
+  const transactions = [];
 
   const getStatusColor = (status) => {
     switch (status) {
@@ -153,7 +108,7 @@ const TransactionHistoryPage = () => {
                 </Typography>
                 <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
                   <Chip label={`${transactions.length} Total Transactions`} sx={{ backgroundColor: 'rgba(255, 255, 255, 0.2)', color: 'white' }} />
-                  <Chip label={`$${totalSpent.toFixed(2)} Spent`} sx={{ backgroundColor: 'rgba(255, 255, 255, 0.2)', color: 'white' }} />
+                  <Chip label={`₹${totalSpent.toFixed(2)} Spent`} sx={{ backgroundColor: 'rgba(255, 255, 255, 0.2)', color: 'white' }} />
                 </Box>
               </Grid>
               <Grid item xs={12} md={4}>
@@ -181,8 +136,8 @@ const TransactionHistoryPage = () => {
       >
         <Grid container spacing={3} sx={{ mb: 4 }}>
           {[
-            { title: 'Total Spent', value: `$${totalSpent.toFixed(2)}`, icon: <TrendingUp />, color: '#10b981' },
-            { title: 'Total Refunded', value: `$${totalRefunded.toFixed(2)}`, icon: <Refresh />, color: '#f59e0b' },
+            { title: 'Total Spent', value: `₹${totalSpent.toFixed(2)}`, icon: <TrendingUp />, color: '#10b981' },
+            { title: 'Total Refunded', value: `₹${totalRefunded.toFixed(2)}`, icon: <Refresh />, color: '#f59e0b' },
             { title: 'Pending Transactions', value: transactions.filter(t => t.status === 'pending').length, icon: <Pending />, color: '#6366f1' },
             { title: 'This Month', value: transactions.filter(t => new Date(t.date).getMonth() === new Date().getMonth()).length, icon: <CalendarToday />, color: '#ec4899' }
           ].map((stat, index) => (
@@ -344,7 +299,7 @@ const TransactionHistoryPage = () => {
                           color: transaction.amount < 0 ? '#10b981' : 'text.primary',
                           fontSize: { xs: '0.9rem', sm: '1rem' }
                         }}>
-                          {transaction.amount < 0 ? '+' : ''}${Math.abs(transaction.amount).toFixed(2)}
+                          {transaction.amount < 0 ? '+' : ''}₹{Math.abs(transaction.amount).toFixed(2)}
                         </Typography>
                         <Typography variant="caption" color="text.secondary">
                           {transaction.amount < 0 ? 'Refund' : 'Payment'}

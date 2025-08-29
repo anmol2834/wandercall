@@ -256,9 +256,9 @@ const ExperienceDetails = () => {
                     transition={{ duration: 0.5 }}
                   >
                     {wishlistLoading ? (
-                      <CircularProgress size={20} sx={{ color: 'white' }} />
+                      <CircularProgress size={20} sx={{ color: theme.palette.mode === 'light' ? 'black' : 'white' }} />
                     ) : (
-                      isWishlisted ? <Favorite sx={{ color: 'white' }} /> : <FavoriteBorder sx={{ color: 'white' }} />
+                      isWishlisted ? <Favorite sx={{ color: theme.palette.mode === 'light' ? 'black' : 'white' }} /> : <FavoriteBorder sx={{ color: theme.palette.mode === 'light' ? 'black' : 'white' }} />
                     )}
                   </motion.div>
                 </IconButton>
@@ -610,7 +610,7 @@ const ExperienceDetails = () => {
                           <Button
                             variant="outlined"
                             fullWidth
-                            startIcon={wishlistLoading ? <CircularProgress size={16} sx={{ color: 'white' }} /> : (isWishlisted ? <Favorite sx={{ color: 'white' }} /> : <FavoriteBorder sx={{ color: 'white' }} />)}
+                            startIcon={wishlistLoading ? <CircularProgress size={16} sx={{ color: theme.palette.mode === 'light' ? 'black' : 'white' }} /> : (isWishlisted ? <Favorite sx={{ color: theme.palette.mode === 'light' ? 'black' : 'white' }} /> : <FavoriteBorder sx={{ color: theme.palette.mode === 'light' ? 'black' : 'white' }} />)}
                             onClick={handleWishlistToggle}
                             color={isWishlisted ? "primary" : "inherit"}
                             size="small"
@@ -854,9 +854,9 @@ const ExperienceDetails = () => {
                                   transition={{ duration: 0.3 }}
                                 >
                                   {wishlistLoading ? (
-                                    <CircularProgress size={16} sx={{ color: 'white' }} />
+                                    <CircularProgress size={16} sx={{ color: theme.palette.mode === 'light' ? 'black' : 'white' }} />
                                   ) : (
-                                    isWishlisted ? <Favorite sx={{ color: 'white' }} /> : <FavoriteBorder sx={{ color: 'white' }} />
+                                    isWishlisted ? <Favorite sx={{ color: theme.palette.mode === 'light' ? 'black' : 'white' }} /> : <FavoriteBorder sx={{ color: theme.palette.mode === 'light' ? 'black' : 'white' }} />
                                   )}
                                 </motion.div>
                               }

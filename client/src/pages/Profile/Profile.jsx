@@ -24,6 +24,7 @@ import AddressPage from './components/AddressPage';
 import HelpCenterPage from './components/HelpCenterPage';
 import TransactionHistoryPage from './components/TransactionHistoryPage';
 import ExperienceJournalPage from './components/ExperienceJournalPage';
+import CommunityPage from './components/CommunityPage';
 
 const Profile = () => {
   const navigate = useNavigate();
@@ -627,7 +628,7 @@ const Profile = () => {
           <Route path="/rewards" element={<RewardsPage />} />
           <Route path="/addresses" element={<AddressPage />} />
           <Route path="/help" element={<HelpCenterPage />} />
-          <Route path="/community" element={<div>Community - Coming Soon</div>} />
+          <Route path="/community" element={<CommunityPage />} />
           <Route path="/journal" element={<ExperienceJournalPage />} />
           <Route path="/transactions" element={<TransactionHistoryPage />} />
           <Route path="/settings" element={<SettingsPage />} />

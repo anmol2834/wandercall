@@ -77,24 +77,7 @@ export const HelpPage = () => (
   </motion.div>
 );
 
-export const CommunityPage = () => (
-  <motion.div
-    initial={{ opacity: 0, y: 20 }}
-    animate={{ opacity: 1, y: 0 }}
-    transition={{ duration: 0.6 }}
-  >
-    <Container maxWidth="lg">
-      <Card sx={{ background: 'rgba(255, 255, 255, 0.05)', backdropFilter: 'blur(10px)' }}>
-        <CardContent sx={{ p: 4 }}>
-          <Typography variant="h4" gutterBottom>Community</Typography>
-          <Typography variant="body1" color="text.secondary">
-            Connect with fellow travelers and share experiences.
-          </Typography>
-        </CardContent>
-      </Card>
-    </Container>
-  </motion.div>
-);
+export { default as CommunityPage } from './CommunityPage';
 
 export const JournalPage = () => (
   <motion.div
