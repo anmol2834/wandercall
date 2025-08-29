@@ -14,14 +14,27 @@ const app = express();
 const PORT = process.env.PORT || 5002;
 
 // Middleware
-app.use(cors());
-app.use(express.json());
+const corsOptions = {
+  origin: [
+    'http://localhost:5173',
+    'https://wandercall.vercel.app',
+    'http://wandercall.vercel.app',
+    'http://wandercall.com'
+  ],
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+};
 
-// Request logging
-app.use((req, res, next) => {
-  console.log(`${req.method} ${req.path}`, req.body);
-  next();
-});
+app.use(cors(corsOptions));
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+
+// Request logging (disabled for clean terminal)
+// app.use((req, res, next) => {
+//   console.log(`${req.method} ${req.path}`, req.body);
+//   next();
+// });
 
 // Routes
 app.use('/api/auth', require('./routes/authRoutes'));
@@ -52,8 +65,31 @@ app.get('/test-db', async (req, res) => {
   }
 });
 
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+// Global error handler
+app.use((err, req, res, next) => {
+  res.status(500).json({ 
+    success: false, 
+    message: process.env.NODE_ENV === 'production' ? 'Internal server error' : err.message 
+  });
+});
+
+// 404 handler
+app.use('*', (req, res) => {
+  res.status(404).json({ 
+    success: false, 
+    message: 'Route not found' 
+  });
+});
+
+const server = app.listen(PORT, '0.0.0.0', () => {
+  // Server started silently
+});
+
+// Graceful shutdown
+process.on('SIGTERM', () => {
+  server.close(() => {
+    process.exit(0);
+  });
 });
 
 module.exports = app;

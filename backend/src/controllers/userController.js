@@ -58,8 +58,6 @@ exports.sendEmailOTP = async (req, res) => {
     // Send password reset OTP email
     await sendPasswordResetOTP(user.email, otp, user.name);
     
-    console.log(`Password reset OTP sent to ${user.email}`);
-    
     res.json({ 
       success: true, 
       message: 'Password reset OTP sent to your email address'

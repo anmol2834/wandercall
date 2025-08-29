@@ -59,7 +59,6 @@ exports.sendOTP = async (req, res) => {
 exports.verifyOTP = async (req, res) => {
   try {
     const { email, otp } = req.body;
-    console.log('OTP Verification attempt:', { email, otp });
     
     if (!email || !otp) {
       return res.status(400).json({ success: false, message: 'Email and OTP are required' });
@@ -68,24 +67,16 @@ exports.verifyOTP = async (req, res) => {
     // Get OTP data from memory storage
     const otpData = otpStorage.get(email);
     if (!otpData) {
-      console.log('OTP data not found for email:', email);
       return res.status(400).json({ success: false, message: 'OTP not found or expired' });
     }
     
-    console.log('OTP data:', { 
-      storedOTP: otpData.otp, 
-      receivedOTP: otp, 
-      otpExpires: otpData.otpExpires,
-      currentTime: new Date()
-    });
+
     
     if (otpData.otp !== otp.toString()) {
-      console.log('OTP mismatch');
       return res.status(400).json({ success: false, message: 'Invalid OTP' });
     }
     
     if (otpData.otpExpires < new Date()) {
-      console.log('OTP expired');
       otpStorage.delete(email); // Clean up expired OTP
       return res.status(400).json({ success: false, message: 'OTP has expired' });
     }
@@ -103,8 +94,6 @@ exports.verifyOTP = async (req, res) => {
     // Clean up memory storage
     otpStorage.delete(email);
     
-    console.log('User created after email verification:', user._id);
-    
     // Link waitlist entry if exists
     const { linkWaitlistToUser } = require('./waitlistController');
     await linkWaitlistToUser(user._id, email);
@@ -114,7 +103,6 @@ exports.verifyOTP = async (req, res) => {
     
     res.json({ success: true, message: 'Email verified successfully' });
   } catch (error) {
-    console.error('Verify OTP error:', error);
     res.status(500).json({ success: false, message: 'Failed to verify OTP' });
   }
 };
@@ -129,7 +117,7 @@ exports.register = async (req, res) => {
       return res.status(400).json({ success: false, message: 'Please verify your email first' });
     }
     
-    console.log('User login after verification:', user._id);
+
     
     const token = generateToken(user._id);
     
@@ -150,37 +138,29 @@ exports.register = async (req, res) => {
 
 exports.login = async (req, res) => {
   try {
-    console.log('Login attempt:', req.body);
     const { email, password } = req.body;
     
     // Validation
     if (!email || !password) {
-      console.log('Login validation failed: Missing fields');
       return res.status(400).json({ success: false, message: 'Please provide email and password' });
     }
     
-    console.log('Finding user with email:', email);
     const user = await User.findOne({ email });
     
     if (!user) {
-      console.log('User not found:', email);
       return res.status(401).json({ success: false, message: 'Invalid credentials' });
     }
     
     if (!user.password) {
-      console.log('User has no password set:', email);
       return res.status(401).json({ success: false, message: 'Please complete your registration first' });
     }
     
-    console.log('Comparing password...');
     const isPasswordValid = await bcrypt.compare(password, user.password);
     
     if (!isPasswordValid) {
-      console.log('Invalid password for user:', email);
       return res.status(401).json({ success: false, message: 'Invalid credentials' });
     }
     
-    console.log('Login successful for user:', user._id);
     const token = generateToken(user._id);
     res.json({
       success: true,

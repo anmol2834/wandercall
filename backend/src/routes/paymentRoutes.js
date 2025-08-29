@@ -50,14 +50,13 @@ router.post('/create-payment-session', verifyToken, async (req, res) => {
       }
     );
 
-    console.log('Cashfree payment session created:', cashfreeResponse.data);
+
 
     res.status(200).json({
       payment_session_id: cashfreeResponse.data.payment_session_id,
       order_id: orderId,
     });
   } catch (err) {
-    console.error('Error creating Cashfree payment session:', err);
     res.status(500).json({ message: 'Server error', error: err.message });
   }
 });
@@ -85,7 +84,6 @@ router.post('/verify-payment', verifyToken, async (req, res) => {
     );
 
     const orderData = verifyResponse.data;
-    console.log('Payment verification response:', orderData);
     
     // If payment is successful, create ticket
     if (orderData.order_status === 'PAID') {
@@ -130,7 +128,6 @@ router.post('/verify-payment', verifyToken, async (req, res) => {
       orderData
     });
   } catch (err) {
-    console.error('Error verifying payment:', err);
     res.status(500).json({ 
       message: 'Server error during payment verification', 
       error: err.message 
@@ -169,7 +166,6 @@ router.post('/checkout', verifyToken, async (req, res) => {
       ticket
     });
   } catch (error) {
-    console.error('Error creating booking:', error);
     res.status(500).json({ 
       success: false, 
       message: 'Error creating booking', 
