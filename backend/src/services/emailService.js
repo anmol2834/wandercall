@@ -113,14 +113,19 @@ const generateWelcomeEmailHTML = (userName) => {
 };
 
 const sendOTPEmail = async (email, otp, userName) => {
-  const mailOptions = {
-    from: `"WanderCall" <${process.env.EMAIL_USER}>`,
-    to: email,
-    subject: 'Verify Your Email - WanderCall',
-    html: generateOTPEmailHTML(otp, userName)
-  };
+  try {
+    const mailOptions = {
+      from: `"WanderCall" <${process.env.EMAIL_USER || 'teamwandercall@gmail.com'}>`,
+      to: email,
+      subject: 'Verify Your Email - WanderCall',
+      html: generateOTPEmailHTML(otp, userName)
+    };
 
-  return transporter.sendMail(mailOptions);
+    return await transporter.sendMail(mailOptions);
+  } catch (error) {
+    console.error('Email sending failed:', error.message);
+    return { success: false, error: error.message };
+  }
 };
 
 const generatePasswordResetEmailHTML = (otp, userName) => {
@@ -189,14 +194,19 @@ const sendWelcomeEmail = async (email, userName) => {
 };
 
 const sendPasswordResetOTP = async (email, otp, userName) => {
-  const mailOptions = {
-    from: `"WanderCall" <${process.env.EMAIL_USER}>`,
-    to: email,
-    subject: '🔒 Password Reset OTP - WanderCall',
-    html: generatePasswordResetEmailHTML(otp, userName)
-  };
+  try {
+    const mailOptions = {
+      from: `"WanderCall" <${process.env.EMAIL_USER || 'teamwandercall@gmail.com'}>`,
+      to: email,
+      subject: '🔒 Password Reset OTP - WanderCall',
+      html: generatePasswordResetEmailHTML(otp, userName)
+    };
 
-  return transporter.sendMail(mailOptions);
+    return await transporter.sendMail(mailOptions);
+  } catch (error) {
+    console.error('Password reset email failed:', error.message);
+    return { success: false, error: error.message };
+  }
 };
 
 module.exports = {

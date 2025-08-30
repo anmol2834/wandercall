@@ -3,7 +3,7 @@ const User = require('../models/User');
 // Get user addresses
 const getUserAddresses = async (req, res) => {
   try {
-    const user = await User.findById(req.user.id);
+    const user = await User.findById(req.user._id);
     if (!user.addresses) {
       user.addresses = [];
       await user.save();
@@ -24,7 +24,7 @@ const addAddress = async (req, res) => {
       return res.status(400).json({ success: false, message: 'All address fields are required' });
     }
 
-    const user = await User.findById(req.user.id);
+    const user = await User.findById(req.user._id);
     
     // Initialize addresses array if it doesn't exist
     if (!user.addresses) {
@@ -68,7 +68,7 @@ const updateAddress = async (req, res) => {
     const { addressId } = req.params;
     const { type, street, city, state, zipCode, country, isDefault } = req.body;
     
-    const user = await User.findById(req.user.id);
+    const user = await User.findById(req.user._id);
     const address = user.addresses.id(addressId);
     
     if (!address) {
@@ -103,7 +103,7 @@ const deleteAddress = async (req, res) => {
   try {
     const { addressId } = req.params;
     
-    const user = await User.findById(req.user.id);
+    const user = await User.findById(req.user._id);
     const address = user.addresses.id(addressId);
     
     if (!address) {
@@ -132,7 +132,7 @@ const setDefaultAddress = async (req, res) => {
   try {
     const { addressId } = req.params;
     
-    const user = await User.findById(req.user.id);
+    const user = await User.findById(req.user._id);
     const address = user.addresses.id(addressId);
     
     if (!address) {
