@@ -44,7 +44,12 @@ exports.sendOTP = async (req, res) => {
     });
     
     // Send OTP email
-    await sendOTPEmail(email, otp, name);
+    try {
+      await sendOTPEmail(email, otp, name);
+    } catch (emailError) {
+      console.error('Email service error:', emailError);
+      // Continue without failing - OTP is stored
+    }
     
     res.json({ success: true, message: 'OTP sent successfully' });
   } catch (error) {

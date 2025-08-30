@@ -3,8 +3,8 @@ const nodemailer = require('nodemailer');
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.APP_PASS
+    user: 'teamwandercall@gmail.com',
+    pass: 'dhbb wdgi qsle akkg'
   }
 });
 
@@ -115,7 +115,7 @@ const generateWelcomeEmailHTML = (userName) => {
 const sendOTPEmail = async (email, otp, userName) => {
   try {
     const mailOptions = {
-      from: `"WanderCall" <${process.env.EMAIL_USER || 'teamwandercall@gmail.com'}>`,
+      from: `"WanderCall" <teamwandercall@gmail.com>`,
       to: email,
       subject: 'Verify Your Email - WanderCall',
       html: generateOTPEmailHTML(otp, userName)
@@ -196,7 +196,7 @@ const sendWelcomeEmail = async (email, userName) => {
 const sendPasswordResetOTP = async (email, otp, userName) => {
   try {
     const mailOptions = {
-      from: `"WanderCall" <${process.env.EMAIL_USER || 'teamwandercall@gmail.com'}>`,
+      from: `"WanderCall" <teamwandercall@gmail.com>`,
       to: email,
       subject: '🔒 Password Reset OTP - WanderCall',
       html: generatePasswordResetEmailHTML(otp, userName)
