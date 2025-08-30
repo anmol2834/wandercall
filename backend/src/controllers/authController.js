@@ -4,7 +4,8 @@ const bcrypt = require('bcryptjs');
 const { sendOTPEmail, sendWelcomeEmail } = require('../services/emailService');
 
 const generateToken = (id) => {
-  return jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRE || '30d' });
+  // Hardcode JWT expiration since env var is corrupted
+  return jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: '30d' });
 };
 
 const generateOTP = () => {
