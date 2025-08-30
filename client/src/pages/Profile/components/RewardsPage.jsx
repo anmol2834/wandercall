@@ -16,6 +16,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { fetchUserRewards, redeemReward } from '../../../redux/slices/rewardsSlice';
 import { useAuth } from '../../../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import RewardsPageLoader from '../../../components/loaders/RewardsPageLoader';
 
 const RewardsPage = () => {
   const theme = useTheme();
@@ -90,6 +91,10 @@ const RewardsPage = () => {
   const nextTier = getNextTier();
   const xp = parseInt(displayXP) || 0;
   const progressToNext = nextTier ? ((xp - currentTier.min) / (nextTier.min - currentTier.min)) * 100 : 100;
+
+  if (loading) {
+    return <RewardsPageLoader />;
+  }
 
   return (
     <Container maxWidth="lg" sx={{ py: 4 }}>
@@ -649,7 +654,15 @@ const RewardsPage = () => {
                   },
                   transition: 'all 0.3s ease'
                 }}
-                onClick={() => navigate('/experiences')}
+                onClick={() => {
+                  navigate('/');
+                  setTimeout(() => {
+                    const experiencesSection = document.getElementById('experiences-section');
+                    if (experiencesSection) {
+                      experiencesSection.scrollIntoView({ behavior: 'smooth' });
+                    }
+                  }, 100);
+                }}
               >
                 🌟 Start Your Journey
               </Button>

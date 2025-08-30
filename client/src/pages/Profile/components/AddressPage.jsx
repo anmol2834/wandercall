@@ -9,6 +9,8 @@ import {
 import { motion } from 'framer-motion';
 import { useAuth } from '../../../contexts/AuthContext';
 import { addressAPI } from '../../../services/api';
+import { AddressPageLoader, SetDefaultLoader } from '../../../components/loaders/AddressLoaders';
+import AddressCardWithLoader from '../../../components/loaders/AddressCardWithLoader';
 
 const AddressPage = () => {
   const { user, updateUser } = useAuth();
@@ -24,11 +26,25 @@ const AddressPage = () => {
     country: ''
   });
   const [loading, setLoading] = useState(false);
+  const [pageLoading, setPageLoading] = useState(true);
+  const [defaultLoading, setDefaultLoading] = useState(false);
+  const [loadingStates, setLoadingStates] = useState({});
 
   useEffect(() => {
-    if (user?.addresses) {
-      setAddresses(user.addresses);
-    }
+    const fetchAddresses = async () => {
+      try {
+        setPageLoading(true);
+        if (user?.addresses) {
+          // Simulate loading time for better UX
+          await new Promise(resolve => setTimeout(resolve, 800));
+          setAddresses(user.addresses);
+        }
+      } finally {
+        setPageLoading(false);
+      }
+    };
+    
+    fetchAddresses();
   }, [user]);
 
   const handleAddAddress = () => {
@@ -65,14 +81,14 @@ const AddressPage = () => {
 
   const handleDeleteAddress = async (addressId) => {
     try {
-      setLoading(true);
+      setLoadingStates(prev => ({ ...prev, [addressId]: 'delete' }));
       const response = await addressAPI.deleteAddress(addressId);
       updateUser(response.data.user);
       setAddresses(response.data.user.addresses || []);
     } catch (error) {
       console.error('Failed to delete address:', error);
     } finally {
-      setLoading(false);
+      setLoadingStates(prev => ({ ...prev, [addressId]: null }));
     }
   };
 
@@ -113,19 +129,26 @@ const AddressPage = () => {
 
   const handleSetDefault = async (addressId) => {
     try {
-      setLoading(true);
+      setLoadingStates(prev => ({ ...prev, [addressId]: 'setDefault' }));
       const response = await addressAPI.setDefaultAddress(addressId);
       updateUser(response.data.user);
       setAddresses(response.data.user.addresses || []);
     } catch (error) {
       console.error('Failed to set default address:', error);
     } finally {
-      setLoading(false);
+      setLoadingStates(prev => ({ ...prev, [addressId]: null }));
     }
   };
 
+  // Show page loader while fetching addresses
+  if (pageLoading) {
+    return <AddressPageLoader />;
+  }
+
   return (
-    <Container maxWidth="lg" sx={{ py: 4 }}>
+    <>
+      <SetDefaultLoader isVisible={defaultLoading} />
+      <Container maxWidth="lg" sx={{ py: 4 }}>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
         <Typography variant="h4" sx={{ fontWeight: 600, fontSize: { xs: '1.5rem', sm: '2rem' } }}>
           Address Management
@@ -336,9 +359,31 @@ const AddressPage = () => {
                   variant="contained"
                   onClick={handleSaveAddress}
                   disabled={loading || !formData.street || !formData.city || !formData.state || !formData.zipCode || !formData.country}
-                  sx={{ borderRadius: 2 }}
+                  sx={{ 
+                    borderRadius: 2,
+                    minWidth: 140,
+                    position: 'relative'
+                  }}
                 >
-                  {editingAddress ? 'Update Address' : 'Save Address'}
+                  {loading ? (
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                      <motion.div
+                        animate={{ rotate: 360 }}
+                        transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
+                      >
+                        <Box sx={{
+                          width: 16,
+                          height: 16,
+                          borderRadius: '50%',
+                          border: '2px solid rgba(255, 255, 255, 0.3)',
+                          borderTop: '2px solid white'
+                        }} />
+                      </motion.div>
+                      {editingAddress ? 'Updating...' : 'Saving...'}
+                    </Box>
+                  ) : (
+                    editingAddress ? 'Update Address' : 'Save Address'
+                  )}
                 </Button>
               </Box>
             </CardContent>
@@ -350,60 +395,15 @@ const AddressPage = () => {
       <Grid container spacing={3}>
         {addresses.map((address, index) => (
           <Grid item xs={12} md={6} key={address._id}>
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.1 }}
-              whileHover={{ scale: 1.02 }}
-            >
-              <Card sx={{
-                background: 'rgba(255, 255, 255, 0.05)',
-                backdropFilter: 'blur(10px)',
-                border: address.isDefault ? '2px solid #6366f1' : '1px solid rgba(255, 255, 255, 0.1)',
-                borderRadius: 2
-              }}>
-                <CardContent sx={{ p: 3 }}>
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
-                    <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
-                      <Chip 
-                        icon={address.type === 'Home' ? <Home /> : <Work />}
-                        label={address.type} 
-                        size="small" 
-                        color={address.type === 'Home' ? 'primary' : 'secondary'} 
-                      />
-                      {address.isDefault && <Chip label="Default" size="small" color="success" />}
-                    </Box>
-                    <Box>
-                      <IconButton size="small" onClick={() => handleEditAddress(address)}>
-                        <Edit fontSize="small" />
-                      </IconButton>
-                      <IconButton size="small" onClick={() => handleDeleteAddress(address._id)} color="error">
-                        <Delete fontSize="small" />
-                      </IconButton>
-                    </Box>
-                  </Box>
-                  
-                  <Typography variant="body1" sx={{ fontWeight: 500, mb: 1, fontSize: { xs: '0.9rem', sm: '1rem' } }}>
-                    {address.street}
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary" sx={{ mb: 2, fontSize: { xs: '0.8rem', sm: '0.875rem' } }}>
-                    {address.city}, {address.state} {address.zipCode}<br />
-                    {address.country}
-                  </Typography>
-                  
-                  {!address.isDefault && (
-                    <Button
-                      size="small"
-                      variant="outlined"
-                      onClick={() => handleSetDefault(address._id)}
-                      disabled={loading}
-                    >
-                      Set as Default
-                    </Button>
-                  )}
-                </CardContent>
-              </Card>
-            </motion.div>
+            <AddressCardWithLoader
+              address={address}
+              index={index}
+              onEdit={handleEditAddress}
+              onDelete={handleDeleteAddress}
+              onSetDefault={handleSetDefault}
+              isLoading={!!loadingStates[address._id]}
+              operationType={loadingStates[address._id]}
+            />
           </Grid>
         ))}
         
@@ -427,7 +427,8 @@ const AddressPage = () => {
           </Grid>
         )}
       </Grid>
-    </Container>
+      </Container>
+    </>
   );
 };
 

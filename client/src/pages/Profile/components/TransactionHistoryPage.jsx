@@ -11,13 +11,21 @@ import {
 } from '@mui/icons-material';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTheme } from '@mui/material/styles';
+import TransactionHistoryPageLoader from '../../../components/loaders/TransactionHistoryPageLoader';
 
 const TransactionHistoryPage = () => {
   const theme = useTheme();
   const [tabValue, setTabValue] = useState(0);
   const [searchQuery, setSearchQuery] = useState('');
+  const [loading, setLoading] = useState(true);
 
   const transactions = [];
+
+  // Simulate loading
+  React.useEffect(() => {
+    const timer = setTimeout(() => setLoading(false), 1500);
+    return () => clearTimeout(timer);
+  }, []);
 
   const getStatusColor = (status) => {
     switch (status) {
@@ -66,6 +74,10 @@ const TransactionHistoryPage = () => {
   const totalRefunded = Math.abs(transactions
     .filter(t => t.type === 'refund' && t.status === 'completed')
     .reduce((sum, t) => sum + t.amount, 0));
+
+  if (loading) {
+    return <TransactionHistoryPageLoader />;
+  }
 
   return (
     <Container maxWidth="lg" sx={{ py: 4 }}>

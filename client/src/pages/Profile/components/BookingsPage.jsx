@@ -11,6 +11,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useTheme } from '@mui/material/styles';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchMyBookings, markTicketAsDownloaded } from '../../../redux/slices/ticketSlice';
+import BookingsPageLoader from '../../../components/loaders/BookingsPageLoader';
 
 const BookingsPage = () => {
   const theme = useTheme();
@@ -67,12 +68,7 @@ const BookingsPage = () => {
   });
 
   if (loading) {
-    return (
-      <Container maxWidth="lg" sx={{ py: 4, textAlign: 'center' }}>
-        <CircularProgress size={60} />
-        <Typography variant="h6" sx={{ mt: 2 }}>Loading your bookings...</Typography>
-      </Container>
-    );
+    return <BookingsPageLoader />;
   }
 
   if (error) {

@@ -16,6 +16,7 @@ import { userAPI, addressAPI } from '../../services/api';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchUserRewards } from '../../redux/slices/rewardsSlice';
 import EditProfileModal from '../../components/EditProfileModal';
+import ProfilePageLoader from '../../components/loaders/ProfilePageLoader';
 import './Profile.css';
 import RewardsPage from './components/RewardsPage';
 import BookingsPage from './components/BookingsPage';
@@ -42,6 +43,7 @@ const Profile = () => {
   const [userAvatar, setUserAvatar] = useState(0);
   const [showAvatarModal, setShowAvatarModal] = useState(false);
   const [addresses, setAddresses] = useState([]);
+  const [addressLoading, setAddressLoading] = useState(null);
 
   const avatarOptions = [
     // SVG Avatar 1
@@ -151,11 +153,14 @@ const Profile = () => {
 
   const handleSetDefaultAddress = async (addressId) => {
     try {
+      setAddressLoading(addressId);
       const response = await addressAPI.setDefaultAddress(addressId);
       updateUser(response.data.user);
       setAddresses(response.data.user.addresses || []);
     } catch (error) {
       console.error('Failed to set default address:', error);
+    } finally {
+      setAddressLoading(null);
     }
   };
 
@@ -176,11 +181,7 @@ const Profile = () => {
   };
 
   if (loading) {
-    return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh' }}>
-        <Typography>Loading...</Typography>
-      </Box>
-    );
+    return <ProfilePageLoader />;
   }
 
   const MenuContent = () => (
@@ -518,19 +519,58 @@ const Profile = () => {
                         <Grid item xs={12} md={6} key={address._id}>
                           <motion.div whileHover={{ scale: 1.02 }}>
                             <Paper 
-                              onClick={() => !address.isDefault && handleSetDefaultAddress(address._id)}
+                              onClick={() => !address.isDefault && !addressLoading && handleSetDefaultAddress(address._id)}
                               sx={{
                                 p: 3,
                                 background: address.isDefault ? 'rgba(99, 102, 241, 0.1)' : 'rgba(255, 255, 255, 0.03)',
                                 border: address.isDefault ? '2px solid #6366f1' : '1px solid rgba(255, 255, 255, 0.1)',
                                 borderRadius: 2,
-                                cursor: address.isDefault ? 'default' : 'pointer',
+                                cursor: address.isDefault || addressLoading ? 'default' : 'pointer',
                                 transition: 'all 0.3s ease',
+                                position: 'relative',
+                                opacity: addressLoading === address._id ? 0.7 : 1,
                                 '&:hover': {
                                   backgroundColor: address.isDefault ? 'rgba(99, 102, 241, 0.1)' : 'rgba(255, 255, 255, 0.08)'
                                 }
                               }}
                             >
+                              {/* Loading overlay */}
+                              {addressLoading === address._id && (
+                                <Box sx={{
+                                  position: 'absolute',
+                                  top: 0,
+                                  left: 0,
+                                  right: 0,
+                                  bottom: 0,
+                                  background: 'rgba(0, 0, 0, 0.3)',
+                                  backdropFilter: 'blur(2px)',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'center',
+                                  borderRadius: 2,
+                                  zIndex: 1
+                                }}>
+                                  <Box sx={{ textAlign: 'center' }}>
+                                    <motion.div
+                                      animate={{ rotate: 360 }}
+                                      transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
+                                      style={{ display: 'inline-block', marginBottom: 8 }}
+                                    >
+                                      <Box sx={{
+                                        width: 24,
+                                        height: 24,
+                                        borderRadius: '50%',
+                                        border: '2px solid rgba(99, 102, 241, 0.3)',
+                                        borderTop: '2px solid #6366f1'
+                                      }} />
+                                    </motion.div>
+                                    <Typography variant="caption" sx={{ display: 'block', color: 'white', fontWeight: 500 }}>
+                                      Setting as default...
+                                    </Typography>
+                                  </Box>
+                                </Box>
+                              )}
+                              
                               <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
                                 <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
                                   <Chip 
