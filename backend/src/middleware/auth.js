@@ -39,7 +39,7 @@ const auth = async (req, res, next) => {
     req.user = user;
     next();
   } catch (error) {
-    console.error('Auth middleware error:', error);
+
     setCorsHeaders(res, req);
     res.status(401).json({ success: false, message: 'Invalid token' });
   }

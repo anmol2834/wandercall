@@ -123,7 +123,7 @@ const sendOTPEmail = async (email, otp, userName) => {
 
     return await transporter.sendMail(mailOptions);
   } catch (error) {
-    console.error('Email sending failed:', error.message);
+
     return { success: false, error: error.message };
   }
 };
@@ -204,7 +204,7 @@ const sendPasswordResetOTP = async (email, otp, userName) => {
 
     return await transporter.sendMail(mailOptions);
   } catch (error) {
-    console.error('Password reset email failed:', error.message);
+
     return { success: false, error: error.message };
   }
 };

@@ -53,11 +53,11 @@ app.use((req, res, next) => {
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-// Request logging for debugging production issues
-app.use((req, res, next) => {
-  console.log(`${req.method} ${req.path} - Origin: ${req.headers.origin}`);
-  next();
-});
+// Request logging disabled for clean terminal
+// app.use((req, res, next) => {
+//   console.log(`${req.method} ${req.path} - Origin: ${req.headers.origin}`);
+//   next();
+// });
 
 // Routes
 app.use('/api/auth', require('./routes/authRoutes'));
@@ -90,12 +90,7 @@ app.get('/test-db', async (req, res) => {
 
 // Global error handler with CORS headers
 app.use((err, req, res, next) => {
-  console.error('Global Error:', {
-    message: err.message,
-    stack: err.stack,
-    url: req.url,
-    method: req.method
-  });
+
   
   // Ensure CORS headers are present even on errors
   const origin = req.headers.origin;

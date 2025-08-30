@@ -47,13 +47,12 @@ exports.sendOTP = async (req, res) => {
     try {
       await sendOTPEmail(email, otp, name);
     } catch (emailError) {
-      console.error('Email service error:', emailError);
       // Continue without failing - OTP is stored
     }
     
     res.json({ success: true, message: 'OTP sent successfully' });
   } catch (error) {
-    console.error('Send OTP error:', error);
+
     res.status(500).json({ success: false, message: error.message || 'Failed to send OTP' });
   }
 };
@@ -129,14 +128,14 @@ exports.register = async (req, res) => {
       user: { id: user._id, name: user.name, email: user.email, role: user.role }
     });
   } catch (error) {
-    console.error('Registration error:', error);
+
     res.status(400).json({ success: false, message: error.message });
   }
 };
 
 exports.login = async (req, res) => {
   try {
-    console.log('Login attempt for:', req.body.email);
+
     const { email, password } = req.body;
     
     // Validation
@@ -167,11 +166,7 @@ exports.login = async (req, res) => {
       user: { id: user._id, name: user.name, email: user.email, role: user.role }
     });
   } catch (error) {
-    console.error('Login error details:', {
-      message: error.message,
-      stack: error.stack,
-      email: req.body.email
-    });
+
     res.status(500).json({ success: false, message: 'Server error' });
   }
 };
