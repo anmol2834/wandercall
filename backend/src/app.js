@@ -20,28 +20,33 @@ try {
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Simple CORS configuration
+// CORS configuration
+const corsOptions = {
+  origin: [
+    'https://wandercall.vercel.app',
+    'http://wandercall.vercel.app',
+    'http://localhost:5173'
+  ],
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin'],
+  optionsSuccessStatus: 200
+};
+
+app.use(cors(corsOptions));
+
+// Additional CORS headers for all responses
 app.use((req, res, next) => {
   const origin = req.headers.origin;
+  const allowedOrigins = ['https://wandercall.vercel.app', 'http://wandercall.vercel.app', 'http://localhost:5173'];
   
-  // Allow specific origins
-  if (!origin || 
-      origin === 'https://wandercall.vercel.app' || 
-      origin === 'http://wandercall.vercel.app' ||
-      origin === 'http://localhost:5173' ||
-      origin.includes('vercel.app')) {
-    res.header('Access-Control-Allow-Origin', origin || '*');
+  if (!origin || allowedOrigins.includes(origin) || origin.includes('vercel.app')) {
+    res.header('Access-Control-Allow-Origin', origin || 'https://wandercall.vercel.app');
   }
   
   res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,PATCH,OPTIONS');
   res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, Accept, Origin');
   res.header('Access-Control-Allow-Credentials', 'true');
-  
-  // Handle preflight requests
-  if (req.method === 'OPTIONS') {
-    return res.sendStatus(200);
-  }
-  
   next();
 });
 
@@ -83,7 +88,7 @@ app.get('/test-db', async (req, res) => {
   }
 });
 
-// Global error handler
+// Global error handler with CORS headers
 app.use((err, req, res, next) => {
   console.error('Global Error:', {
     message: err.message,
@@ -91,6 +96,19 @@ app.use((err, req, res, next) => {
     url: req.url,
     method: req.method
   });
+  
+  // Ensure CORS headers are present even on errors
+  const origin = req.headers.origin;
+  const allowedOrigins = ['https://wandercall.vercel.app', 'http://wandercall.vercel.app', 'http://localhost:5173'];
+  
+  if (!origin || allowedOrigins.includes(origin) || origin.includes('vercel.app')) {
+    res.header('Access-Control-Allow-Origin', origin || 'https://wandercall.vercel.app');
+  }
+  
+  res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,PATCH,OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, Accept, Origin');
+  res.header('Access-Control-Allow-Credentials', 'true');
+  
   res.status(500).json({ 
     success: false, 
     message: 'Internal server error'
