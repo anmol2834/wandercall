@@ -63,6 +63,8 @@ export const AuthProvider = ({ children }) => {
     localStorage.setItem('user', JSON.stringify(userData));
     setUser(userData);
     setIsAuthenticated(true);
+    // Fetch fresh profile data including addresses
+    setTimeout(() => fetchUserProfile(), 100);
   };
 
   const logout = () => {

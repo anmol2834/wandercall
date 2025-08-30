@@ -41,6 +41,11 @@ const getAvatarUrl = (seed, style = 'adventurer') => {
   return `https://api.dicebear.com/7.x/${style}/svg?seed=${seed}&backgroundColor=b6e3f4,c0aede,d1d4f9,fecaca,fed7aa&radius=50`;
 };
 
+const getSelectedAvatar = (user) => {
+  const saved = localStorage.getItem('selectedAvatar');
+  return saved ? parseInt(saved) : user?.selectedAvatar || 0;
+};
+
 const avatarSeeds = [
   'adventurer-1', 'adventurer-2', 'adventurer-3', 'adventurer-4', 'adventurer-5',
   'adventurer-6', 'adventurer-7', 'adventurer-8', 'adventurer-9', 'adventurer-10',
@@ -262,7 +267,7 @@ const Navbar = () => {
                 {isAuthenticated ? (
                   <Avatar className="user-avatar" onClick={handleProfileClick} sx={{ cursor: 'pointer' }}>
                     <img 
-                      src={getAvatarUrl(avatarSeeds[user?.selectedAvatar || 0], (user?.selectedAvatar || 0) < 10 ? 'adventurer' : (user?.selectedAvatar || 0) < 20 ? 'personas' : 'bottts')} 
+                      src={getAvatarUrl(avatarSeeds[getSelectedAvatar(user)], getSelectedAvatar(user) < 10 ? 'adventurer' : getSelectedAvatar(user) < 20 ? 'personas' : 'bottts')} 
                       alt="Profile" 
                       style={{ width: '100%', height: '100%' }}
                     />
@@ -307,7 +312,7 @@ const Navbar = () => {
                 {isAuthenticated && (
                   <Avatar className="user-avatar" onClick={handleProfileClick} sx={{ cursor: 'pointer' }}>
                     <img 
-                      src={getAvatarUrl(avatarSeeds[user?.selectedAvatar || 0], (user?.selectedAvatar || 0) < 10 ? 'adventurer' : (user?.selectedAvatar || 0) < 20 ? 'personas' : 'bottts')} 
+                      src={getAvatarUrl(avatarSeeds[getSelectedAvatar(user)], getSelectedAvatar(user) < 10 ? 'adventurer' : getSelectedAvatar(user) < 20 ? 'personas' : 'bottts')} 
                       alt="Profile" 
                       style={{ width: '100%', height: '100%' }}
                     />

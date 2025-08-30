@@ -33,14 +33,17 @@ const Profile = () => {
   const location = useLocation();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
-  const { user, logout: authLogout, updateUser, loading } = useAuth();
+  const { user, logout: authLogout, updateUser, loading, fetchUserProfile } = useAuth();
   const dispatch = useDispatch();
   const xpBalance = useSelector(state => state.rewards?.xpBalance || 0);
   const [editing, setEditing] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [showBackToTop, setShowBackToTop] = useState(false);
   const [activeSection, setActiveSection] = useState('profile');
-  const [userAvatar, setUserAvatar] = useState(user?.selectedAvatar || 0);
+  const [userAvatar, setUserAvatar] = useState(() => {
+    const saved = localStorage.getItem('selectedAvatar');
+    return saved ? parseInt(saved) : user?.selectedAvatar || 0;
+  });
   const [showAvatarModal, setShowAvatarModal] = useState(false);
   const [addresses, setAddresses] = useState([]);
   const [addressLoading, setAddressLoading] = useState(null);
@@ -78,9 +81,20 @@ const Profile = () => {
       }
       if (user.addresses) {
         setAddresses(user.addresses);
+      } else if (user.id) {
+        // If addresses not loaded, fetch fresh user profile
+        fetchUserProfile();
+      }
+      // Set avatar from localStorage or user data
+      const saved = localStorage.getItem('selectedAvatar');
+      if (saved) {
+        setUserAvatar(parseInt(saved));
+      } else if (user.selectedAvatar !== undefined) {
+        setUserAvatar(user.selectedAvatar);
+        localStorage.setItem('selectedAvatar', user.selectedAvatar.toString());
       }
     }
-  }, [user, dispatch]);
+  }, [user, dispatch, fetchUserProfile]);
 
   // Get XP from waitlist rewards if available
   const displayXP = xpBalance || (user?.waitlistRewards?.find(r => r.rewardType === 'WELCOME_XP')?.rewardValue) || '0';
@@ -120,11 +134,22 @@ const Profile = () => {
     setShowAvatarModal(true);
   };
 
-  const selectAvatar = (index) => {
-    setUserAvatar(index);
-    // Update user context to sync with navbar
-    updateUser({ ...user, selectedAvatar: index });
-    setShowAvatarModal(false);
+  const selectAvatar = async (index) => {
+    try {
+      setUserAvatar(index);
+      // Save to localStorage
+      localStorage.setItem('selectedAvatar', index.toString());
+      // Save to backend
+      const response = await userAPI.updateProfile({ selectedAvatar: index });
+      // Update user context to sync with navbar
+      updateUser(response.data.user);
+      setShowAvatarModal(false);
+    } catch (error) {
+      console.error('Failed to update avatar:', error);
+      // Keep localStorage but revert state on backend error
+      const saved = localStorage.getItem('selectedAvatar');
+      setUserAvatar(saved ? parseInt(saved) : user?.selectedAvatar || 0);
+    }
   };
 
   const handleSetDefaultAddress = async (addressId) => {

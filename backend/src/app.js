@@ -2,12 +2,19 @@ const express = require('express');
 const cors = require('cors');
 require('dotenv').config();
 const connectDB = require('./config/database');
+const redisClient = require('./config/redis');
 const { startRewardExpiryChecker } = require('./utils/rewardExpiry');
 
 // Connect to database
 connectDB().catch(err => {
   console.error('Database connection failed:', err);
   process.exit(1);
+});
+
+// Connect to Redis
+redisClient.connect().catch(err => {
+  console.error('Redis connection failed:', err);
+  // Don't exit on Redis failure, continue without caching
 });
 
 // Start reward expiry checker

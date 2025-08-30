@@ -2,6 +2,8 @@ const User = require('../models/User');
 const bcrypt = require('bcryptjs');
 const crypto = require('crypto');
 const { sendPasswordResetOTP } = require('../services/emailService');
+const redisClient = require('../config/redis');
+const { clearCache } = require('../middleware/cache');
 
 // Store OTPs temporarily (in production, use Redis or database)
 const otpStore = new Map();
@@ -17,18 +19,27 @@ exports.getProfile = async (req, res) => {
 
 exports.updateProfile = async (req, res) => {
   try {
-    const { name, email, phone } = req.body;
+    const { name, email, phone, selectedAvatar } = req.body;
     const updateData = {};
     
     if (name) updateData.name = name;
     if (email) updateData.email = email;
     if (phone) updateData.phone = phone;
+    if (selectedAvatar !== undefined) updateData.selectedAvatar = selectedAvatar;
     
     const user = await User.findByIdAndUpdate(
       req.user._id,
       updateData,
       { new: true, runValidators: true }
     ).select('-password');
+    
+    // Clear user cache (only if Redis is available)
+    await clearCache(`cache:*:${req.user._id}`);
+    
+    // Cache user avatar for quick access (only if Redis is available)
+    if (selectedAvatar !== undefined && redisClient.isConnected) {
+      await redisClient.set(`user:${req.user._id}:avatar`, selectedAvatar, 86400); // 24 hours
+    }
     
     res.json({ success: true, user });
   } catch (error) {
