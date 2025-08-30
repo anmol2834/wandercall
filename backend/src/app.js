@@ -11,11 +11,13 @@ connectDB();
 startRewardExpiryChecker();
 
 const app = express();
-const PORT = process.env.PORT || 5002;
+const PORT = process.env.PORT || 5000;
 
 // Middleware
 const corsOptions = {
   origin: [
+    'http://localhost:5173',
+    'http://localhost:3000',
     'https://wandercall.vercel.app',
     'https://wandercall.com'
   ],
@@ -28,11 +30,11 @@ app.use(cors(corsOptions));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-// Request logging (disabled for clean terminal)
-// app.use((req, res, next) => {
-//   console.log(`${req.method} ${req.path}`, req.body);
-//   next();
-// });
+// Request logging
+app.use((req, res, next) => {
+  console.log(`${req.method} ${req.path}`, req.body);
+  next();
+});
 
 // Routes
 app.use('/api/auth', require('./routes/authRoutes'));
@@ -79,8 +81,8 @@ app.use('*', (req, res) => {
   });
 });
 
-const server = app.listen(PORT, '0.0.0.0', () => {
-  // Server started silently
+const server = app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
 });
 
 // Graceful shutdown

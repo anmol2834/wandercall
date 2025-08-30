@@ -36,7 +36,7 @@ const ExperienceCard = ({ experience }) => {
     e.stopPropagation();
     
     if (!user) {
-      navigate('/auth');
+      navigate('/signin');
       return;
     }
     

@@ -173,7 +173,7 @@ const ExperienceDetails = () => {
   const handleNextImage = () => setCurrentImageIndex(prev => prev === experience.images.length - 1 ? 0 : prev + 1);
   const handleWishlistToggle = async () => {
     if (!user) {
-      navigate('/auth');
+      navigate('/signin');
       return;
     }
     
