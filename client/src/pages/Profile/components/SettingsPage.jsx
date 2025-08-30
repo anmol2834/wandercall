@@ -6,18 +6,19 @@ import {
   DialogTitle, DialogContent, DialogActions
 } from '@mui/material';
 import {
-  Notifications, Security, Language, Palette,
+  AccountCircle, Storage, Language, Palette,
   Delete, PrivacyTip, Help, Logout
 } from '@mui/icons-material';
 import { motion } from 'framer-motion';
 
 const SettingsPage = () => {
   const [settings, setSettings] = useState({
-    emailNotifications: true,
-    pushNotifications: false,
-    marketingEmails: true,
+    profileVisibility: true,
+    showActivity: false,
+    allowMessages: true,
     darkMode: false,
-    twoFactorAuth: false
+    autoSave: true,
+    syncData: false
   });
   
   const [deleteDialog, setDeleteDialog] = useState(false);
@@ -31,19 +32,20 @@ const SettingsPage = () => {
 
   const settingsGroups = [
     {
-      title: 'Notifications',
-      icon: <Notifications />,
+      title: 'Privacy',
+      icon: <AccountCircle />,
       items: [
-        { key: 'emailNotifications', label: 'Email Notifications', description: 'Receive booking confirmations and updates' },
-        { key: 'pushNotifications', label: 'Push Notifications', description: 'Get real-time notifications on your device' },
-        { key: 'marketingEmails', label: 'Marketing Emails', description: 'Receive promotional offers and travel tips' }
+        { key: 'profileVisibility', label: 'Profile Visibility', description: 'Make your profile visible to other users' },
+        { key: 'showActivity', label: 'Show Activity Status', description: 'Let others see when you are active' },
+        { key: 'allowMessages', label: 'Allow Messages', description: 'Receive messages from other travelers' }
       ]
     },
     {
-      title: 'Security',
-      icon: <Security />,
+      title: 'Data & Storage',
+      icon: <Storage />,
       items: [
-        { key: 'twoFactorAuth', label: 'Two-Factor Authentication', description: 'Add extra security to your account' }
+        { key: 'autoSave', label: 'Auto-save Preferences', description: 'Automatically save your booking preferences' },
+        { key: 'syncData', label: 'Sync Data', description: 'Sync your data across all devices' }
       ]
     },
     {

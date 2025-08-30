@@ -132,8 +132,8 @@ const Profile = () => {
     { id: 'community', label: 'Community', icon: <Groups />, route: '/profile/community' },
     { id: 'journal', label: 'Experience Journal', icon: <MenuBook />, route: '/profile/journal' },
     { id: 'addresses', label: 'Addresses', icon: <LocationOn />, route: '/profile/addresses' },
-    { id: 'transactions', label: 'Transaction History', icon: <Receipt />, route: '/profile/transactions' },
-    { id: 'settings', label: 'Settings', icon: <Settings />, route: '/profile/settings' }
+    { id: 'transactions', label: 'Transaction History', icon: <Receipt />, route: '/profile/transactions' }
+    // { id: 'settings', label: 'Settings', icon: <Settings />, route: '/profile/settings' }
   ];
 
   const handleMenuClick = (item) => {

@@ -34,6 +34,7 @@ const RewardsPage = () => {
   const [tabValue, setTabValue] = useState(0);
   const [redeemDialog, setRedeemDialog] = useState(false);
   const [selectedReward, setSelectedReward] = useState(null);
+  const [rewardBucket, setRewardBucket] = useState(false);
 
   useEffect(() => {
     if (user && user.id) {
@@ -61,10 +62,10 @@ const RewardsPage = () => {
   };
 
   const availableRewards = [
-    { id: 1, name: '10% Discount Voucher', cost: 500, type: 'discount', icon: <CardGiftcard /> },
-    { id: 2, name: 'Free Experience Upgrade', cost: 1000, type: 'upgrade', icon: <WorkspacePremium /> },
-    { id: 3, name: 'Priority Booking Access', cost: 750, type: 'priority', icon: <Star /> },
-    { id: 4, name: 'Exclusive Experience Access', cost: 1500, type: 'exclusive', icon: <LocalActivity /> }
+    { id: 1, name: '10% Discount Coupon', cost: 1000, type: 'discount', icon: <CardGiftcard /> },
+    { id: 2, name: '20% Discount Coupon', cost: 3000, type: 'discount', icon: <CardGiftcard /> },
+    { id: 3, name: '₹10 Cash Reward', cost: 1000, type: 'cash', icon: <AccountBalanceWallet /> },
+    { id: 4, name: '1 Free Experience', cost: 10000, type: 'free', icon: <LocalActivity /> }
   ];
 
   const earnMoreOptions = [
@@ -132,9 +133,25 @@ const RewardsPage = () => {
                     }} 
                   />
                   {/* Desktop: Show XP here */}
-                  <Typography variant="h6" sx={{ fontWeight: 600, fontSize: '1.1rem', display: { xs: 'none', sm: 'block' } }}>
-                    {displayXP} XP
-                  </Typography>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <Typography variant="h6" sx={{ fontWeight: 600, fontSize: '1.1rem', display: { xs: 'none', sm: 'block' } }}>
+                      {displayXP} XP
+                    </Typography>
+                    <Button
+                      size="small"
+                      variant="contained"
+                      onClick={() => setRewardBucket(true)}
+                      sx={{
+                        backgroundColor: 'rgba(255, 255, 255, 0.2)',
+                        color: 'white',
+                        fontSize: '0.7rem',
+                        px: 1.5,
+                        py: 0.5
+                      }}
+                    >
+                      🎁 Bucket
+                    </Button>
+                  </Box>
                 </Box>
               </Grid>
               <Grid item xs={12} sm={4}>
@@ -278,17 +295,17 @@ const RewardsPage = () => {
                           <Button
                             variant="contained"
                             size="small"
-                            disabled={xpBalance < reward.cost || loading}
+                            disabled={parseInt(displayXP) < reward.cost || loading}
                             onClick={() => handleRedeem(reward)}
                             sx={{
                               minWidth: 80,
                               fontSize: '0.75rem',
-                              background: xpBalance >= reward.cost 
+                              background: parseInt(displayXP) >= reward.cost 
                                 ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
                                 : 'rgba(255, 255, 255, 0.1)'
                             }}
                           >
-                            {xpBalance >= reward.cost ? 'Redeem' : 'Need XP'}
+                            {parseInt(displayXP) >= reward.cost ? 'Redeem' : 'Need XP'}
                           </Button>
                         </Box>
                       </CardContent>
@@ -402,6 +419,37 @@ const RewardsPage = () => {
             }}>
               <CardContent sx={{ p: 0 }}>
                 <List>
+                  {/* Waitlist XP History */}
+                  {user?.waitlistRewards?.filter(reward => reward.rewardType.includes('XP')).map((reward, index) => (
+                    <React.Fragment key={`waitlist-xp-${index}`}>
+                      <ListItem sx={{ py: 1.5 }}>
+                        <ListItemIcon>
+                          <Avatar sx={{ 
+                            backgroundColor: '#10b981',
+                            width: 32,
+                            height: 32
+                          }}>
+                            <TrendingUp fontSize="small" />
+                          </Avatar>
+                        </ListItemIcon>
+                        <ListItemText
+                          primary={<Typography variant="body2" sx={{ fontSize: '0.85rem' }}>Welcome XP from Waitlist</Typography>}
+                          secondary={<Typography variant="caption" sx={{ fontSize: '0.7rem' }}>Joined waitlist</Typography>}
+                        />
+                        <Typography
+                          variant="body2"
+                          sx={{
+                            color: '#10b981',
+                            fontWeight: 600,
+                            fontSize: '0.85rem'
+                          }}
+                        >
+                          +{reward.rewardValue} XP
+                        </Typography>
+                      </ListItem>
+                      <Divider />
+                    </React.Fragment>
+                  ))}
                   {(history || []).map((item, index) => (
                     <React.Fragment key={index}>
                       <ListItem sx={{ py: 1.5 }}>
@@ -432,7 +480,7 @@ const RewardsPage = () => {
                       {index < history.length - 1 && <Divider />}
                     </React.Fragment>
                   ))}
-                  {(!history || history.length === 0) && (
+                  {(!history || history.length === 0) && (!user?.waitlistRewards?.filter(r => r.rewardType.includes('XP')).length) && (
                     <ListItem sx={{ textAlign: 'center', py: 3 }}>
                       <ListItemText
                         primary={<Typography variant="body2">No XP history yet</Typography>}
@@ -488,6 +536,81 @@ const RewardsPage = () => {
             Confirm Redeem
           </Button>
         </DialogActions>
+      </Dialog>
+
+      {/* Reward Bucket Overlay */}
+      <Dialog 
+        open={rewardBucket} 
+        onClose={() => setRewardBucket(false)} 
+        maxWidth="md" 
+        fullWidth
+        PaperProps={{
+          sx: {
+            background: 'rgba(0, 0, 0, 0.9)',
+            backdropFilter: 'blur(20px)',
+            border: '1px solid rgba(255, 255, 255, 0.1)',
+            borderRadius: 3,
+            m: { xs: 1, sm: 2 }
+          }
+        }}
+      >
+        <Box sx={{ p: { xs: 2, sm: 3 } }}>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+            <Typography variant="h5" sx={{ fontWeight: 700, fontSize: { xs: '1.2rem', sm: '1.5rem' } }}>
+              🎁 My Reward Bucket
+            </Typography>
+            <IconButton onClick={() => setRewardBucket(false)} sx={{ color: 'white' }}>
+              <Close />
+            </IconButton>
+          </Box>
+          
+          <Grid container spacing={2}>
+            {/* Non-XP Waitlist Rewards */}
+            {user?.waitlistRewards?.filter(reward => !reward.rewardType.includes('XP')).map((reward, index) => (
+              <Grid item xs={12} sm={6} md={4} key={`waitlist-${index}`}>
+                <Card sx={{
+                  background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+                  color: 'white',
+                  borderRadius: 2,
+                  position: 'relative',
+                  overflow: 'hidden'
+                }}>
+                  <CardContent sx={{ p: { xs: 1.5, sm: 2 } }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+                      <Typography sx={{ fontSize: { xs: '1rem', sm: '1.2rem' } }}>
+                        🎁
+                      </Typography>
+                      <Typography variant="body1" sx={{ fontWeight: 600, fontSize: { xs: '0.8rem', sm: '0.9rem' } }}>
+                        {reward.rewardType.replace('_', ' ')}
+                      </Typography>
+                    </Box>
+                    <Typography variant="h6" sx={{ fontWeight: 700, mb: 1, fontSize: { xs: '0.9rem', sm: '1rem' } }}>
+                      {reward.rewardValue}
+                    </Typography>
+                    <Typography variant="caption" sx={{ opacity: 0.8, fontSize: { xs: '0.65rem', sm: '0.75rem' } }}>
+                      From Waitlist
+                    </Typography>
+                  </CardContent>
+                </Card>
+              </Grid>
+            ))}
+            
+            {/* Empty state */}
+            {(!user?.waitlistRewards?.filter(r => !r.rewardType.includes('XP')).length) && (
+              <Grid item xs={12}>
+                <Box sx={{ textAlign: 'center', py: 4 }}>
+                  <Typography sx={{ fontSize: { xs: '2rem', sm: '3rem' }, mb: 2 }}>🎁</Typography>
+                  <Typography variant="h6" sx={{ mb: 1, fontSize: { xs: '1rem', sm: '1.2rem' } }}>
+                    No rewards yet
+                  </Typography>
+                  <Typography variant="body2" sx={{ opacity: 0.7, fontSize: { xs: '0.8rem', sm: '0.9rem' } }}>
+                    Redeem rewards to see them here!
+                  </Typography>
+                </Box>
+              </Grid>
+            )}
+          </Grid>
+        </Box>
       </Dialog>
 
       {/* Attractive Bottom Section with Animations */}
