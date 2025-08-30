@@ -40,49 +40,23 @@ const Profile = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [showBackToTop, setShowBackToTop] = useState(false);
   const [activeSection, setActiveSection] = useState('profile');
-  const [userAvatar, setUserAvatar] = useState(0);
+  const [userAvatar, setUserAvatar] = useState(user?.selectedAvatar || 0);
   const [showAvatarModal, setShowAvatarModal] = useState(false);
   const [addresses, setAddresses] = useState([]);
   const [addressLoading, setAddressLoading] = useState(null);
 
-  const avatarOptions = [
-    // SVG Avatar 1
-    <svg viewBox="0 0 100 100" style={{ width: '100%', height: '100%' }}>
-      <circle cx="50" cy="50" r="50" fill="#6366f1"/>
-      <circle cx="50" cy="35" r="15" fill="#fff"/>
-      <circle cx="45" cy="32" r="2" fill="#333"/>
-      <circle cx="55" cy="32" r="2" fill="#333"/>
-      <path d="M42 40 Q50 45 58 40" stroke="#333" strokeWidth="2" fill="none"/>
-      <rect x="35" y="65" width="30" height="35" rx="15" fill="#fff"/>
-    </svg>,
-    // SVG Avatar 2
-    <svg viewBox="0 0 100 100" style={{ width: '100%', height: '100%' }}>
-      <circle cx="50" cy="50" r="50" fill="#ec4899"/>
-      <circle cx="50" cy="35" r="15" fill="#fff"/>
-      <circle cx="45" cy="32" r="2" fill="#333"/>
-      <circle cx="55" cy="32" r="2" fill="#333"/>
-      <path d="M42 40 Q50 45 58 40" stroke="#333" strokeWidth="2" fill="none"/>
-      <rect x="35" y="65" width="30" height="35" rx="15" fill="#fff"/>
-    </svg>,
-    // SVG Avatar 3
-    <svg viewBox="0 0 100 100" style={{ width: '100%', height: '100%' }}>
-      <circle cx="50" cy="50" r="50" fill="#10b981"/>
-      <circle cx="50" cy="35" r="15" fill="#fff"/>
-      <circle cx="45" cy="32" r="2" fill="#333"/>
-      <circle cx="55" cy="32" r="2" fill="#333"/>
-      <path d="M42 40 Q50 45 58 40" stroke="#333" strokeWidth="2" fill="none"/>
-      <rect x="35" y="65" width="30" height="35" rx="15" fill="#fff"/>
-    </svg>,
-    // SVG Avatar 4
-    <svg viewBox="0 0 100 100" style={{ width: '100%', height: '100%' }}>
-      <circle cx="50" cy="50" r="50" fill="#f59e0b"/>
-      <circle cx="50" cy="35" r="15" fill="#fff"/>
-      <circle cx="45" cy="32" r="2" fill="#333"/>
-      <circle cx="55" cy="32" r="2" fill="#333"/>
-      <path d="M42 40 Q50 45 58 40" stroke="#333" strokeWidth="2" fill="none"/>
-      <rect x="35" y="65" width="30" height="35" rx="15" fill="#fff"/>
-    </svg>
+  const avatarSeeds = [
+    'adventurer-1', 'adventurer-2', 'adventurer-3', 'adventurer-4', 'adventurer-5',
+    'adventurer-6', 'adventurer-7', 'adventurer-8', 'adventurer-9', 'adventurer-10',
+    'personas-1', 'personas-2', 'personas-3', 'personas-4', 'personas-5',
+    'personas-6', 'personas-7', 'personas-8', 'personas-9', 'personas-10',
+    'bottts-1', 'bottts-2', 'bottts-3', 'bottts-4', 'bottts-5',
+    'fun-emoji-1', 'fun-emoji-2', 'fun-emoji-3', 'fun-emoji-4', 'fun-emoji-5'
   ];
+
+  const getAvatarUrl = (seed, style = 'adventurer') => {
+    return `https://api.dicebear.com/7.x/${style}/svg?seed=${seed}&backgroundColor=b6e3f4,c0aede,d1d4f9,fecaca,fed7aa&radius=50`;
+  };
 
   useEffect(() => {
     const path = location.pathname;
@@ -148,6 +122,8 @@ const Profile = () => {
 
   const selectAvatar = (index) => {
     setUserAvatar(index);
+    // Update user context to sync with navbar
+    updateUser({ ...user, selectedAvatar: index });
     setShowAvatarModal(false);
   };
 
@@ -374,21 +350,59 @@ const Profile = () => {
                             overlap="circular"
                             anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
                             badgeContent={
-                              <IconButton
-                                size="small"
-                                onClick={handleAvatarChange}
-                                sx={{
-                                  backgroundColor: theme.palette.background.paper,
-                                  color: theme.palette.primary.main,
-                                  '&:hover': { backgroundColor: theme.palette.background.paper }
-                                }}
+                              <motion.div
+                                whileHover={{ scale: 1.1 }}
+                                whileTap={{ scale: 0.9 }}
                               >
-                                <Edit fontSize="small" />
-                              </IconButton>
+                                <IconButton
+                                  size="small"
+                                  onClick={handleAvatarChange}
+                                  sx={{
+                                    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                                    color: theme.palette.primary.main,
+                                    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+                                    '&:hover': { 
+                                      backgroundColor: 'white',
+                                      boxShadow: '0 6px 20px rgba(0, 0, 0, 0.2)'
+                                    }
+                                  }}
+                                >
+                                  <Edit fontSize="small" />
+                                </IconButton>
+                              </motion.div>
                             }
                           >
-                            <Box sx={{ width: 120, height: 120, border: '4px solid rgba(255, 255, 255, 0.3)', borderRadius: '50%', overflow: 'hidden' }}>
-                              {avatarOptions[userAvatar]}
+                            <Box sx={{ 
+                              width: 120, 
+                              height: 120, 
+                              border: '4px solid rgba(255, 255, 255, 0.4)', 
+                              borderRadius: '50%', 
+                              overflow: 'hidden',
+                              background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05))',
+                              backdropFilter: 'blur(10px)',
+                              boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.2)',
+                              position: 'relative',
+                              '&::before': {
+                                content: '""',
+                                position: 'absolute',
+                                top: 0,
+                                left: 0,
+                                right: 0,
+                                bottom: 0,
+                                borderRadius: '50%',
+                                background: 'linear-gradient(45deg, transparent 30%, rgba(255, 255, 255, 0.1) 50%, transparent 70%)',
+                                animation: 'shimmer 3s infinite'
+                              },
+                              '@keyframes shimmer': {
+                                '0%': { transform: 'rotate(0deg)' },
+                                '100%': { transform: 'rotate(360deg)' }
+                              }
+                            }}>
+                              <img 
+                                src={getAvatarUrl(avatarSeeds[userAvatar], userAvatar < 10 ? 'adventurer' : userAvatar < 20 ? 'personas' : userAvatar < 25 ? 'bottts' : 'fun-emoji')} 
+                                alt="Avatar" 
+                                style={{ width: '100%', height: '100%' }}
+                              />
                             </Box>
                           </Badge>
                         </motion.div>
@@ -403,7 +417,9 @@ const Profile = () => {
                           </Typography>
                         </Box>
                         <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', justifyContent: { xs: 'center', md: 'flex-start' } }}>
-                          <Chip label="Premium Member" sx={{ backgroundColor: 'rgba(255, 255, 255, 0.2)', color: 'white' }} />
+                          {user?.waitlistRewards && (
+                            <Chip label="Premium Member" sx={{ backgroundColor: 'rgba(255, 255, 255, 0.2)', color: 'white' }} />
+                          )}
                           <Chip label="Travel Enthusiast" sx={{ backgroundColor: 'rgba(255, 255, 255, 0.2)', color: 'white' }} />
                         </Box>
                       </Grid>
@@ -704,38 +720,50 @@ const Profile = () => {
               style={{
                 backgroundColor: theme.palette.background.paper,
                 borderRadius: 16,
-                padding: 24,
-                maxWidth: 400,
-                width: '90%'
+                padding: 16,
+                maxWidth: 320,
+                width: '90%',
+                maxHeight: '70vh',
+                overflow: 'hidden',
+                display: 'flex',
+                flexDirection: 'column'
               }}
             >
               <Typography variant="h5" sx={{ mb: 3, textAlign: 'center', fontWeight: 700 }}>
                 Choose Your Avatar
               </Typography>
-              <Grid container spacing={2}>
-                {avatarOptions.map((avatar, index) => (
-                  <Grid item xs={6} key={index}>
-                    <motion.div
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                      onClick={() => selectAvatar(index)}
-                      style={{
-                        width: '100%',
-                        height: 100,
-                        cursor: 'pointer',
-                        border: userAvatar === index ? '3px solid #6366f1' : '2px solid transparent',
-                        borderRadius: '50%',
-                        overflow: 'hidden',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center'
-                      }}
-                    >
-                      {avatar}
-                    </motion.div>
-                  </Grid>
-                ))}
-              </Grid>
+              <Box sx={{ overflowY: 'auto', flex: 1, pr: 1 }}>
+                <Grid container spacing={1}>
+                  {avatarSeeds.map((seed, index) => (
+                    <Grid item xs={4} key={index} sx={{ display: 'flex', justifyContent: 'center' }}>
+                      <motion.div
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        onClick={() => selectAvatar(index)}
+                        style={{
+                          width: 60,
+                          height: 60,
+                          cursor: 'pointer',
+                          border: userAvatar === index ? '2px solid #6366f1' : '1px solid rgba(255, 255, 255, 0.2)',
+                          borderRadius: '50%',
+                          overflow: 'hidden',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          background: userAvatar === index ? 'rgba(99, 102, 241, 0.1)' : 'transparent',
+                          boxShadow: userAvatar === index ? '0 2px 8px rgba(99, 102, 241, 0.3)' : 'none'
+                        }}
+                      >
+                        <img 
+                          src={getAvatarUrl(seed, index < 10 ? 'adventurer' : index < 20 ? 'personas' : index < 25 ? 'bottts' : 'fun-emoji')} 
+                          alt={`Avatar ${index + 1}`} 
+                          style={{ width: '100%', height: '100%' }}
+                        />
+                      </motion.div>
+                    </Grid>
+                  ))}
+                </Grid>
+              </Box>
               <Box sx={{ display: 'flex', justifyContent: 'center', mt: 3 }}>
                 <Button onClick={() => setShowAvatarModal(false)} variant="outlined">
                   Cancel
