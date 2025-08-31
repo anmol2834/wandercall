@@ -18,6 +18,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { fetchUserRewards } from '../../redux/slices/rewardsSlice';
 import EditProfileModal from '../../components/EditProfileModal';
 import ProfilePageLoader from '../../components/loaders/ProfilePageLoader';
+import wandercallLogo1 from '../../assets/wandercall-logo1.svg';
 import './Profile.css';
 import RewardsPage from './components/RewardsPage';
 import BookingsPage from './components/BookingsPage';
@@ -188,12 +189,21 @@ const Profile = () => {
 
   const MenuContent = () => (
     <Box className="profile-menu-content" sx={{ height: '100vh', display: 'flex', flexDirection: 'column' }}>
-      <Box className="profile-menu-header" sx={{ p: 2, borderBottom: 1, borderColor: 'divider' }}>
-        <Typography variant="h6" sx={{ fontWeight: 700, color: theme.palette.primary.main }}>
-          WanderCall
-        </Typography>
+      <Box className="profile-menu-header" sx={{ p: 2, borderBottom: 1, borderColor: 'divider', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative' }}>
+        <Box 
+          component="img"
+          src={wandercallLogo1}
+          alt="WanderCall"
+          sx={{
+            height: { xs: 28, sm: 32 },
+            width: 'auto',
+            filter: theme.palette.mode === 'dark' ? 'invert(1)' : 'invert(0)',
+            transform: 'scale(2.6)',
+            transformOrigin: 'center'
+          }}
+        />
         {isMobile && (
-          <IconButton onClick={() => setMobileMenuOpen(false)}>
+          <IconButton onClick={() => setMobileMenuOpen(false)} sx={{ position: 'absolute', right: 8 }}>
             <Close />
           </IconButton>
         )}

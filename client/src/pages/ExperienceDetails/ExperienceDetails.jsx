@@ -15,6 +15,7 @@ import { fetchProductById } from '../../redux/slices/productsSlice';
 import { wishlistAPI } from '../../services/api';
 import { useAuth } from '../../contexts/AuthContext';
 import { CircularProgress } from '@mui/material';
+import wandercallLogo2 from '../../assets/wandercall-logo2.svg';
 
 const ExperienceDetails = () => {
   const navigate = useNavigate();
@@ -237,16 +238,30 @@ const ExperienceDetails = () => {
             alignItems: 'center', 
             py: 2
           }}>
-            <motion.div 
-              whileHover={{ scale: 1.1, x: -3 }} 
-              whileTap={{ scale: 0.9 }}
-              animate={{ x: [0, -2, 0] }}
-              transition={{ duration: 2, repeat: Infinity, repeatType: "reverse" }}
-            >
-              <IconButton onClick={() => navigate(-1)} size="small">
-                <ArrowBack />
-              </IconButton>
-            </motion.div>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+              <motion.div 
+                whileHover={{ scale: 1.1, x: -3 }} 
+                whileTap={{ scale: 0.9 }}
+                animate={{ x: [0, -2, 0] }}
+                transition={{ duration: 2, repeat: Infinity, repeatType: "reverse" }}
+              >
+                <IconButton onClick={() => navigate(-1)} size="small">
+                  <ArrowBack />
+                </IconButton>
+              </motion.div>
+              <Box 
+                component="img"
+                src={wandercallLogo2}
+                alt="WanderCall"
+                sx={{
+                  height: { xs: 36, sm: 42 },
+                  width: 'auto',
+                  cursor: 'pointer',
+                  filter: theme.palette.mode === 'dark' ? 'invert(1)' : 'invert(0)'
+                }}
+                onClick={() => navigate('/')}
+              />
+            </Box>
             
             <Box sx={{ display: 'flex', gap: 1 }}>
               <motion.div whileHover={{ scale: 1.1, rotate: 5 }} whileTap={{ scale: 0.9 }}>

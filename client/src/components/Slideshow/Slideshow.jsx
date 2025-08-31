@@ -1,31 +1,62 @@
 import { useState, useEffect } from 'react';
-import { Box, Typography, Button, Toolbar, IconButton } from '@mui/material';
+import { Box, Typography, Button, Toolbar, IconButton, useMediaQuery, useTheme } from '@mui/material';
 import { ArrowBackIos, ArrowForwardIos, Logout } from '@mui/icons-material';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import './Slideshow.css';
 
+// Import images
+import fpvDroneH from '../../assets/fpv drone H.png';
+import fpvDroneV from '../../assets/fpv drone V.png';
+import gamerBashH from '../../assets/gamer bash H.png';
+import gamerBashV from '../../assets/gamer bash V.png';
+import lateNightPartyH from '../../assets/late night party H.png';
+import lateNightPartyV from '../../assets/late night party V.png';
+import movieNightsH from '../../assets/movie nights H.png';
+import movieNightsV from '../../assets/movie nights V.png';
+import storySessionH from '../../assets/story session H.png';
+import storySessionV from '../../assets/story session V.png';
+import wisdomHoursH from '../../assets/wisdom hours H.png';
+import wisdomHoursV from '../../assets/wisdom hours V.png';
+import wandercallLogo1 from '../../assets/wandercall-logo1.svg';
+
 const slides = [
   {
-    image: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1920&h=1080&fit=crop&q=80',
-    title: 'Mountain Experiences',
-    subtitle: 'Discover breathtaking peaks and valleys that will leave you speechless',
+    imageH: fpvDroneH,
+    imageV: fpvDroneV,
+    title: 'FPV Drone Adventures',
+    subtitle: 'Experience breathtaking aerial photography and videography like never before',
   },
   {
-    image: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1920&h=1080&fit=crop&q=80',
-    title: 'Ocean Experiences',
-    subtitle: 'Dive into crystal clear waters and explore underwater wonders',
+    imageH: gamerBashH,
+    imageV: gamerBashV,
+    title: 'Gamer Bash Events',
+    subtitle: 'Join epic gaming tournaments and connect with fellow gamers',
   },
   {
-    image: 'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=1920&h=1080&fit=crop&q=80',
-    title: 'Forest Experiences',
-    subtitle: 'Find peace in nature\'s embrace and reconnect with yourself',
+    imageH: lateNightPartyH,
+    imageV: lateNightPartyV,
+    title: 'Late Night Parties',
+    subtitle: 'Dance the night away with unforgettable party experiences',
   },
   {
-    image: 'https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=1920&h=1080&fit=crop&q=80',
-    title: 'Desert Experiences',
-    subtitle: 'Experience the magic of endless horizons and starlit nights',
+    imageH: movieNightsH,
+    imageV: movieNightsV,
+    title: 'Movie Nights',
+    subtitle: 'Enjoy cinematic experiences under the stars with friends',
+  },
+  {
+    imageH: storySessionH,
+    imageV: storySessionV,
+    title: 'Story Sessions',
+    subtitle: 'Share and listen to captivating stories in intimate settings',
+  },
+  {
+    imageH: wisdomHoursH,
+    imageV: wisdomHoursV,
+    title: 'Wisdom Hours',
+    subtitle: 'Learn from experts and expand your knowledge horizons',
   },
 ];
 
@@ -34,6 +65,8 @@ const Slideshow = () => {
   const [isAutoPlay, setIsAutoPlay] = useState(true);
   const navigate = useNavigate();
   const { user, isAuthenticated, logout } = useAuth();
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
   useEffect(() => {
     if (!isAutoPlay) return;
@@ -74,7 +107,7 @@ const Slideshow = () => {
           exit={{ scale: 0.9, opacity: 0 }}
           transition={{ duration: 1.2, ease: "easeInOut" }}
           style={{
-            backgroundImage: `url(${slides[currentSlide].image})`,
+            backgroundImage: `url(${isMobile ? slides[currentSlide].imageV : slides[currentSlide].imageH})`,
           }}
         />
       </AnimatePresence>
@@ -82,9 +115,21 @@ const Slideshow = () => {
       <div className="slide-overlay" />
       
       <Toolbar className="top-nav">
-        <Typography variant="h6" className="logo">
-          WanderCall
-        </Typography>
+        <Box 
+          component="img"
+          src={wandercallLogo1}
+          alt="WanderCall"
+          sx={{
+            height: { xs: 32, sm: 40 },
+            width: 'auto',
+            cursor: 'pointer',
+            filter: theme.palette.mode === 'dark' ? 'invert(1)' : 'invert(0)',
+            transform: 'scale(3)',
+            transformOrigin: 'center',
+            ml: { xs: 3, sm: 3 }
+          }}
+          onClick={() => navigate('/')}
+        />
         
         <Box className="nav-links">
           <Button color="inherit" className="nav-button" onClick={() => navigate('/about')}>About Us</Button>

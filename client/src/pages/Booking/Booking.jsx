@@ -17,6 +17,7 @@ import { fetchProductById } from '../../redux/slices/productsSlice';
 import { createPaymentSession, setBookingData } from '../../redux/slices/checkoutSlice';
 import { useAuth } from '../../contexts/AuthContext';
 import usePageTitle from '../../hooks/usePageTitle';
+import wandercallLogo2 from '../../assets/wandercall-logo2.svg';
 
 const Booking = () => {
   const navigate = useNavigate();
@@ -432,11 +433,25 @@ const Booking = () => {
       }}>
         <Container maxWidth="lg" sx={{ px: { xs: 2, sm: 3, md: 4 } }}>
           <Box sx={{ display: 'flex', alignItems: 'center', py: 2, gap: 2 }}>
-            <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
-              <IconButton onClick={handleBack} size="small">
-                <ArrowBack />
-              </IconButton>
-            </motion.div>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+              <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
+                <IconButton onClick={handleBack} size="small">
+                  <ArrowBack />
+                </IconButton>
+              </motion.div>
+              <Box 
+                component="img"
+                src={wandercallLogo2}
+                alt="WanderCall"
+                sx={{
+                  height: { xs: 36, sm: 42 },
+                  width: 'auto',
+                  cursor: 'pointer',
+                  filter: theme.palette.mode === 'dark' ? 'invert(1)' : 'invert(0)'
+                }}
+                onClick={() => navigate('/')}
+              />
+            </Box>
             
             <Box sx={{ flex: 1 }}>
               <Typography variant="h6" fontWeight={600}>
