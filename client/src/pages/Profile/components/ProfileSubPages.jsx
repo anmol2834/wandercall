@@ -12,7 +12,7 @@ export const BookedPage = () => (
         <CardContent sx={{ p: 4 }}>
           <Typography variant="h4" gutterBottom>Booked Experiences</Typography>
           <Typography variant="body1" color="text.secondary">
-            View and manage your booked travel experiences and adventures.
+            View and manage your booked experiences and adventures.
           </Typography>
         </CardContent>
       </Card>
@@ -90,7 +90,7 @@ export const JournalPage = () => (
         <CardContent sx={{ p: 4 }}>
           <Typography variant="h4" gutterBottom>Experience Journal</Typography>
           <Typography variant="body1" color="text.secondary">
-            Document your travel memories and experiences.
+            Document your memories and experiences.
           </Typography>
         </CardContent>
       </Card>

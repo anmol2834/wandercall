@@ -446,7 +446,7 @@ const Profile = () => {
                           {user?.waitlistRewards && (
                             <Chip label="Premium Member" sx={{ backgroundColor: 'rgba(255, 255, 255, 0.2)', color: 'white' }} />
                           )}
-                          <Chip label="Travel Enthusiast" sx={{ backgroundColor: 'rgba(255, 255, 255, 0.2)', color: 'white' }} />
+                          <Chip label="joy Enthusiast" sx={{ backgroundColor: 'rgba(255, 255, 255, 0.2)', color: 'white' }} />
                         </Box>
                       </Grid>
                       <Grid item xs={12} md={3}>

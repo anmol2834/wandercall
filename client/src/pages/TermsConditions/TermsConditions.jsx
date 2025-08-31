@@ -6,7 +6,8 @@ import {
 import { 
   ArrowBack, ExpandMore, Security, Gavel, Shield, AccountBalance, Info, CheckCircle,
   KeyboardArrowUp, Store, Person, Business, Policy, ContactSupport, 
-  FlightTakeoff, CameraAlt, School, SportsEsports, Handshake, Warning
+  FlightTakeoff, CameraAlt, School, SportsEsports, Handshake, Warning,
+  HealthAndSafety, MoneyOff
 } from '@mui/icons-material';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
@@ -62,6 +63,8 @@ const TermsConditions = () => {
     { id: 'buyer-guidelines', label: 'Buyer Guidelines', icon: <Store /> },
     { id: 'seller-guidelines', label: 'Seller Guidelines', icon: <Business /> },
     { id: 'marketplace-policies', label: 'Marketplace Policies', icon: <Shield /> },
+    { id: 'liability-waivers', label: 'Liability & Waivers', icon: <HealthAndSafety /> },
+    { id: 'cancellations-refunds', label: 'Cancellations & Refunds', icon: <MoneyOff /> },
     { id: 'dispute-resolution', label: 'Dispute Resolution', icon: <Gavel /> },
     { id: 'changes', label: 'Changes to Terms', icon: <Warning /> },
     { id: 'contact', label: 'Contact Information', icon: <ContactSupport /> }
@@ -82,7 +85,7 @@ const TermsConditions = () => {
       content: (
         <div>
           <Typography variant="body1" paragraph>
-            Welcome to WanderCall, a comprehensive marketplace platform that connects travelers with unique experiences and service providers. 
+            Welcome to WanderCall, a comprehensive marketplace platform that connects experiencers with unique experiences and service providers. 
             By accessing or using our services at <Link href="https://wandercall.com" target="_blank" rel="noopener">https://wandercall.com</Link>, 
             you agree to be bound by these Terms and Conditions.
           </Typography>
@@ -121,7 +124,7 @@ const TermsConditions = () => {
             <ListItem>
               <ListItemText 
                 primary="Buyer" 
-                secondary="A user who purchases experiences or services through our platform"
+                secondary="A user who book experiences or services through our platform"
               />
             </ListItem>
             <ListItem>
@@ -294,6 +297,121 @@ const TermsConditions = () => {
       )
     },
     {
+      id: 'liability-waivers',
+      title: 'Liability & Waivers',
+      icon: <HealthAndSafety />,
+      content: (
+        <div>
+          <Typography variant="h6" gutterBottom>Risk Acknowledgment</Typography>
+          <Typography variant="body1" paragraph>
+            Participation in WanderCall Experiences involves inherent risks. By booking an Experience, you acknowledge 
+            and voluntarily assume all risks associated with participation, including risk of injury, disability, death, 
+            or property damage.
+          </Typography>
+          
+          <Typography variant="h6" gutterBottom sx={{ mt: 3 }}>Limitation of Liability</Typography>
+          <Typography variant="body1" paragraph>
+            To the maximum extent permitted by law, WanderCall, its affiliates, employees, and partners shall not be 
+            liable for any direct, indirect, incidental, special, or consequential damages resulting from your 
+            participation in any Experience.
+          </Typography>
+          
+          <Typography variant="h6" gutterBottom sx={{ mt: 3 }}>Indemnification</Typography>
+          <Typography variant="body1" paragraph>
+            You agree to indemnify and hold harmless WanderCall from any claims, damages, liabilities, costs, and 
+            expenses (including legal fees) arising from your participation in any Experience or violation of these Terms.
+          </Typography>
+          
+          <Typography variant="h6" gutterBottom sx={{ mt: 3 }}>Additional Waivers</Typography>
+          <Typography variant="body1" paragraph>
+            For certain Experiences, you may be required to sign additional liability waivers before participation. 
+            These waivers will be provided electronically before the Experience or in person at the venue.
+          </Typography>
+          
+          <Typography variant="h6" gutterBottom sx={{ mt: 3 }}>Prohibited Behaviors</Typography>
+          <List>
+            <ListItem>
+              <ListItemText primary="Harassment of staff or other participants" />
+            </ListItem>
+            <ListItem>
+              <ListItemText primary="Damage to equipment or venues" />
+            </ListItem>
+            <ListItem>
+              <ListItemText primary="Use of illegal substances" />
+            </ListItem>
+            <ListItem>
+              <ListItemText primary="Excessive intoxication" />
+            </ListItem>
+            <ListItem>
+              <ListItemText primary="Violation of safety instructions" />
+            </ListItem>
+            <ListItem>
+              <ListItemText primary="Unauthorized photography/videography" />
+            </ListItem>
+          </List>
+          
+          <Typography variant="h6" gutterBottom sx={{ mt: 3 }}>Safety Compliance</Typography>
+          <Typography variant="body1">
+            For risky experiences specifically, participants must follow all safety instructions provided by our 
+            certified operators. Any reckless operation or violation of safety protocols will result in immediate 
+            termination of the session without refund.
+          </Typography>
+        </div>
+      )
+    },
+    {
+      id: 'cancellations-refunds',
+      title: 'Cancellations & Refunds',
+      icon: <MoneyOff />,
+      content: (
+        <div>
+          <Typography variant="h6" gutterBottom>Cancellation Policy</Typography>
+          <List>
+            <ListItem>
+              <ListItemIcon><CheckCircle color="primary" /></ListItemIcon>
+              <ListItemText primary="Service bookings can only be canceled within 48 hours of purchase" />
+            </ListItem>
+            <ListItem>
+              <ListItemIcon><CheckCircle color="primary" /></ListItemIcon>
+              <ListItemText primary="Once event preparation has begun or less than 72 hours remain before the event, no cancellation will be entertained" />
+            </ListItem>
+          </List>
+          
+          <Typography variant="h6" gutterBottom sx={{ mt: 3 }}>Return Policy</Typography>
+          <Typography variant="body1" paragraph>
+            Since our services include unique in-person experiences, we do not offer physical products that can be returned.
+          </Typography>
+          
+          <Typography variant="h6" gutterBottom sx={{ mt: 3 }}>Refund Policy</Typography>
+          <List>
+            <ListItem>
+              <ListItemIcon><CheckCircle color="primary" /></ListItemIcon>
+              <ListItemText primary="Once cancellation is successful, WanderCall will instantly initiate the refund to your source account or chosen method of refund" />
+            </ListItem>
+            <ListItem>
+              <ListItemIcon><CheckCircle color="primary" /></ListItemIcon>
+              <ListItemText primary="Refunds will be processed within 7–10 business days from the cancellation date" />
+            </ListItem>
+          </List>
+          
+          <Typography variant="h6" gutterBottom sx={{ mt: 3 }}>Company-Initiated Cancellations</Typography>
+          <Typography variant="body1" paragraph>
+            WanderCall reserves the right to cancel any Experience due to weather conditions, safety concerns, 
+            insufficient bookings, or other unforeseen circumstances. In such cases, we will provide a full refund 
+            or offer to reschedule your booking.
+          </Typography>
+          
+          <Paper sx={{ p: 3, mt: 3, backgroundColor: theme.palette.action.hover }}>
+            <Typography variant="h6" gutterBottom>Important Notice</Typography>
+            <Typography variant="body2">
+              All refund policies are subject to the specific terms and conditions of individual experience providers. 
+              Please review the cancellation policy for each experience before booking.
+            </Typography>
+          </Paper>
+        </div>
+      )
+    },
+    {
       id: 'dispute-resolution',
       title: 'Dispute Resolution',
       icon: <Gavel />,
@@ -378,8 +496,8 @@ const TermsConditions = () => {
           
           <Paper sx={{ p: 3, mt: 2, backgroundColor: theme.palette.background.paper }}>
             <Typography variant="h6" gutterBottom>WanderCall Support</Typography>
-            <Typography variant="body1">Email: legal@wandercall.com</Typography>
-            <Typography variant="body1">Phone: +1 (555) 123-4567</Typography>
+            <Typography variant="body1">Email: teamwandercall@gmail.com</Typography>
+            <Typography variant="body1">Phone: +91 8733942557</Typography>
             <Typography variant="body1">Website: <Link href="https://wandercall.com" target="_blank" rel="noopener">https://wandercall.com</Link></Typography>
             <Typography variant="body1">Business Hours: Monday - Friday, 9:00 AM - 6:00 PM EST</Typography>
           </Paper>
@@ -458,9 +576,9 @@ const TermsConditions = () => {
             <Typography variant="h1" className="terms-hero-title" sx={{ fontSize: { xs: '2.5rem', md: '4rem' }, mb: 2 }}>
               Terms & <span className="terms-gradient-text">Conditions</span>
             </Typography>
-            <Typography variant="h5" className="terms-hero-subtitle" sx={{ fontSize: { xs: '1.2rem', md: '1.5rem' }, mb: 4 }}>
+            <p style={{textAlign: "center"}}>
               Your comprehensive guide to using WanderCall marketplace safely and effectively
-            </Typography>
+            </p>
             
             {/* Hero Illustration */}
             <motion.div

@@ -104,7 +104,7 @@ const BookingsPage = () => {
                   🎯 My Bookings
                 </Typography>
                 <Typography variant="body1" sx={{ opacity: 0.9, mb: 2, fontSize: { xs: '0.9rem', sm: '1rem' } }}>
-                  Track and manage your travel experiences
+                  Track and manage your experiences
                 </Typography>
                 <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
                   <Chip label={`${bookings.length} Total Bookings`} sx={{ backgroundColor: 'rgba(255, 255, 255, 0.2)', color: 'white' }} />

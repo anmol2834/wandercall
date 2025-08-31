@@ -6,7 +6,7 @@ import './SignUpSlideshow.css';
 const slides = [
   {
     title: 'Create Your Adventure Profile',
-    subtitle: 'Build a personalized profile that showcases your travel preferences and connects you with like-minded explorers',
+    subtitle: 'Build a personalized profile that showcases your experiences and connects you with like-minded explorers',
     illustration: (
       <svg viewBox="0 0 400 300" className="slide-illustration">
         <defs>
@@ -59,7 +59,7 @@ const slides = [
   },
   {
     title: 'Join a Global Community',
-    subtitle: 'Connect with travelers worldwide, share your experiences, and discover new destinations through our vibrant community',
+    subtitle: 'Connect with experiencers worldwide, share your experiences, and discover new destinations through our vibrant community',
     illustration: (
       <svg viewBox="0 0 400 300" className="slide-illustration">
         <defs>

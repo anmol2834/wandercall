@@ -1,4 +1,4 @@
-import { Box, Grid, Typography, IconButton, Container, Divider } from '@mui/material';
+import { Box, Grid, Typography, IconButton, Container, Divider, useTheme } from '@mui/material';
 import { 
   Instagram, 
   Twitter, 
@@ -13,13 +13,14 @@ import './Footer.css';
 
 const Footer = () => {
   const navigate = useNavigate();
+  const theme = useTheme();
   const currentYear = new Date().getFullYear();
 
   const socialLinks = [
-    { icon: <Instagram />, label: 'Instagram', color: '#E4405F' },
-    { icon: <Twitter />, label: 'Twitter', color: '#1DA1F2' },
-    { icon: <LinkedIn />, label: 'LinkedIn', color: '#0077B5' },
-    { icon: <YouTube />, label: 'YouTube', color: '#FF0000' },
+    { icon: <Instagram />, label: 'Instagram', color: '#E4405F', url: 'https://www.instagram.com/wandercallofficial/' },
+    { icon: <Twitter />, label: 'Twitter', color: '#1DA1F2', url: 'https://twitter.com/wandercall' },
+    { icon: <LinkedIn />, label: 'LinkedIn', color: '#0077B5', url: 'https://linkedin.com/company/wandercall' },
+    { icon: <YouTube />, label: 'YouTube', color: '#FF0000', url: 'https://youtube.com/@wandercall' },
   ];
 
   const quickLinks = [
@@ -45,16 +46,16 @@ const Footer = () => {
             </Typography>
             <Box className="contact-info">
               <Box className="contact-item">
-                <Email className="contact-icon" />
-                <Typography variant="body2">hello@experiencehub.com</Typography>
+                <Email className="contact-icon" sx={{ color: 'white' }} />
+                <Typography variant="body2">teamwandercall@gmail.com</Typography>
               </Box>
               <Box className="contact-item">
-                <Phone className="contact-icon" />
-                <Typography variant="body2">+91 98765 43210</Typography>
+                <Phone className="contact-icon" sx={{ color: 'white' }} />
+                <Typography variant="body2">+91 8733942557</Typography>
               </Box>
               <Box className="contact-item">
-                <LocationOn className="contact-icon" />
-                <Typography variant="body2">Mumbai, India</Typography>
+                <LocationOn className="contact-icon" sx={{ color: 'white' }} />
+                <Typography variant="body2">Surat, India</Typography>
               </Box>
             </Box>
           </Grid>
@@ -85,14 +86,16 @@ const Footer = () => {
               Stay Connected
             </Typography>
             <Typography variant="body2" className="social-description">
-              Follow us for the latest experiences and travel inspiration
+              Follow us for the latest experiences and adventures
             </Typography>
             <Box className="social-links">
               {socialLinks.map((social) => (
                 <IconButton 
                   key={social.label}
                   className="social-icon"
+                  onClick={() => window.open(social.url, '_blank')}
                   sx={{ 
+                    color: 'white',
                     '&:hover': { 
                       backgroundColor: social.color + '20',
                       color: social.color 
@@ -113,7 +116,7 @@ const Footer = () => {
             © {currentYear} WanderCall. All rights reserved.
           </Typography>
           <Typography variant="body2" className="made-with-love">
-            Made with ❤️ for experience seekers worldwide
+            Where every call feels like a wonder!!
           </Typography>
         </Box>
       </Container>

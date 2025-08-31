@@ -139,7 +139,7 @@ const ExperienceJournalPage = () => {
                   📖 Experience Journal
                 </Typography>
                 <Typography variant="body1" sx={{ opacity: 0.9, mb: 2, fontSize: { xs: '0.9rem', sm: '1rem' } }}>
-                  Capture and relive your amazing travel memories
+                  Capture and relive your amazing memories
                 </Typography>
                 <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
                   <Chip label={`${stats.totalEntries} Entries`} sx={{ backgroundColor: 'rgba(255, 255, 255, 0.2)', color: 'white' }} />
@@ -279,7 +279,7 @@ const ExperienceJournalPage = () => {
           lineHeight: 1.6,
           fontSize: { xs: '0.9rem', sm: '1rem' }
         }}>
-          We're working on an amazing feature that will let you document and relive your travel experiences.
+          We're working on an amazing feature that will let you document and relive your experiences.
         </Typography>
         
         <Chip 

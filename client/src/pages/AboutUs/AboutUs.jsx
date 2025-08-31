@@ -23,7 +23,7 @@ const AboutUs = () => {
   }, []);
 
   const stats = [
-    { icon: <People />, number: '50K+', label: 'Happy Experiencers', color: '#6366f1', progress: 85 },
+    { icon: <People />, number: '20K+', label: 'Happy Experiencers', color: '#6366f1', progress: 85 },
     { icon: <Star />, number: '4.9', label: 'Average Rating', color: '#f59e0b', progress: 98 },
     { icon: <TrendingUp />, number: '200+', label: 'Destinations', color: '#10b981', progress: 75 },
     { icon: <Favorite />, number: '99%', label: 'Satisfaction Rate', color: '#ec4899', progress: 99 }
@@ -33,15 +33,15 @@ const AboutUs = () => {
     { icon: <Rocket />, title: 'Innovation', description: 'Cutting-edge technology for seamless experiences' },
     { icon: <Security />, title: 'Trust', description: 'Your safety and security is our top priority' },
     { icon: <Speed />, title: 'Excellence', description: 'Delivering exceptional service every time' },
-    { icon: <EmojiEvents />, title: 'Achievement', description: 'Award-winning travel experiences' }
+    { icon: <EmojiEvents />, title: 'Achievement', description: 'Award-winning experiences' }
   ];
 
   const milestones = [
-    { year: '2020', title: 'Founded', description: 'WanderCall was born in Mumbai' },
-    { year: '2021', title: '10K Users', description: 'Reached our first major milestone' },
-    { year: '2022', title: 'Pan-India', description: 'Expanded across all major cities' },
-    { year: '2023', title: '50K+ Experiencers', description: 'Half a million happy customers' },
-    { year: '2024', title: 'Global Vision', description: 'Expanding to international destinations' }
+    { year: '2024', title: 'Founded', description: 'WanderCall was born in Surat' },
+    { year: '2025', title: '10K Users', description: 'Reached our first major milestone' },
+    { year: '2026', title: 'Willing to Pan-India', description: 'Expanded across all major cities' },
+    { year: '2027', title: 'Willing to 50K+ Experiencers', description: 'Half a million happy customers' },
+    { year: '2024', title: 'Willi to Global Vision', description: 'Expanding to international destinations' }
   ];
 
   const teamMembers = [
@@ -142,7 +142,7 @@ const AboutUs = () => {
               <Typography variant="h1" className="about-hero-title">
                 About <span className="about-gradient-text">WanderCall</span>
               </Typography>
-              <p style={{ textAlign: 'center', color: theme.palette.text.secondary, maxWidth: 600, margin: '0 auto' }}>
+              <p style={{ textAlign: 'center', color: "white", maxWidth: 600, margin: '0 auto' }}>
                 Connecting experiencerss with extraordinary experiences across India and beyond
               </p>
             </motion.div>
@@ -407,10 +407,10 @@ const AboutUs = () => {
                 Our Story
               </Typography>
               <Typography variant="body1" className="story-text">
-                Founded in 2020, WanderCall began as a dream to make travel accessible and memorable for everyone. We believe that every journey should be an experience that enriches your life and creates lasting memories.
+                Founded in 2024, WanderCall began as a dream to make experiences accessible and memorable for everyone. We believe that every experience should be spark joy in your life and creates lasting memories.
               </Typography>
               <Typography variant="body1" className="story-text">
-                From humble beginnings in Mumbai, we've grown to serve thousands of experiencerss across India, offering curated experiences that showcase the beauty, culture, and diversity of our incredible country.
+                From humble beginnings in Surat, we've grown to serve thousands of experiencerss across India, offering curated experiences that showcase the beauty, culture, and diversity of our incredible country.
               </Typography>
             </motion.div>
           </Grid>
@@ -451,7 +451,7 @@ const AboutUs = () => {
             Meet Our Team
           </Typography>
           <p style={{ textAlign: 'center', color: theme.palette.text.secondary, maxWidth: 600, margin: '0 auto' }}>
-            Passionate individuals dedicated to creating amazing travel experiences
+            Passionate individuals dedicated to creating amazing experiences
           </p>
         </motion.div>
 
@@ -498,7 +498,7 @@ const AboutUs = () => {
               Our Mission
             </Typography>
             <Typography variant="h6" className="mission-text">
-              To inspire and enable meaningful travel experiences that connect people with places, cultures, and memories that last a lifetime.
+              To inspire and enable meaningful experiences that connect people with places, cultures, and memories that last a lifetime.
             </Typography>
           </motion.div>
         </Container>

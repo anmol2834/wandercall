@@ -37,7 +37,7 @@ const SettingsPage = () => {
       items: [
         { key: 'profileVisibility', label: 'Profile Visibility', description: 'Make your profile visible to other users' },
         { key: 'showActivity', label: 'Show Activity Status', description: 'Let others see when you are active' },
-        { key: 'allowMessages', label: 'Allow Messages', description: 'Receive messages from other travelers' }
+        { key: 'allowMessages', label: 'Allow Messages', description: 'Receive messages from other experiencers' }
       ]
     },
     {

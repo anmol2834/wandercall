@@ -67,7 +67,7 @@ const Privacy = () => {
             </ListItem>
             <ListItem>
               <ListItemIcon><CheckCircle color="primary" /></ListItemIcon>
-              <ListItemText primary="Profile photos and travel preferences" />
+              <ListItemText primary="Profile photos and experiences" />
             </ListItem>
             <ListItem>
               <ListItemIcon><CheckCircle color="primary" /></ListItemIcon>
@@ -384,7 +384,7 @@ const Privacy = () => {
             <Typography variant="h1" className="privacy-hero-title" sx={{ fontSize: { xs: '2.5rem', md: '4rem' }, mb: 2 }}>
               Privacy <span className="privacy-gradient-text">Policy</span>
             </Typography>
-            <p style={{ textAlign: 'center', color: theme.palette.text.secondary, maxWidth: 600, margin: '0 auto' }}>
+            <p style={{ textAlign: 'center', color: "white", maxWidth: 600, margin: '0 auto' }}>
               Transparent practices for protecting your personal information and digital privacy
             </p>
             

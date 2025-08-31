@@ -50,16 +50,16 @@ const Contact = () => {
       icon: <Email />,
       title: 'Email Support',
       description: 'Get help via email within 24 hours',
-      contact: 'support@wandercall.com',
-      action: 'mailto:support@wandercall.com',
+      contact: 'teamwandercall@gmail.com',
+      action: 'mailto:teamwandercall@gmail.com?subject=Support Request&body=Hello WanderCall Team,',
       color: '#6366f1'
     },
-    {
+    { 
       icon: <Phone />,
       title: 'Phone Support',
       description: 'Speak directly with our team',
-      contact: '+1 (555) 123-4567',
-      action: 'tel:+15551234567',
+      contact: '+91 8733942557',
+      action: 'tel:+918733942557',
       color: '#10b981'
     },
     {
@@ -74,8 +74,8 @@ const Contact = () => {
       icon: <WhatsApp />,
       title: 'WhatsApp',
       description: 'Quick support on WhatsApp',
-      contact: '+1 (555) 123-4567',
-      action: 'https://wa.me/15551234567',
+      contact: '+91 8733942557',
+      action: 'https://wa.me/+918733942557',
       color: '#25d366'
     }
   ];
@@ -91,19 +91,19 @@ const Contact = () => {
 
   const teamMembers = [
     {
-      name: 'Sarah Johnson',
+      name: 'Anmol Sinha',
       role: 'Customer Success Manager',
       avatar: 'SJ',
       color: '#6366f1'
     },
     {
-      name: 'Mike Chen',
+      name: 'Rishiraj Sinha',
       role: 'Technical Support Lead',
       avatar: 'MC',
       color: '#10b981'
     },
     {
-      name: 'Emily Rodriguez',
+      name: 'Suryansh',
       role: 'Privacy Officer',
       avatar: 'ER',
       color: '#f59e0b'
@@ -111,9 +111,9 @@ const Contact = () => {
   ];
 
   const socialLinks = [
-    { icon: <Twitter />, name: 'Twitter', url: '#', color: '#1da1f2' },
-    { icon: <LinkedIn />, name: 'LinkedIn', url: '#', color: '#0077b5' },
-    { icon: <Instagram />, name: 'Instagram', url: '#', color: '#e4405f' }
+    { icon: <Twitter />, name: 'Twitter', url: 'https://twitter.com/wandercall', color: '#1da1f2' },
+    { icon: <LinkedIn />, name: 'LinkedIn', url: 'https://linkedin.com/company/wandercall', color: '#0077b5' },
+    { icon: <Instagram />, name: 'Instagram', url: 'https://www.instagram.com/wandercallofficial/', color: '#e4405f' }
   ];
 
   return (
@@ -151,7 +151,7 @@ const Contact = () => {
             <Typography variant="h1" className="contact-hero-title" sx={{ fontSize: { xs: '2.5rem', md: '4rem' }, mb: 2 }}>
               Contact <span className="contact-gradient-text">Us</span>
             </Typography>
-            <p style={{ textAlign: 'center', color: theme.palette.text.secondary, maxWidth: 600, margin: '0 auto' }}>
+            <p style={{ textAlign: 'center', color: "white", maxWidth: 600, margin: '0 auto' }}>
               We're here to help you with any questions, concerns, or feedback
             </p>
             
@@ -243,7 +243,7 @@ const Contact = () => {
                   backdropFilter: 'blur(10px)',
                   border: '1px solid rgba(255, 255, 255, 0.1)',
                   cursor: 'pointer'
-                }} onClick={() => window.open(method.action, '_blank')}>
+                }} onClick={() => method.title === 'Email Support' ? window.location.href = method.action : window.open(method.action, '_blank')}>
                   <CardContent sx={{ textAlign: 'center', p: 3 }}>
                     <motion.div
                       whileHover={{ rotate: 360 }}
@@ -484,7 +484,7 @@ const Contact = () => {
                   </ListItemIcon>
                   <ListItemText 
                     primary="123 Innovation Street"
-                    secondary="San Francisco, CA 94105, USA"
+                    secondary="surat, GJ - 394510, india"
                   />
                 </ListItem>
                 <ListItem sx={{ px: 0 }}>
