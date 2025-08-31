@@ -25,6 +25,10 @@ exports.getProfile = async (req, res) => {
 
 exports.updateProfile = async (req, res) => {
   try {
+    if (!req.user || !req.user._id) {
+      return res.status(401).json({ success: false, message: 'User not authenticated' });
+    }
+    
     const { name, email, phone, selectedAvatar } = req.body;
     const updateData = {};
     
@@ -38,6 +42,10 @@ exports.updateProfile = async (req, res) => {
       updateData,
       { new: true, runValidators: true }
     ).select('-password');
+    
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found' });
+    }
     
     // If user doesn't have waitlist rewards but is a waitlist member, try to fetch from waitlist
     if (user.isWaitlistMember && (!user.waitlistRewards || user.waitlistRewards.length === 0)) {
@@ -53,11 +61,10 @@ exports.updateProfile = async (req, res) => {
       }
     }
     
-
-    
     res.json({ success: true, user });
   } catch (error) {
-    res.status(400).json({ success: false, message: error.message });
+    console.error('Update profile error:', error);
+    res.status(500).json({ success: false, message: error.message });
   }
 };
 

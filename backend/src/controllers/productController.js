@@ -16,23 +16,13 @@ const getAllProducts = async (req, res) => {
 const getProductById = async (req, res) => {
   try {
     const { id } = req.params;
-    console.log('Fetching product with ID:', id);
-    console.log('ObjectId valid:', mongoose.Types.ObjectId.isValid(id));
     
     // Validate ObjectId
     if (!mongoose.Types.ObjectId.isValid(id)) {
-      console.log('Invalid ObjectId format:', id);
       return res.status(400).json({ success: false, message: 'Invalid product ID' });
     }
     
-    // Try to find all products first
-    const allProducts = await Product.find();
-    console.log('Total products in DB:', allProducts.length);
-    console.log('All product IDs:', allProducts.map(p => p._id.toString()));
-    
     const product = await Product.findById(id);
-    console.log('Product found:', product ? 'Yes' : 'No');
-    console.log('Searched ID:', id);
     
     if (!product) {
       return res.status(404).json({ success: false, message: 'Product not found' });

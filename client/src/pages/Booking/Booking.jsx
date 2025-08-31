@@ -24,7 +24,8 @@ const Booking = () => {
   const dispatch = useDispatch();
   const { selectedProduct: product, productLoading, error } = useSelector(state => state.products);
   const { loading: checkoutLoading, paymentSession, error: checkoutError } = useSelector(state => state.checkout);
-  const { user } = useAuth();
+  const { user, updateUser } = useAuth();
+  const [isUpdatingUser, setIsUpdatingUser] = useState(false);
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   
@@ -52,13 +53,16 @@ const Booking = () => {
   });
   
   useEffect(() => {
-    if (id) {
+    if (id && !product) {
       dispatch(fetchProductById(id));
     }
-    if (user) {
+  }, [dispatch, id, product]);
+
+  useEffect(() => {
+    if (user && !guestInfo.name) {
       fetchUserData();
     }
-  }, [dispatch, id, user]);
+  }, [user]);
 
   const loadCashfreeScript = () => {
     return new Promise((resolve) => {
@@ -82,7 +86,7 @@ const Booking = () => {
 
   const fetchUserData = async () => {
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5002'}/api/users/profile`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/users/profile`, {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`
         }
@@ -104,18 +108,28 @@ const Booking = () => {
     }
   };
 
-  const updateUserData = async (phoneNumber) => {
+  const updateUserData = async (userData) => {
+    setIsUpdatingUser(true);
     try {
-      await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5002'}/api/users/profile`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/users/profile`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${localStorage.getItem('token')}`
         },
-        body: JSON.stringify({ phone: phoneNumber })
+        body: JSON.stringify(userData)
       });
+      
+      const data = await response.json();
+      
+      if (data.success) {
+        updateUser(data.user);
+        setGuestInfo(prev => ({ ...prev, ...userData }));
+      }
     } catch (error) {
       console.error('Error updating user data:', error);
+    } finally {
+      setIsUpdatingUser(false);
     }
   };
 
@@ -219,8 +233,21 @@ const Booking = () => {
 
   const handleNext = async () => {
     if (validateStep(activeStep)) {
-      if (activeStep === 1 && guestInfo.phone && user) {
-        await updateUserData(guestInfo.phone);
+      if (activeStep === 1 && user) {
+        const updateData = {};
+        const currentName = guestInfo.name.trim();
+        const currentPhone = guestInfo.phone.trim();
+        
+        if (currentName && currentName !== (user.name || '')) {
+          updateData.name = currentName;
+        }
+        if (currentPhone && currentPhone !== (user.phone || '')) {
+          updateData.phone = currentPhone;
+        }
+        
+        if (Object.keys(updateData).length > 0) {
+          await updateUserData(updateData);
+        }
       }
       if (activeStep < steps.length - 1) {
         setActiveStep(prev => prev + 1);
@@ -255,9 +282,22 @@ const Booking = () => {
     setPaymentInitiated(true);
 
     try {
-      // Update user phone if needed
-      if (guestInfo.phone && user) {
-        await updateUserData(guestInfo.phone);
+      // Update user data if needed
+      if (user) {
+        const updateData = {};
+        const currentName = guestInfo.name.trim();
+        const currentPhone = guestInfo.phone.trim();
+        
+        if (currentName && currentName !== (user.name || '')) {
+          updateData.name = currentName;
+        }
+        if (currentPhone && currentPhone !== (user.phone || '')) {
+          updateData.phone = currentPhone;
+        }
+        
+        if (Object.keys(updateData).length > 0) {
+          await updateUserData(updateData);
+        }
       }
 
       const scriptLoaded = await loadCashfreeScript();
@@ -828,12 +868,9 @@ const Booking = () => {
                               label="Email Address"
                               type="email"
                               value={guestInfo.email}
-                              onChange={(e) => {
-                                setGuestInfo({...guestInfo, email: e.target.value});
-                                setValidationErrors(prev => ({ ...prev, email: null }));
-                              }}
+                              disabled={true}
                               error={!!validationErrors.email}
-                              helperText={validationErrors.email}
+                              helperText={validationErrors.email || 'Email cannot be changed'}
                               variant="filled"
                               sx={{
                                 '& .MuiFilledInput-root': {
@@ -944,6 +981,27 @@ const Booking = () => {
                           <Chip icon={<CheckCircle />} label="256-bit SSL Encrypted" size="small" />
                           <Chip icon={<CheckCircle />} label="PCI DSS Compliant" size="small" />
                         </Box>
+                        
+                        <Box sx={{ mt: 3 }}>
+                          <Button 
+                            variant="outlined" 
+                            onClick={handleBack}
+                            startIcon={<ArrowBack />}
+                            sx={{
+                              minWidth: 140,
+                              height: 48,
+                              color: 'text.primary',
+                              borderColor: 'divider',
+                              '&:hover': {
+                                borderColor: 'primary.main',
+                                backgroundColor: 'primary.main',
+                                color: 'white'
+                              }
+                            }}
+                          >
+                            Previous
+                          </Button>
+                        </Box>
                       </Box>
                     </CardContent>
                   </Card>
@@ -952,46 +1010,50 @@ const Booking = () => {
               </motion.div>
             </AnimatePresence>
 
-            {/* Navigation Buttons */}
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 3 }}>
-              <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                <Button 
-                  variant="outlined" 
-                  onClick={handleBack}
-                  startIcon={<ArrowBack />}
-                  sx={{
-                    minWidth: 140,
-                    height: 48,
-                    color: 'text.primary',
-                    borderColor: 'divider',
-                    '&:hover': {
-                      borderColor: 'primary.main',
-                      backgroundColor: 'primary.main',
-                      color: 'white'
-                    }
-                  }}
-                >
-                  {activeStep === 0 ? 'Back to Details' : 'Previous'}
-                </Button>
-              </motion.div>
-              
-              <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                <Button 
-                  variant="contained" 
-                  onClick={activeStep === steps.length - 1 ? handleBooking : handleNext}
-                  sx={{ 
-                    minWidth: 140,
-                    height: 48,
-                    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                    '&:hover': {
-                      background: 'linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%)'
-                    }
-                  }}
-                >
-                  {activeStep === steps.length - 1 ? 'Confirm Booking' : 'Continue'}
-                </Button>
-              </motion.div>
-            </Box>
+            {/* Navigation Buttons - Only show for non-payment steps */}
+            {activeStep < steps.length - 1 && (
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 3 }}>
+                <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                  <Button 
+                    variant="outlined" 
+                    onClick={handleBack}
+                    startIcon={<ArrowBack />}
+                    sx={{
+                      minWidth: 140,
+                      height: 48,
+                      color: 'text.primary',
+                      borderColor: 'divider',
+                      '&:hover': {
+                        borderColor: 'primary.main',
+                        backgroundColor: 'primary.main',
+                        color: 'white'
+                      }
+                    }}
+                  >
+                    {activeStep === 0 ? 'Back to Details' : 'Previous'}
+                  </Button>
+                </motion.div>
+                
+                <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                  <Button 
+                    variant="contained" 
+                    onClick={handleNext}
+                    disabled={isUpdatingUser}
+                    startIcon={isUpdatingUser ? <CircularProgress size={20} /> : null}
+                    sx={{ 
+                      minWidth: 140,
+                      height: 48,
+                      background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                      '&:hover': {
+                        background: 'linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%)'
+                      }
+                    }}
+                  >
+                    {isUpdatingUser ? 'Updating...' : 'Continue'}
+                  </Button>
+                </motion.div>
+              </Box>
+            )}
           </Grid>
 
           {/* Right Column - Booking Summary */}
