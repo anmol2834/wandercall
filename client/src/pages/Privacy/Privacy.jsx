@@ -571,7 +571,7 @@ const Privacy = () => {
           className="privacy-contact-content"
         >
           <Card className="privacy-contact-card" sx={{ 
-            background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%)',
+            background: 'linear-gradient(135deg, rgba(0, 14, 74, 1) 0%, rgba(3, 0, 32, 1) 100%)',
             backdropFilter: 'blur(20px)',
             border: '1px solid rgba(255, 255, 255, 0.2)',
             borderRadius: 4,

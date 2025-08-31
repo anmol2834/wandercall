@@ -217,6 +217,7 @@
 /* Contact Section */
 .terms-contact-section {
   background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  border-radius: 20px 20px 0 0 !important;
 }
 
 .terms-contact-card {

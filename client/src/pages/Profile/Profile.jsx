@@ -12,6 +12,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate, useLocation, Routes, Route } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
+import { useRewards } from '../../contexts/RewardsContext';
 import { userAPI, addressAPI } from '../../services/api';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchUserRewards } from '../../redux/slices/rewardsSlice';
@@ -34,8 +35,8 @@ const Profile = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const { user, logout: authLogout, updateUser, loading, fetchUserProfile } = useAuth();
+  const { xpBalance } = useRewards();
   const dispatch = useDispatch();
-  const xpBalance = useSelector(state => state.rewards?.xpBalance || 0);
   const [editing, setEditing] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [showBackToTop, setShowBackToTop] = useState(false);
@@ -96,8 +97,8 @@ const Profile = () => {
     }
   }, [user, dispatch, fetchUserProfile]);
 
-  // Get XP from waitlist rewards if available
-  const displayXP = xpBalance || (user?.waitlistRewards?.find(r => r.rewardType === 'WELCOME_XP')?.rewardValue) || '0';
+  // Get XP from RewardsContext
+  const displayXP = xpBalance || '0';
 
   useEffect(() => {
     const handleScroll = () => {

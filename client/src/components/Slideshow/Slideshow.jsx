@@ -118,11 +118,12 @@ const Slideshow = () => {
                 className="auth-btn signin-btn"
                 onClick={() => navigate('/signin')}
                 sx={{ 
-                  borderColor: '#6366f1',
+                  borderColor: '#ffffffff',
                   color: 'white',
+                  backgroundColor: 'rgba(255, 255, 255, 0.1)',
                   '&:hover': {
                     borderColor: '#8b5cf6',
-                    backgroundColor: 'rgba(99, 102, 241, 0.1)'
+                    backgroundColor: 'rgba(104, 107, 244, 0.1)'
                   }
                 }}
               >

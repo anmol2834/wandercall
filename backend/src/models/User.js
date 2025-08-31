@@ -16,14 +16,7 @@ const userSchema = new mongoose.Schema({
   isEmailVerified: { type: Boolean, default: false },
   emailOTP: { type: String, required: false },
   otpExpires: { type: Date, required: false },
-  waitlistRewards: [{
-    rewardType: { type: String, required: true },
-    rewardValue: { type: String, required: true },
-    description: { type: String, required: true },
-    claimedAt: { type: Date, default: Date.now },
-    expiresAt: { type: Date },
-    isExpired: { type: Boolean, default: false }
-  }],
+
   addresses: {
     type: [{
       type: { type: String, enum: ['Home', 'Work', 'Other'], default: 'Home' },

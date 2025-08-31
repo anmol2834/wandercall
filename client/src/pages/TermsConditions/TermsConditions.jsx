@@ -622,6 +622,7 @@ const TermsConditions = () => {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           className="terms-contact-content"
+          
         >
           <Card className="terms-contact-card" sx={{ backgroundColor: theme.palette.background.paper, p: 4 }}>
             <CardContent className="contact-card-content" sx={{ textAlign: 'center' }}>

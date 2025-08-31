@@ -44,6 +44,7 @@ export const AuthProvider = ({ children }) => {
       }
       
       const response = await userAPI.getProfile();
+      
       setUser(response.data.user);
       setIsAuthenticated(true);
       localStorage.setItem('user', JSON.stringify(response.data.user));

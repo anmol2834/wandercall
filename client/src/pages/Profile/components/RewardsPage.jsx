@@ -15,6 +15,7 @@ import { useTheme } from '@mui/material/styles';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchUserRewards, redeemReward } from '../../../redux/slices/rewardsSlice';
 import { useAuth } from '../../../contexts/AuthContext';
+import { useRewards } from '../../../contexts/RewardsContext';
 import { useNavigate } from 'react-router-dom';
 import RewardsPageLoader from '../../../components/loaders/RewardsPageLoader';
 
@@ -23,13 +24,12 @@ const RewardsPage = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { user } = useAuth();
-  const rewards = useSelector(state => state.rewards?.rewards || []);
-  const xpBalance = useSelector(state => state.rewards?.xpBalance || 0);
-  const history = useSelector(state => state.rewards?.history || []);
-  const loading = useSelector(state => state.rewards?.loading || false);
+  const { waitlistRewards, xpBalance, loading } = useRewards();
+  const rewards = useSelector(state => state.rewards?.rewards) || [];
+  const history = useSelector(state => state.rewards?.history) || [];
   
-  // Get XP from waitlist rewards if Redux state is 0
-  const displayXP = xpBalance || (user?.waitlistRewards?.find(r => r.rewardType === 'WELCOME_XP')?.rewardValue) || '0';
+  // Get XP from waitlist rewards
+  const displayXP = xpBalance || '0';
   
   const [tabValue, setTabValue] = useState(0);
   const [redeemDialog, setRedeemDialog] = useState(false);
@@ -420,7 +420,7 @@ const RewardsPage = () => {
               <CardContent sx={{ p: 0 }}>
                 <List>
                   {/* Waitlist XP History */}
-                  {user?.waitlistRewards?.filter(reward => reward.rewardType.includes('XP')).map((reward, index) => (
+                  {waitlistRewards?.filter(reward => reward.rewardType === 'WELCOME_XP').map((reward, index) => (
                     <React.Fragment key={`waitlist-xp-${index}`}>
                       <ListItem sx={{ py: 1.5 }}>
                         <ListItemIcon>
@@ -480,7 +480,7 @@ const RewardsPage = () => {
                       {index < history.length - 1 && <Divider />}
                     </React.Fragment>
                   ))}
-                  {(!history || history.length === 0) && (!user?.waitlistRewards?.filter(r => r.rewardType.includes('XP')).length) && (
+                  {(!history || history.length === 0) && (!waitlistRewards?.filter(r => r.rewardType === 'WELCOME_XP').length) && (
                     <ListItem sx={{ textAlign: 'center', py: 3 }}>
                       <ListItemText
                         primary={<Typography variant="body2">No XP history yet</Typography>}
@@ -566,7 +566,7 @@ const RewardsPage = () => {
           
           <Grid container spacing={2}>
             {/* Non-XP Waitlist Rewards */}
-            {user?.waitlistRewards?.filter(reward => !reward.rewardType.includes('XP')).map((reward, index) => (
+            {waitlistRewards?.filter(reward => reward.rewardType !== 'WELCOME_XP').map((reward, index) => (
               <Grid item xs={12} sm={6} md={4} key={`waitlist-${index}`}>
                 <Card sx={{
                   background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
@@ -585,7 +585,7 @@ const RewardsPage = () => {
                       </Typography>
                     </Box>
                     <Typography variant="h6" sx={{ fontWeight: 700, mb: 1, fontSize: { xs: '0.9rem', sm: '1rem' } }}>
-                      {reward.rewardValue}
+                      {reward.rewardValue.replace('_', ' ')}
                     </Typography>
                     <Typography variant="caption" sx={{ opacity: 0.8, fontSize: { xs: '0.65rem', sm: '0.75rem' } }}>
                       From Waitlist
@@ -596,7 +596,7 @@ const RewardsPage = () => {
             ))}
             
             {/* Empty state */}
-            {(!user?.waitlistRewards?.filter(r => !r.rewardType.includes('XP')).length) && (
+            {(!waitlistRewards?.filter(r => r.rewardType !== 'WELCOME_XP').length) && (
               <Grid item xs={12}>
                 <Box sx={{ textAlign: 'center', py: 4 }}>
                   <Typography sx={{ fontSize: { xs: '2rem', sm: '3rem' }, mb: 2 }}>🎁</Typography>

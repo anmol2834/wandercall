@@ -65,6 +65,7 @@ export const userAPI = {
   sendEmailOTP: () => api.post('/users/send-email-otp'),
   updatePassword: (currentPassword, newPassword) => api.put('/users/update-password', { currentPassword, newPassword }),
   updatePasswordWithEmail: (emailOtp, newPassword) => api.put('/users/update-password-email', { emailOtp, newPassword }),
+  getWaitlistRewards: () => api.get('/users/waitlist-rewards'),
 };
 
 export const productAPI = {

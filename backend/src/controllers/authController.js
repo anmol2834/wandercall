@@ -97,7 +97,8 @@ exports.verifyOTP = async (req, res) => {
     
     // Link waitlist entry if exists
     const { linkWaitlistToUser } = require('./waitlistController');
-    await linkWaitlistToUser(user._id, email);
+    const linked = await linkWaitlistToUser(user._id, email);
+    console.log('Waitlist linking result:', linked, 'for user:', user._id, 'email:', email);
     
     // Send welcome email
     await sendWelcomeEmail(email, otpData.name);

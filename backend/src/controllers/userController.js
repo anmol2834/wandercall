@@ -2,15 +2,21 @@ const User = require('../models/User');
 const bcrypt = require('bcryptjs');
 const crypto = require('crypto');
 const { sendPasswordResetOTP } = require('../services/emailService');
-const redisClient = require('../config/redis');
-const { clearCache } = require('../middleware/cache');
 
 // Store OTPs temporarily (in production, use Redis or database)
 const otpStore = new Map();
 
 exports.getProfile = async (req, res) => {
   try {
-    const user = await User.findById(req.user._id).select('-password');
+    const WaitlistService = require('../services/waitlistService');
+    
+    // Get user with waitlist data attached
+    const user = await WaitlistService.getUserWithWaitlistData(req.user._id);
+    
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found' });
+    }
+    
     res.json({ success: true, user });
   } catch (error) {
     res.status(400).json({ success: false, message: error.message });
@@ -33,13 +39,21 @@ exports.updateProfile = async (req, res) => {
       { new: true, runValidators: true }
     ).select('-password');
     
-    // Clear user cache (only if Redis is available)
-    await clearCache(`cache:*:${req.user._id}`);
-    
-    // Cache user avatar for quick access (only if Redis is available)
-    if (selectedAvatar !== undefined && redisClient.isConnected) {
-      await redisClient.set(`user:${req.user._id}:avatar`, selectedAvatar, 86400); // 24 hours
+    // If user doesn't have waitlist rewards but is a waitlist member, try to fetch from waitlist
+    if (user.isWaitlistMember && (!user.waitlistRewards || user.waitlistRewards.length === 0)) {
+      const Waitlist = require('../models/Waitlist');
+      const waitlistEntry = await Waitlist.findOne({ 
+        $or: [{ userId: user._id }, { email: user.email }] 
+      });
+      
+      if (waitlistEntry && waitlistEntry.exclusiveRewards && waitlistEntry.exclusiveRewards.length > 0) {
+        // Update user with waitlist rewards
+        user.waitlistRewards = waitlistEntry.exclusiveRewards;
+        await user.save();
+      }
     }
+    
+
     
     res.json({ success: true, user });
   } catch (error) {
@@ -164,6 +178,39 @@ exports.updatePasswordWithEmail = async (req, res) => {
       success: true, 
       message: 'Password updated successfully'
     });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// Add new endpoint to sync waitlist rewards
+exports.syncWaitlistRewards = async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id);
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found' });
+    }
+
+    const Waitlist = require('../models/Waitlist');
+    const waitlistEntry = await Waitlist.findOne({ 
+      $or: [{ userId: user._id }, { email: user.email }] 
+    });
+    
+    if (waitlistEntry && waitlistEntry.exclusiveRewards && waitlistEntry.exclusiveRewards.length > 0) {
+      // Update user with waitlist rewards
+      user.waitlistRewards = waitlistEntry.exclusiveRewards;
+      user.isWaitlistMember = true;
+      await user.save();
+      
+      // Also update the waitlist entry to link it properly
+      if (!waitlistEntry.userId) {
+        waitlistEntry.userId = user._id;
+        waitlistEntry.isRewardsClaimed = true;
+        await waitlistEntry.save();
+      }
+    }
+    
+    res.json({ success: true, user: await User.findById(req.user._id).select('-password') });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }

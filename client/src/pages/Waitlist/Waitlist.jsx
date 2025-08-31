@@ -12,13 +12,15 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTheme } from '@mui/material/styles';
 import { useAuth } from '../../contexts/AuthContext';
+import { useRewards } from '../../contexts/RewardsContext';
 import { waitlistAPI } from '../../services/api';
 import './Waitlist.css';
 
 const Waitlist = () => {
   const navigate = useNavigate();
   const theme = useTheme();
-  const { user, isAuthenticated } = useAuth();
+  const { user, isAuthenticated, fetchUserProfile } = useAuth();
+  const { refreshRewards } = useRewards();
   const [formData, setFormData] = useState({ name: '', email: '' });
   const [errors, setErrors] = useState({});
   const [showRewards, setShowRewards] = useState(false);
@@ -143,6 +145,14 @@ const Waitlist = () => {
         setShowRewards(true);
         setLoading(false);
       }, 3000);
+      
+      // Refresh user profile and rewards data
+      if (isAuthenticated && user) {
+        setTimeout(async () => {
+          await fetchUserProfile();
+          refreshRewards();
+        }, 500);
+      }
       
     } catch (error) {
       setMessage(error.response?.data?.message || 'Failed to join waitlist');

@@ -5,6 +5,7 @@ import { useEffect } from 'react';
 import getTheme from './utils/theme';
 import { preventZoom } from './utils/preventZoom';
 import { AuthProvider } from './contexts/AuthContext';
+import { RewardsProvider } from './contexts/RewardsContext';
 import ScrollToTop from './components/ScrollToTop/ScrollToTop';
 import ProtectedRoute from './components/ProtectedRoute/ProtectedRoute';
 import Home from './pages/UserDashboard/Home';
@@ -34,8 +35,9 @@ function App() {
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <AuthProvider>
-        <Router>
-          <ScrollToTop />
+        <RewardsProvider>
+          <Router>
+            <ScrollToTop />
           <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/signin" element={
@@ -63,9 +65,10 @@ function App() {
           <Route path="/ticket/:id" element={<Ticket/>} />
           <Route path="/become-provider" element={<ProviderRegistration />} />
           <Route path="/waitlist" element={<Waitlist />} />
-        </Routes>
-      </Router>
-    </AuthProvider>
+          </Routes>
+          </Router>
+        </RewardsProvider>
+      </AuthProvider>
   </ThemeProvider>
   );
 }
