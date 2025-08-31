@@ -1,0 +1,22 @@
+User-agent: *
+Allow: /
+
+# Important pages
+Allow: /about
+Allow: /contact
+Allow: /terms-and-conditions
+Allow: /privacy
+Allow: /signin
+Allow: /signup
+
+# Disallow admin/private areas
+Disallow: /admin/
+Disallow: /api/
+Disallow: /profile/
+Disallow: /booking/
+
+# Sitemap location
+Sitemap: https://wandercall.com/sitemap.xml
+
+# Crawl delay
+Crawl-delay: 1

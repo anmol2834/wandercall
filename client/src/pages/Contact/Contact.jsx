@@ -11,6 +11,7 @@ import {
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
+import usePageTitle from '../../hooks/usePageTitle';
 import './Contact.css';
 
 const Contact = () => {
@@ -23,6 +24,8 @@ const Contact = () => {
     subject: '',
     message: ''
   });
+  
+  usePageTitle('Contact Us');
 
   useEffect(() => {
     const handleScroll = () => {

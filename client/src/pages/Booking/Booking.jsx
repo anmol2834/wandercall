@@ -16,6 +16,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { fetchProductById } from '../../redux/slices/productsSlice';
 import { createPaymentSession, setBookingData } from '../../redux/slices/checkoutSlice';
 import { useAuth } from '../../contexts/AuthContext';
+import usePageTitle from '../../hooks/usePageTitle';
 
 const Booking = () => {
   const navigate = useNavigate();
@@ -28,6 +29,8 @@ const Booking = () => {
   const [isUpdatingUser, setIsUpdatingUser] = useState(false);
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+  
+  usePageTitle('Book Experience');
   
   const [isProcessing, setIsProcessing] = useState(false);
   const [paymentInitiated, setPaymentInitiated] = useState(false);

@@ -3,6 +3,7 @@ import { ArrowBack, Star, TrendingUp, People, Favorite, Rocket, Security, Speed,
 import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
+import usePageTitle from '../../hooks/usePageTitle';
 import './AboutUs.css';
 
 const AboutUs = () => {
@@ -11,6 +12,8 @@ const AboutUs = () => {
   const { scrollYProgress } = useScroll();
   const [activeSection, setActiveSection] = useState(0);
   const [counters, setCounters] = useState({ experiencerss: 0, rating: 0, destinations: 0, satisfaction: 0 });
+  
+  usePageTitle('About Us');
 
   const y = useTransform(scrollYProgress, [0, 1], [0, -50]);
   const opacity = useTransform(scrollYProgress, [0, 0.5], [1, 0]);

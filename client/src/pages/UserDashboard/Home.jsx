@@ -6,6 +6,9 @@ import { motion } from 'framer-motion';
 import { nextPage, prevPage } from '../../redux/slices/experiencesSlice';
 import { fetchProducts } from '../../redux/slices/productsSlice';
 import { useAuth } from '../../contexts/AuthContext';
+import usePageTitle from '../../hooks/usePageTitle';
+import SEO from '../../components/SEO/SEO';
+import { getPageSEO } from '../../utils/seoData';
 import Slideshow from '../../components/Slideshow/Slideshow';
 import ExperienceCard from '../../components/ExperienceCard/ExperienceCard';
 import CardSkeleton from '../../components/CardSkeleton/CardSkeleton';
@@ -20,6 +23,9 @@ const Home = () => {
   const { experiences, currentPage, itemsPerPage } = useSelector((state) => state.experiences);
   const { products, loading } = useSelector((state) => state.products);
   const { user, isAuthenticated } = useAuth();
+  
+  usePageTitle('Home');
+  const seoData = getPageSEO('home');
 
   useEffect(() => {
     dispatch(fetchProducts());
@@ -33,7 +39,9 @@ const Home = () => {
   const totalPages = Math.ceil(products.length / itemsPerPage);
 
   return (
-    <Box className="home-container">
+    <>
+      <SEO {...seoData} />
+      <Box className="home-container">
       {/* Animated Background */}
       <BackgroundAnimation />
       
@@ -106,6 +114,7 @@ const Home = () => {
       {/* Footer */}
       <Footer />
     </Box>
+    </>
   );
 };
 

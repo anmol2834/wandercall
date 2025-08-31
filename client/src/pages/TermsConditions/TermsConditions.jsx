@@ -12,6 +12,7 @@ import {
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
+import usePageTitle from '../../hooks/usePageTitle';
 import './TermsConditions.css';
 
 const TermsConditions = () => {
@@ -20,6 +21,8 @@ const TermsConditions = () => {
   const [expandedSection, setExpandedSection] = useState(false);
   const [showBackToTop, setShowBackToTop] = useState(false);
   const [activeSection, setActiveSection] = useState('');
+  
+  usePageTitle('Terms & Conditions');
 
   useEffect(() => {
     const handleScroll = () => {
