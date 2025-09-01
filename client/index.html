@@ -70,30 +70,98 @@
     <!-- Critical CSS Inline -->
     <style>
       /* Critical above-the-fold styles */
-      *{box-sizing:border-box}body{margin:0;font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:#fff}#root{min-height:100vh}
+      * { box-sizing: border-box; }
+      body { margin: 0; font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; }
+      #root { min-height: 100vh; }
       
       /* Hero section critical styles */
-      .modern-slideshow{position:relative;width:100%;height:100vh;overflow:hidden;display:flex;align-items:center;justify-content:center}
-      .slide-background{position:absolute;top:0;left:0;width:100%;height:100%;background-size:cover;background-position:center;z-index:1}
-      .slide-overlay{position:absolute;top:0;left:0;width:100%;height:100%;background:linear-gradient(135deg,rgba(0,0,0,0.6) 0%,rgba(99,102,241,0.3) 50%,rgba(139,92,246,0.4) 100%);z-index:2}
-      .hero-content{position:relative;z-index:5;text-align:center;color:#fff;max-width:800px;padding:0 2rem}
-      .hero-title{font-size:4rem;font-weight:800;margin-bottom:1.5rem;line-height:1.1;color:#fff}
-      .hero-subtitle{font-size:1.25rem;font-weight:400;margin-bottom:3rem;color:#f8fafc;line-height:1.6}
+      .modern-slideshow {
+        position: relative;
+        width: 100%;
+        height: 100vh;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      
+      .slide-background {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-size: cover;
+        background-position: center;
+        z-index: 1;
+      }
+      
+      .slide-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(135deg, rgba(0,0,0,0.6) 0%, rgba(99,102,241,0.3) 50%, rgba(139,92,246,0.4) 100%);
+        z-index: 2;
+      }
+      
+      .hero-content {
+        position: relative;
+        z-index: 5;
+        text-align: center;
+        color: white;
+        max-width: 800px;
+        padding: 0 2rem;
+      }
+      
+      .hero-title {
+        font-size: 4rem;
+        font-weight: 800;
+        margin-bottom: 1.5rem;
+        line-height: 1.1;
+        color: #ffffff;
+      }
+      
+      .hero-subtitle {
+        font-size: 1.25rem;
+        font-weight: 400;
+        margin-bottom: 3rem;
+        color: #f8fafc;
+        line-height: 1.6;
+      }
       
       /* Top navigation critical */
-      .top-nav{position:absolute;top:0;left:0;right:0;z-index:10;background:rgba(255,255,255,0.1);backdrop-filter:blur(20px);padding:0 2rem;display:flex;align-items:center;min-height:64px}
-      
-      /* MUI Critical Styles */
-      .MuiBox-root{display:flex}.MuiContainer-root{width:100%;margin:0 auto;padding:0 16px}.MuiTypography-root{margin:0}.MuiButton-root{padding:6px 16px;font-size:0.875rem;min-width:64px;border-radius:4px;transition:background-color 250ms cubic-bezier(0.4,0,0.2,1) 0ms,box-shadow 250ms cubic-bezier(0.4,0,0.2,1) 0ms,border-color 250ms cubic-bezier(0.4,0,0.2,1) 0ms,color 250ms cubic-bezier(0.4,0,0.2,1) 0ms}.MuiButton-contained{background-color:#1976d2;color:#fff;box-shadow:0px 3px 1px -2px rgba(0,0,0,0.2),0px 2px 2px 0px rgba(0,0,0,0.14),0px 1px 5px 0px rgba(0,0,0,0.12)}.MuiAppBar-root{display:flex;flex-direction:column;width:100%;box-sizing:border-box;flex-shrink:0;position:fixed;z-index:1100;top:0;left:auto;right:0;background-color:#1976d2;color:#fff}
+      .top-nav {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 10;
+        background: rgba(255,255,255,0.1);
+        backdrop-filter: blur(20px);
+        padding: 0 2rem;
+        display: flex;
+        align-items: center;
+        min-height: 64px;
+      }
       
       /* Loading spinner */
-      .MuiCircularProgress-root{display:inline-block;animation:rotation 1.4s linear infinite}@keyframes rotation{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}
+      .MuiCircularProgress-root {
+        animation: rotation 1.4s linear infinite;
+      }
+      
+      @keyframes rotation {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
       
       /* Mobile responsive */
-      @media (max-width:768px){.hero-title{font-size:2.5rem}.hero-subtitle{font-size:1rem}.top-nav{padding:0 1rem}.MuiContainer-root{padding:0 8px}}
-      
-      /* Prevent FOUC */
-      .css-loading{visibility:hidden}.css-loaded{visibility:visible}
+      @media (max-width: 768px) {
+        .hero-title { font-size: 2.5rem; }
+        .hero-subtitle { font-size: 1rem; }
+        .top-nav { padding: 0 1rem; }
+      }
     </style>
     
     <!-- JSON-LD Structured Data -->
@@ -131,20 +199,27 @@
     <!-- Async load non-critical CSS -->
     <link rel="preload" href="/src/main.jsx" as="script" />
     <script>
-      // Optimized CSS loading
-      function loadCSS(href,media='all'){const link=document.createElement('link');link.rel='stylesheet';link.href=href;link.media=media==='all'?'print':media;link.onload=()=>{if(media==='all')link.media='all'};document.head.appendChild(link)}
+      // Load non-critical CSS asynchronously
+      function loadCSS(href) {
+        const link = document.createElement('link');
+        link.rel = 'stylesheet';
+        link.href = href;
+        link.media = 'print';
+        link.onload = function() { this.media = 'all'; };
+        document.head.appendChild(link);
+      }
       
-      // Critical resource preloading
-      const preloadCritical=()=>{const routes=['/signin','/signup','/about'];routes.forEach(route=>{const link=document.createElement('link');link.rel='prefetch';link.href=route;document.head.appendChild(link)})}
-      
-      // Load non-critical styles after critical content
-      const loadNonCriticalCSS=()=>{requestIdleCallback(()=>{const nonCriticalStyles=['https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap'];nonCriticalStyles.forEach(href=>loadCSS(href))})}
-      
-      // Initialize on DOM ready
-      if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',()=>{loadNonCriticalCSS();preloadCritical()})}else{loadNonCriticalCSS();preloadCritical()}
-      
-      // Mark CSS as loaded to prevent FOUC
-      window.addEventListener('load',()=>{document.documentElement.classList.add('css-loaded');document.documentElement.classList.remove('css-loading')})
+      // Preload critical assets on page load
+      window.addEventListener('load', function() {
+        // Preload route chunks
+        const routes = ['/signin', '/signup', '/about', '/contact'];
+        routes.forEach(route => {
+          const link = document.createElement('link');
+          link.rel = 'prefetch';
+          link.href = route;
+          document.head.appendChild(link);
+        });
+      });
     </script>
     <script>
       // Suppress Cashfree WebSocket warnings

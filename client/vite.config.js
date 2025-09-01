@@ -9,13 +9,9 @@ export default defineConfig({
     port: 5173,
     open: true,
   },
-  css: {
-    postcss: './postcss.config.js'
-  },
   build: {
     outDir: 'dist',
     sourcemap: false, // Disable sourcemaps in production for smaller bundles
-    cssCodeSplit: true, // Enable CSS code splitting per route
     rollupOptions: {
       output: {
         manualChunks: {
@@ -24,13 +20,6 @@ export default defineConfig({
           router: ['react-router-dom'],
           redux: ['@reduxjs/toolkit', 'react-redux'],
           framer: ['framer-motion']
-        },
-        // Separate CSS files per chunk for better caching
-        assetFileNames: (assetInfo) => {
-          if (assetInfo.name && assetInfo.name.endsWith('.css')) {
-            return 'assets/css/[name]-[hash][extname]'
-          }
-          return 'assets/[name]-[hash][extname]'
         }
       }
     },
