@@ -4,6 +4,12 @@
           "source": "/(.*)",
           "destination": "/"
         }
+      ],
+      "redirects": [
+        {
+          "source": "/",
+          "destination": "https://www.wandercall.com",
+          "permanent": true
+        }
       ]
-      
     }
