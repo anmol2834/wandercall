@@ -24,6 +24,8 @@ export const AuthProvider = ({ children }) => {
       try {
         setUser(JSON.parse(storedUser));
         setIsAuthenticated(true);
+        // Set loading to false immediately to show wireframe instead of spinner
+        setLoading(false);
         fetchUserProfile(); // Refresh from server
       } catch (error) {
         localStorage.removeItem('token');
@@ -55,6 +57,7 @@ export const AuthProvider = ({ children }) => {
       setUser(null);
       setIsAuthenticated(false);
     } finally {
+      // Remove loading state completely - no spinner
       setLoading(false);
     }
   };

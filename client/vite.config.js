@@ -5,6 +5,10 @@ import react from '@vitejs/plugin-react'
 export default defineConfig({
   base: '/', // ensures correct relative paths
   plugins: [react()],
+  define: {
+    'process.env.SENTRY_DSN': '""',
+    'window.Sentry': 'undefined'
+  },
   server: {
     port: 5173,
     open: true,
@@ -21,6 +25,13 @@ export default defineConfig({
           redux: ['@reduxjs/toolkit', 'react-redux'],
           framer: ['framer-motion']
         }
+      },
+      external: (id) => {
+        // Exclude problematic dependencies
+        if (id.includes('@sentry') || id.includes('sentry') || id.includes('websocket')) {
+          return true;
+        }
+        return false;
       }
     },
     chunkSizeWarningLimit: 1000

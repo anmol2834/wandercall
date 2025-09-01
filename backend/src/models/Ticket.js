@@ -28,6 +28,7 @@ const ticketSchema = new mongoose.Schema({
   
   // Status
   status: { type: String, enum: ['active', 'used', 'cancelled'], default: 'active' },
+  paymentStatus: { type: String, enum: ['PENDING', 'PAID', 'FAILED'], default: 'PENDING' },
   isDownloaded: { type: Boolean, default: false }
 }, { timestamps: true });
 

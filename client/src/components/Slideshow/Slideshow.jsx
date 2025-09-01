@@ -65,9 +65,17 @@ const Slideshow = () => {
 
   useEffect(() => {
     slides.forEach((slide, index) => {
-      preloadImage(isMobile ? slide.imageV : slide.imageH, index);
+      // Preload both horizontal and vertical images
+      preloadImage(slide.imageH, `${index}-H`);
+      preloadImage(slide.imageV, `${index}-V`);
     });
-  }, [isMobile]);
+  }, []);
+
+  // Check if current image is loaded based on device type
+  const isCurrentImageLoaded = () => {
+    const key = isMobile ? `${currentSlide}-V` : `${currentSlide}-H`;
+    return imageLoaded[key];
+  };
 
   useEffect(() => {
     if (!isAutoPlay) return;
@@ -100,7 +108,7 @@ const Slideshow = () => {
   return (
     <Box className="modern-slideshow">
       <AnimatePresence mode="wait">
-        {imageLoaded[currentSlide] ? (
+        {isCurrentImageLoaded() ? (
           <motion.div
             key={currentSlide}
             className="slide-background"

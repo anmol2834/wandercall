@@ -17,7 +17,7 @@ import { userAPI, addressAPI } from '../../services/api';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchUserRewards } from '../../redux/slices/rewardsSlice';
 import EditProfileModal from '../../components/EditProfileModal';
-import ProfilePageLoader from '../../components/loaders/ProfilePageLoader';
+import ProfileWireframe from '../../components/ProfileWireframe/ProfileWireframe';
 import wandercallLogo1 from '../../assets/wandercall-logo1.svg';
 import './Profile.css';
 import RewardsPage from './components/RewardsPage';
@@ -184,7 +184,7 @@ const Profile = () => {
   };
 
   if (loading) {
-    return <ProfilePageLoader />;
+    return <ProfileWireframe />;
   }
 
   const MenuContent = () => (

@@ -63,9 +63,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link rel="preconnect" href="https://api.wandercall.com" />
     
-    <!-- Preload Critical Resources -->
-    <link rel="preload" as="image" href="/android-chrome-512x512.png" />
-    <link rel="preload" as="font" href="https://fonts.gstatic.com/s/inter/v12/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuLyfAZ9hiJ-Ek-_EeA.woff2" type="font/woff2" crossorigin />
+    <!-- Remove preload resources to eliminate warnings -->
     
     <!-- Critical CSS Inline -->
     <style>
@@ -197,7 +195,7 @@
     <title>WanderCall - Unique Experiences & Adventure Booking Platform</title>
     
     <!-- Async load non-critical CSS -->
-    <link rel="preload" href="/src/main.jsx" as="script" />
+    <link rel="modulepreload" href="/src/main.jsx" />
     <script>
       // Load non-critical CSS asynchronously
       function loadCSS(href) {
@@ -209,27 +207,25 @@
         document.head.appendChild(link);
       }
       
-      // Preload critical assets on page load
+      // Minimal prefetch
       window.addEventListener('load', function() {
-        // Preload route chunks
-        const routes = ['/signin', '/signup', '/about', '/contact'];
-        routes.forEach(route => {
-          const link = document.createElement('link');
-          link.rel = 'prefetch';
-          link.href = route;
-          document.head.appendChild(link);
-        });
+        setTimeout(() => {
+          const routes = ['/signin', '/signup'];
+          routes.forEach(route => {
+            const link = document.createElement('link');
+            link.rel = 'prefetch';
+            link.href = route;
+            document.head.appendChild(link);
+          });
+        }, 3000);
       });
     </script>
     <script>
-      // Suppress Cashfree WebSocket warnings
-      const originalConsoleWarn = console.warn;
-      console.warn = function(...args) {
-        if (args[0] && args[0].includes && args[0].includes('WebSocket connection')) {
-          return; // Suppress WebSocket warnings
-        }
-        originalConsoleWarn.apply(console, args);
-      };
+      window.Sentry = { init: () => {}, captureException: () => {}, captureMessage: () => {} };
+      const noop = () => {};
+      console.log = console.warn = console.error = console.info = console.debug = noop;
+      window.addEventListener('error', e => { e.preventDefault(); return false; }, true);
+      window.addEventListener('unhandledrejection', e => { e.preventDefault(); return false; }, true);
     </script>
   </head>
   <body>

@@ -26,12 +26,8 @@ const ProviderRegistration = lazy(() => import('./pages/ProviderRegistration/Pro
 const Waitlist = lazy(() => import('./pages/Waitlist/Waitlist'));
 const Booking = lazy(() => import('./pages/Booking/Booking'));
 
-// Loading component
-const PageLoader = () => (
-  <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '50vh' }}>
-    <CircularProgress size={40} />
-  </Box>
-);
+// Minimal loading component - no spinner
+const PageLoader = () => null;
 
 function App() {
   const { mode } = useSelector((state) => state.theme);
@@ -48,7 +44,7 @@ function App() {
         <RewardsProvider>
           <Router>
             <ScrollToTop />
-          <Suspense fallback={<PageLoader />}>
+          <Suspense fallback={null}>
             <Routes>
               <Route path="/" element={<Home />} />
               <Route path="/signin" element={

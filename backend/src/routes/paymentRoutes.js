@@ -32,13 +32,19 @@ router.post('/create-payment-session', verifyToken, async (req, res) => {
         customer_phone: user.phone || '0000000000',
       },
       order_meta: {
-        return_url: `${process.env.FRONTEND_URL || 'http://localhost:5173'}/ticket/${user._id}?order_id={order_id}`
+        return_url: process.env.NODE_ENV === 'production' 
+          ? `https://www.wandercall.com/ticket/${user._id}?order_id={order_id}`
+          : `${process.env.FRONTEND_URL || 'http://localhost:5173'}/ticket/${user._id}?order_id={order_id}`
       }
     };
 
-    // Cashfree API call
+    // Cashfree API call - dynamic URL based on environment
+    const cashfreeBaseUrl = process.env.CASHFREE_MODE === 'production' 
+      ? 'https://api.cashfree.com/pg/orders'
+      : 'https://sandbox.cashfree.com/pg/orders';
+      
     const cashfreeResponse = await axios.post(
-      `https://sandbox.cashfree.com/pg/orders`,
+      cashfreeBaseUrl,
       requestData,
       {
         headers: {
@@ -70,9 +76,13 @@ router.post('/verify-payment', verifyToken, async (req, res) => {
       return res.status(400).json({ message: 'Missing order ID' });
     }
 
-    // Verify payment with Cashfree
+    // Verify payment with Cashfree - dynamic URL based on environment
+    const cashfreeBaseUrl = process.env.CASHFREE_MODE === 'production' 
+      ? 'https://api.cashfree.com/pg/orders'
+      : 'https://sandbox.cashfree.com/pg/orders';
+      
     const verifyResponse = await axios.get(
-      `https://sandbox.cashfree.com/pg/orders/${order_id}`,
+      `${cashfreeBaseUrl}/${order_id}`,
       {
         headers: {
           'Content-Type': 'application/json',

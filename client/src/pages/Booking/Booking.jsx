@@ -18,6 +18,7 @@ import { createPaymentSession, setBookingData } from '../../redux/slices/checkou
 import { useAuth } from '../../contexts/AuthContext';
 import usePageTitle from '../../hooks/usePageTitle';
 import wandercallLogo2 from '../../assets/wandercall-logo2.svg';
+import BookingWireframe from '../../components/BookingWireframe/BookingWireframe';
 
 const Booking = () => {
   const navigate = useNavigate();
@@ -139,31 +140,7 @@ const Booking = () => {
 
   // Loading and error states
   if (productLoading) {
-    return (
-      <Box sx={{ 
-        minHeight: '100vh', 
-        backgroundColor: theme.palette.background.default,
-        background: theme.palette.mode === 'dark' 
-          ? 'linear-gradient(135deg, #0f0f23 0%, #1a1a2e 25%, #16213e 50%, #0f3460 75%, #1e3c72 100%)'
-          : 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)',
-        p: 3
-      }}>
-        <Container maxWidth="lg">
-          <Grid container spacing={4}>
-            <Grid item xs={12} lg={8}>
-              <motion.div animate={{ opacity: [0.3, 0.7, 0.3] }} transition={{ duration: 1.5, repeat: Infinity }}>
-                <Box sx={{ width: '100%', height: 400, bgcolor: 'rgba(255,255,255,0.1)', borderRadius: 2, mb: 3 }} />
-              </motion.div>
-            </Grid>
-            <Grid item xs={12} lg={4}>
-              <motion.div animate={{ opacity: [0.3, 0.7, 0.3] }} transition={{ duration: 1.5, repeat: Infinity, delay: 0.3 }}>
-                <Box sx={{ width: '100%', height: 350, bgcolor: 'rgba(255,255,255,0.1)', borderRadius: 2 }} />
-              </motion.div>
-            </Grid>
-          </Grid>
-        </Container>
-      </Box>
-    );
+    return <BookingWireframe />;
   }
 
   if (error || !product) {
@@ -342,8 +319,8 @@ const Booking = () => {
       
       // Initialize Cashfree SDK
       const cashfree = window.Cashfree({
-        mode: 'sandbox' // Use 'production' for live
-      });
+        mode: process.env.NODE_ENV === 'production' ? 'production' : 'sandbox'
+      });   
 
       // Open Cashfree checkout with success/failure callbacks
       const checkoutOptions = {
@@ -351,8 +328,11 @@ const Booking = () => {
         redirectTarget: '_modal', // Opens as overlay
         onSuccess: function(data) {
           console.log('Payment successful:', data);
-          // Redirect to ticket page on success
-          window.location.href = `${window.location.origin}/ticket/${id}?order_id=${sessionData.order_id}`;
+          // Redirect to ticket page on success - production URL
+          const baseUrl = process.env.NODE_ENV === 'production' 
+            ? 'https://www.wandercall.com' 
+            : window.location.origin;
+          window.location.href = `${baseUrl}/ticket/${id}?order_id=${sessionData.order_id}`;
         },
         onFailure: function(data) {
           console.log('Payment failed:', data);
