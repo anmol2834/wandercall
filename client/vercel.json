@@ -7,8 +7,8 @@
       ],
       "redirects": [
         {
-          "source": "/",
-          "destination": "https://www.wandercall.com",
+          "source": "/(.*)",
+          "destination": "https://www.wandercall.com/$1",
           "permanent": true
         }
       ]
