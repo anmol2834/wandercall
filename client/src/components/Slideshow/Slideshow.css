@@ -112,16 +112,15 @@
   -webkit-text-fill-color: transparent;
   background-clip: text;
   text-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-  color: #ffffff; /* Fallback for better contrast */
 }
 
 .hero-subtitle {
   font-size: 1.25rem !important;
   font-weight: 400 !important;
   margin-bottom: 3rem !important;
-  opacity: 0.95;
+  opacity: 0.9;
   line-height: 1.6 !important;
-  color: #f8fafc; /* Better contrast ratio */
+  color: rgba(255, 255, 255, 0.9);
 }
 
 .explore-btn {
