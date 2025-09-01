@@ -35,7 +35,7 @@ router.get('/health', (req, res) => {
 });
 
 // Cashfree webhook handler
-router.post('/cashfree-webhook', (req, res) => {
+router.post('/cashfree-webhook', async (req, res) => {
   try {
     const signature = req.headers['x-webhook-signature'];
     const timestamp = req.headers['x-webhook-timestamp'];
