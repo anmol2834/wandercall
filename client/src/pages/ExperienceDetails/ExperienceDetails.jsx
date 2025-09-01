@@ -16,6 +16,7 @@ import { wishlistAPI } from '../../services/api';
 import { useAuth } from '../../contexts/AuthContext';
 import { CircularProgress } from '@mui/material';
 import wandercallLogo2 from '../../assets/wandercall-logo2.svg';
+import ImageLoader from '../../components/ImageLoader/ImageLoader';
 
 const ExperienceDetails = () => {
   const navigate = useNavigate();
@@ -401,20 +402,11 @@ const ExperienceDetails = () => {
                 }}>
                   <Box sx={{ position: 'relative', height: { xs: 250, md: 450 } }}>
                     <AnimatePresence mode="wait">
-                      <motion.img
+                      <ImageLoader
                         key={currentImageIndex}
                         src={experience.images[currentImageIndex]}
                         alt={experience.title}
-                        initial={{ opacity: 0, scale: 1.1 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        exit={{ opacity: 0, scale: 0.9 }}
-                        transition={{ duration: 0.5 }}
-                        style={{ 
-                          width: '100%', 
-                          height: '100%', 
-                          objectFit: 'cover',
-                          display: 'block'
-                        }}
+                        sx={{ width: '100%', height: '100%', borderRadius: 0 }}
                       />
                     </AnimatePresence>
                   
@@ -492,10 +484,10 @@ const ExperienceDetails = () => {
                               transition: 'all 0.2s ease'
                             }}
                           >
-                            <img
+                            <ImageLoader
                               src={image}
                               alt={`View ${index + 1}`}
-                              style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                              sx={{ width: '100%', height: '100%', borderRadius: 1 }}
                             />
                           </Box>
                         </motion.div>
