@@ -118,7 +118,7 @@ const Slideshow = () => {
         <Box 
           component="img"
           src={wandercallLogo1}
-          alt="WanderCall"
+          alt="WanderCall - Unique Experiences & Adventure Booking Platform"
           sx={{
             height: { xs: 32, sm: 40 },
             width: 'auto',
@@ -129,6 +129,7 @@ const Slideshow = () => {
             ml: { xs: 3, sm: 3 }
           }}
           onClick={() => navigate('/')}
+          loading="eager"
         />
         
         <Box className="nav-links">
