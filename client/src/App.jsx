@@ -8,20 +8,30 @@ import { AuthProvider } from './contexts/AuthContext';
 import { RewardsProvider } from './contexts/RewardsContext';
 import ScrollToTop from './components/ScrollToTop/ScrollToTop';
 import ProtectedRoute from './components/ProtectedRoute/ProtectedRoute';
+import { Suspense, lazy } from 'react';
+import { CircularProgress, Box } from '@mui/material';
 import Home from './pages/UserDashboard/Home';
-import SignIn from './pages/SignIn/SignIn';
-import SignUp from './pages/SignUp/SignUp';
-import AboutUs from './pages/AboutUs/AboutUs';
-import TermsConditions from './pages/TermsConditions/TermsConditions';
-import Contact from './pages/Contact/Contact';
-import Privacy from './pages/Privacy/Privacy';
-import Profile from './pages/Profile/Profile';
-import ExperienceDetails from './pages/ExperienceDetails/ExperienceDetails';
 
-import Ticket from './pages/Ticket/Ticket';
-import ProviderRegistration from './pages/ProviderRegistration/ProviderRegistration';
-import Waitlist from './pages/Waitlist/Waitlist';
-import Booking from './pages/Booking/Booking';
+// Lazy load non-critical components
+const SignIn = lazy(() => import('./pages/SignIn/SignIn'));
+const SignUp = lazy(() => import('./pages/SignUp/SignUp'));
+const AboutUs = lazy(() => import('./pages/AboutUs/AboutUs'));
+const TermsConditions = lazy(() => import('./pages/TermsConditions/TermsConditions'));
+const Contact = lazy(() => import('./pages/Contact/Contact'));
+const Privacy = lazy(() => import('./pages/Privacy/Privacy'));
+const Profile = lazy(() => import('./pages/Profile/Profile'));
+const ExperienceDetails = lazy(() => import('./pages/ExperienceDetails/ExperienceDetails'));
+const Ticket = lazy(() => import('./pages/Ticket/Ticket'));
+const ProviderRegistration = lazy(() => import('./pages/ProviderRegistration/ProviderRegistration'));
+const Waitlist = lazy(() => import('./pages/Waitlist/Waitlist'));
+const Booking = lazy(() => import('./pages/Booking/Booking'));
+
+// Loading component
+const PageLoader = () => (
+  <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '50vh' }}>
+    <CircularProgress size={40} />
+  </Box>
+);
 
 function App() {
   const { mode } = useSelector((state) => state.theme);
@@ -38,34 +48,36 @@ function App() {
         <RewardsProvider>
           <Router>
             <ScrollToTop />
-          <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/signin" element={
-            <ProtectedRoute requireAuth={false}>
-              <SignIn />
-            </ProtectedRoute>
-          } />
-          <Route path="/signup" element={
-            <ProtectedRoute requireAuth={false}>
-              <SignUp />
-            </ProtectedRoute>
-          } />
-          <Route path="/about" element={<AboutUs />} />
-          <Route path="/terms-and-conditions" element={<TermsConditions />} />
-          <Route path="/terms" element={<Navigate to="/terms-and-conditions" replace />} />
-          <Route path="/contact" element={<Contact />} />
-          <Route path="/privacy" element={<Privacy />} />
-          <Route path="/profile/*" element={
-            <ProtectedRoute>
-              <Profile />
-            </ProtectedRoute>
-          } />
-          <Route path="/experience/:id" element={<ExperienceDetails />} />
-          <Route path="/booking/:id" element={<Booking/>} />
-          <Route path="/ticket/:id" element={<Ticket/>} />
-          <Route path="/become-provider" element={<ProviderRegistration />} />
-          <Route path="/waitlist" element={<Waitlist />} />
-          </Routes>
+          <Suspense fallback={<PageLoader />}>
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route path="/signin" element={
+                <ProtectedRoute requireAuth={false}>
+                  <SignIn />
+                </ProtectedRoute>
+              } />
+              <Route path="/signup" element={
+                <ProtectedRoute requireAuth={false}>
+                  <SignUp />
+                </ProtectedRoute>
+              } />
+              <Route path="/about" element={<AboutUs />} />
+              <Route path="/terms-and-conditions" element={<TermsConditions />} />
+              <Route path="/terms" element={<Navigate to="/terms-and-conditions" replace />} />
+              <Route path="/contact" element={<Contact />} />
+              <Route path="/privacy" element={<Privacy />} />
+              <Route path="/profile/*" element={
+                <ProtectedRoute>
+                  <Profile />
+                </ProtectedRoute>
+              } />
+              <Route path="/experience/:id" element={<ExperienceDetails />} />
+              <Route path="/booking/:id" element={<Booking />} />
+              <Route path="/ticket/:id" element={<Ticket />} />
+              <Route path="/become-provider" element={<ProviderRegistration />} />
+              <Route path="/waitlist" element={<Waitlist />} />
+            </Routes>
+          </Suspense>
           </Router>
         </RewardsProvider>
       </AuthProvider>
