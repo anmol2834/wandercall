@@ -62,10 +62,9 @@ const ExperienceCard = ({ experience }) => {
         {!imageLoaded && <div className="image-placeholder" />}
         <img 
           src={experience.img1} 
-          alt={`${experience.title} - Experience in ${experience.location?.city}, ${experience.location?.state}`}
+          alt={experience.title}
           className={`card-image ${imageLoaded ? 'loaded' : ''}`}
           onLoad={() => setImageLoaded(true)}
-          loading="lazy"
         />
         <div className="category-badge">SOON</div>
         <IconButton 

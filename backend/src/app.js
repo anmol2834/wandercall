@@ -23,6 +23,8 @@ const PORT = process.env.PORT || 5000;
 // CORS configuration
 const corsOptions = {
   origin: [
+    'https://wandercall.com',
+    'https://www.wandercall.com',
     'https://wandercall.vercel.app',
     'http://wandercall.vercel.app',
     'http://localhost:5173'
@@ -39,11 +41,11 @@ app.use(cors(corsOptions));
 app.use((req, res, next) => {
   const origin = req.headers.origin;
   const allowedOrigins = ['https://wandercall.vercel.app', 'http://wandercall.vercel.app', 'http://localhost:5173'];
-  
+
   if (!origin || allowedOrigins.includes(origin) || origin.includes('vercel.app')) {
     res.header('Access-Control-Allow-Origin', origin || 'https://wandercall.vercel.app');
   }
-  
+
   res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,PATCH,OPTIONS');
   res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, Accept, Origin');
   res.header('Access-Control-Allow-Credentials', 'true');
@@ -91,30 +93,30 @@ app.get('/test-db', async (req, res) => {
 // Global error handler with CORS headers
 app.use((err, req, res, next) => {
 
-  
+
   // Ensure CORS headers are present even on errors
   const origin = req.headers.origin;
   const allowedOrigins = ['https://wandercall.vercel.app', 'http://wandercall.vercel.app', 'http://localhost:5173'];
-  
+
   if (!origin || allowedOrigins.includes(origin) || origin.includes('vercel.app')) {
     res.header('Access-Control-Allow-Origin', origin || 'https://wandercall.vercel.app');
   }
-  
+
   res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,PATCH,OPTIONS');
   res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, Accept, Origin');
   res.header('Access-Control-Allow-Credentials', 'true');
-  
-  res.status(500).json({ 
-    success: false, 
+
+  res.status(500).json({
+    success: false,
     message: 'Internal server error'
   });
 });
 
 // 404 handler
 app.use('*', (req, res) => {
-  res.status(404).json({ 
-    success: false, 
-    message: 'Route not found' 
+  res.status(404).json({
+    success: false,
+    message: 'Route not found'
   });
 });
 

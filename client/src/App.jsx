@@ -13,27 +13,19 @@ import { CircularProgress, Box } from '@mui/material';
 import { preloadCriticalCSS } from './utils/cssLoader';
 import CriticalCSS from './components/CriticalCSS/CriticalCSS';
 import Home from './pages/UserDashboard/Home';
+import SignIn from './pages/SignIn/SignIn';
+import SignUp from './pages/SignUp/SignUp';
+import AboutUs from './pages/AboutUs/AboutUs';
+import TermsConditions from './pages/TermsConditions/TermsConditions';
+import Contact from './pages/Contact/Contact';
+import Privacy from './pages/Privacy/Privacy';
+import Profile from './pages/Profile/Profile';
+import ExperienceDetails from './pages/ExperienceDetails/ExperienceDetails';
 
-// Lazy load non-critical components
-const SignIn = lazy(() => import('./pages/SignIn/SignIn'));
-const SignUp = lazy(() => import('./pages/SignUp/SignUp'));
-const AboutUs = lazy(() => import('./pages/AboutUs/AboutUs'));
-const TermsConditions = lazy(() => import('./pages/TermsConditions/TermsConditions'));
-const Contact = lazy(() => import('./pages/Contact/Contact'));
-const Privacy = lazy(() => import('./pages/Privacy/Privacy'));
-const Profile = lazy(() => import('./pages/Profile/Profile'));
-const ExperienceDetails = lazy(() => import('./pages/ExperienceDetails/ExperienceDetails'));
-const Ticket = lazy(() => import('./pages/Ticket/Ticket'));
-const ProviderRegistration = lazy(() => import('./pages/ProviderRegistration/ProviderRegistration'));
-const Waitlist = lazy(() => import('./pages/Waitlist/Waitlist'));
-const Booking = lazy(() => import('./pages/Booking/Booking'));
-
-// Loading component
-const PageLoader = () => (
-  <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '50vh' }}>
-    <CircularProgress size={40} />
-  </Box>
-);
+import Ticket from './pages/Ticket/Ticket';
+import ProviderRegistration from './pages/ProviderRegistration/ProviderRegistration';
+import Waitlist from './pages/Waitlist/Waitlist';
+import Booking from './pages/Booking/Booking';
 
 function App() {
   const { mode } = useSelector((state) => state.theme);

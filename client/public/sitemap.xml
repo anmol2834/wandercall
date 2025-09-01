@@ -5,49 +5,49 @@
         http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
   
   <url>
-    <loc>https://wandercall.com/</loc>
+    <loc>https://www.wandercall.com/</loc>
     <lastmod>2024-12-15</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
   
   <url>
-    <loc>https://wandercall.com/about</loc>
+    <loc>https://www.wandercall.com/about</loc>
     <lastmod>2024-12-15</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   
   <url>
-    <loc>https://wandercall.com/contact</loc>
+    <loc>https://www.wandercall.com/contact</loc>
     <lastmod>2024-12-15</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   
   <url>
-    <loc>https://wandercall.com/terms-and-conditions</loc>
+    <loc>https://www.wandercall.com/terms-and-conditions</loc>
     <lastmod>2024-12-15</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.5</priority>
   </url>
   
   <url>
-    <loc>https://wandercall.com/privacy</loc>
+    <loc>https://www.wandercall.com/privacy</loc>
     <lastmod>2024-12-15</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.5</priority>
   </url>
   
   <url>
-    <loc>https://wandercall.com/signin</loc>
+    <loc>https://www.wandercall.com/signin</loc>
     <lastmod>2024-12-15</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
-    <loc>https://wandercall.com/signup</loc>
+    <loc>https://www.wandercall.com/signup</loc>
     <lastmod>2024-12-15</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
