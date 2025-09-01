@@ -7,54 +7,42 @@ import { useAuth } from '../../contexts/AuthContext';
 import './Slideshow.css';
 
 // Import images
-import fpvDroneH from '../../assets/fpv drone H.png';
-import fpvDroneV from '../../assets/fpv drone V.png';
-import gamerBashH from '../../assets/gamer bash H.png';
-import gamerBashV from '../../assets/gamer bash V.png';
-import lateNightPartyH from '../../assets/late night party H.png';
-import lateNightPartyV from '../../assets/late night party V.png';
-import movieNightsH from '../../assets/movie nights H.png';
-import movieNightsV from '../../assets/movie nights V.png';
-import storySessionH from '../../assets/story session H.png';
-import storySessionV from '../../assets/story session V.png';
-import wisdomHoursH from '../../assets/wisdom hours H.png';
-import wisdomHoursV from '../../assets/wisdom hours V.png';
 import wandercallLogo1 from '../../assets/wandercall-logo1.svg';
 
 const slides = [
   {
-    imageH: fpvDroneH,
-    imageV: fpvDroneV,
+    imageH: "https://res.cloudinary.com/drfndqoql/image/upload/v1756748481/fpv_drone_H_vjzfyw.png",
+    imageV: "https://res.cloudinary.com/drfndqoql/image/upload/v1756748504/fpv_drone_V_xskhhb.png",
     title: 'FPV Drone Adventures',
     subtitle: 'Experience breathtaking aerial photography and videography like never before',
   },
   {
-    imageH: gamerBashH,
-    imageV: gamerBashV,
+    imageH: "https://res.cloudinary.com/drfndqoql/image/upload/v1756748542/gamer_bash_H_obg8qk.png",
+    imageV: "https://res.cloudinary.com/drfndqoql/image/upload/v1756748541/gamer_bash_V_b9pwli.png",
     title: 'Gamer Bash Events',
     subtitle: 'Join epic gaming tournaments and connect with fellow gamers',
   },
   {
-    imageH: lateNightPartyH,
-    imageV: lateNightPartyV,
+    imageH: "https://res.cloudinary.com/drfndqoql/image/upload/v1756748528/late_night_party_H_wvp8bn.png",
+    imageV: "https://res.cloudinary.com/drfndqoql/image/upload/v1756748522/late_night_party_V_elqssc.png",
     title: 'Late Night Parties',
     subtitle: 'Dance the night away with unforgettable party experiences',
   },
   {
-    imageH: movieNightsH,
-    imageV: movieNightsV,
+    imageH: "https://res.cloudinary.com/drfndqoql/image/upload/v1756748538/movie_nights_H_jxkvna.png",
+    imageV: "https://res.cloudinary.com/drfndqoql/image/upload/v1756748503/movie_nights_V_tcwf32.png",
     title: 'Movie Nights',
     subtitle: 'Enjoy cinematic experiences under the stars with friends',
   },
   {
-    imageH: storySessionH,
-    imageV: storySessionV,
+    imageH: "https://res.cloudinary.com/drfndqoql/image/upload/v1756748528/story_session_H_svu6lm.png",
+    imageV: "https://res.cloudinary.com/drfndqoql/image/upload/v1756748537/story_session_V_jtat6l.png",
     title: 'Story Sessions',
     subtitle: 'Share and listen to captivating stories in intimate settings',
   },
   {
-    imageH: wisdomHoursH,
-    imageV: wisdomHoursV,
+    imageH: "https://res.cloudinary.com/drfndqoql/image/upload/v1756748628/wisdom_hours_H_od9a29.png",
+    imageV: "https://res.cloudinary.com/drfndqoql/image/upload/v1756748588/wisdom_hours_V_yfufkb.png",
     title: 'Wisdom Hours',
     subtitle: 'Learn from experts and expand your knowledge horizons',
   },
