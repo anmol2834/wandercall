@@ -34,86 +34,70 @@ router.get('/health', (req, res) => {
   });
 });
 
-// Cashfree webhook handler
 router.post('/cashfree-webhook', async (req, res) => {
   try {
     const signature = req.headers['x-webhook-signature'];
     const timestamp = req.headers['x-webhook-timestamp'];
-    
-    // Parse raw JSON body (req.body is Buffer from express.raw)
     const rawBody = req.body.toString('utf8');
+
+    console.log("Raw body string:", rawBody);
+    console.log("Webhook headers:", req.headers);
+
+    // Verify signature
+    if (process.env.CF_CLIENT_SECRET && signature && timestamp) {
+      const signedPayload = timestamp + rawBody;
+      const expectedSignature = crypto
+        .createHmac('sha256', process.env.CF_CLIENT_SECRET)
+        .update(signedPayload)
+        .digest('base64');
+
+      if (signature !== expectedSignature) {
+        console.error('❌ Signature mismatch - webhook rejected');
+        return res.status(401).json({ message: 'Unauthorized: Invalid signature' });
+      }
+      console.log('✅ Webhook signature verified successfully');
+    }
+
+    // Parse payload
     let webhookData;
-    
     try {
       webhookData = JSON.parse(rawBody);
     } catch (error) {
       console.error('JSON parse error:', error.message);
       return res.status(400).json({ message: 'Invalid JSON payload' });
     }
-    
-    // Verify Cashfree webhook signature (required for production)
-    if (process.env.CASHFREE_WEBHOOK_SECRET && signature && timestamp) {
-      const payload = timestamp + '.' + rawBody;
-      const expectedSignature = crypto
-        .createHmac('sha256', process.env.CASHFREE_WEBHOOK_SECRET)
-        .update(payload)
-        .digest('base64');
-        
-      console.log('Signature verification:', {
-        received: signature,
-        expected: expectedSignature,
-        payload_length: rawBody.length
-      });
-        
-      if (signature !== expectedSignature) {
-        console.error('Signature mismatch - webhook rejected');
-        return res.status(401).json({ message: 'Unauthorized: Invalid signature' });
-      }
-      
-      console.log('Webhook signature verified successfully');
-    } else {
-      console.log('Webhook signature verification skipped (missing secret/headers)');
-    }
-    // Extract event type and order data
+
     const eventType = webhookData.type || webhookData.eventType;
-    const orderData = webhookData.data?.order || webhookData.order;
-    
-    if (!eventType || !orderData) {
-      return res.status(400).json({ message: 'Missing required webhook data' });
+
+    // Handle test payloads from dashboard
+    if (eventType === "WEBHOOK" && webhookData.data?.test_object) {
+      console.log("📌 Cashfree test webhook received");
+      return res.status(200).send("Test OK");  // ✅ Always return 200
     }
 
-    console.log('Cashfree webhook received:', eventType, orderData.order_id);
-
-    // Handle payment success
-    if (eventType === 'PAYMENT_SUCCESS_WEBHOOK') {
+    // Handle payment success/failure
+    const orderData = webhookData.data?.order || webhookData.order;
+    if (eventType === 'PAYMENT_SUCCESS_WEBHOOK' && orderData) {
       const { order_id, payment_id } = orderData;
-      
       const ticket = await Ticket.findOne({ orderId: order_id });
       if (ticket) {
         ticket.paymentStatus = 'PAID';
         ticket.paymentId = payment_id;
         await ticket.save();
-        console.log(`Payment confirmed for ticket: ${ticket.ticketNumber}`);
+        console.log(`✅ Payment confirmed for ticket: ${ticket.ticketNumber}`);
       }
-    }
-    
-    // Handle payment failure
-    else if (eventType === 'PAYMENT_FAILED_WEBHOOK') {
+    } else if (eventType === 'PAYMENT_FAILED_WEBHOOK' && orderData) {
       const { order_id } = orderData;
-      
       const ticket = await Ticket.findOne({ orderId: order_id });
       if (ticket) {
         ticket.paymentStatus = 'FAILED';
         await ticket.save();
-        console.log(`Payment failed for ticket: ${ticket.ticketNumber}`);
+        console.log(`❌ Payment failed for ticket: ${ticket.ticketNumber}`);
       }
     }
 
-    // Cashfree expects 200 OK response
-    res.status(200).json({ 
-      message: 'OK',
-      status: 'success'
-    });
+    // Final success response
+    res.status(200).send("OK");  // ✅ Required for Cashfree
   } catch (error) {
     console.error('Webhook error:', error.message);
     res.status(500).json({ message: 'Internal server error' });
