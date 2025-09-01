@@ -10,6 +10,8 @@ import ScrollToTop from './components/ScrollToTop/ScrollToTop';
 import ProtectedRoute from './components/ProtectedRoute/ProtectedRoute';
 import { Suspense, lazy } from 'react';
 import { CircularProgress, Box } from '@mui/material';
+import { preloadCriticalCSS } from './utils/cssLoader';
+import CriticalCSS from './components/CriticalCSS/CriticalCSS';
 import Home from './pages/UserDashboard/Home';
 
 // Lazy load non-critical components
@@ -39,17 +41,22 @@ function App() {
 
   useEffect(() => {
     preventZoom();
+    // Preload critical CSS after app initialization
+    requestIdleCallback(() => {
+      preloadCriticalCSS();
+    });
   }, []);
 
   return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
-      <AuthProvider>
-        <RewardsProvider>
-          <Router>
-            <ScrollToTop />
-          <Suspense fallback={<PageLoader />}>
-            <Routes>
+    <CriticalCSS>
+      <ThemeProvider theme={theme}>
+        <CssBaseline />
+        <AuthProvider>
+          <RewardsProvider>
+            <Router>
+              <ScrollToTop />
+            <Suspense fallback={<PageLoader />}>
+              <Routes>
               <Route path="/" element={<Home />} />
               <Route path="/signin" element={
                 <ProtectedRoute requireAuth={false}>
@@ -76,12 +83,13 @@ function App() {
               <Route path="/ticket/:id" element={<Ticket />} />
               <Route path="/become-provider" element={<ProviderRegistration />} />
               <Route path="/waitlist" element={<Waitlist />} />
-            </Routes>
-          </Suspense>
-          </Router>
-        </RewardsProvider>
-      </AuthProvider>
-  </ThemeProvider>
+              </Routes>
+            </Suspense>
+            </Router>
+          </RewardsProvider>
+        </AuthProvider>
+    </ThemeProvider>
+    </CriticalCSS>
   );
 }
 
