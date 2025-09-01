@@ -57,7 +57,7 @@ router.post('/cashfree-webhook', async (req, res) => {
       const expectedSignature = crypto
         .createHmac('sha256', process.env.CASHFREE_WEBHOOK_SECRET)
         .update(payload)
-        .digest('hex');
+        .digest('base64');
         
       console.log('Signature verification:', {
         received: signature,
