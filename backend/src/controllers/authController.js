@@ -1,7 +1,7 @@
 const User = require('../models/User');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
-const { sendOTPEmail, sendWelcomeEmail } = require('../services/emailService');
+const { sendOTPEmail, sendWelcomeEmail, sendPasswordResetOTP } = require('../services/emailService');
 
 const generateToken = (id) => {
   // Hardcode JWT expiration since env var is corrupted
@@ -14,6 +14,7 @@ const generateOTP = () => {
 
 // Temporary storage for OTP data (in production, use Redis)
 const otpStorage = new Map();
+const passwordResetOtpStorage = new Map();
 
 exports.sendOTP = async (req, res) => {
   try {
@@ -169,5 +170,115 @@ exports.login = async (req, res) => {
   } catch (error) {
 
     res.status(500).json({ success: false, message: 'Server error' });
+  }
+};
+
+exports.sendPasswordResetOTP = async (req, res) => {
+  try {
+    const { email } = req.body;
+    
+    if (!email) {
+      return res.status(400).json({ success: false, message: 'Email is required' });
+    }
+    
+    // Check if user exists
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found with this email' });
+    }
+    
+    const otp = generateOTP();
+    const otpExpires = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
+    
+    // Store OTP for password reset
+    passwordResetOtpStorage.set(email, {
+      otp,
+      otpExpires,
+      userId: user._id
+    });
+    
+    // Send password reset OTP email
+    try {
+      await sendPasswordResetOTP(email, otp, user.name);
+    } catch (emailError) {
+      console.error('Email sending failed:', emailError);
+    }
+    
+    res.json({ success: true, message: 'Password reset OTP sent successfully' });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Failed to send password reset OTP' });
+  }
+};
+
+exports.forgotPassword = async (req, res) => {
+  try {
+    const { email, oldPassword, newPassword } = req.body;
+    
+    if (!email || !oldPassword || !newPassword) {
+      return res.status(400).json({ success: false, message: 'Email, old password, and new password are required' });
+    }
+    
+    // Find user
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found' });
+    }
+    
+    // Verify old password
+    const isOldPasswordValid = await bcrypt.compare(oldPassword, user.password);
+    if (!isOldPasswordValid) {
+      return res.status(400).json({ success: false, message: 'Current password is incorrect' });
+    }
+    
+    // Update password (pre-save hook will hash it)
+    user.password = newPassword;
+    await user.save();
+    
+    res.json({ success: true, message: 'Password changed successfully' });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Failed to change password' });
+  }
+};
+
+exports.resetPassword = async (req, res) => {
+  try {
+    const { email, otp, newPassword } = req.body;
+    
+    if (!email || !otp || !newPassword) {
+      return res.status(400).json({ success: false, message: 'Email, OTP, and new password are required' });
+    }
+    
+    // Get OTP data from storage
+    const otpData = passwordResetOtpStorage.get(email);
+    if (!otpData) {
+      return res.status(400).json({ success: false, message: 'OTP not found or expired' });
+    }
+    
+    // Verify OTP
+    if (otpData.otp !== otp.toString()) {
+      return res.status(400).json({ success: false, message: 'Invalid OTP' });
+    }
+    
+    if (otpData.otpExpires < new Date()) {
+      passwordResetOtpStorage.delete(email);
+      return res.status(400).json({ success: false, message: 'OTP has expired' });
+    }
+    
+    // Find user and update password
+    const user = await User.findById(otpData.userId);
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found' });
+    }
+    
+    // Update password (pre-save hook will hash it)
+    user.password = newPassword;
+    await user.save();
+    
+    // Clean up OTP storage
+    passwordResetOtpStorage.delete(email);
+    
+    res.json({ success: true, message: 'Password reset successfully' });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Failed to reset password' });
   }
 };
