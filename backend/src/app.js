@@ -52,6 +52,10 @@ app.use((req, res, next) => {
   next();
 });
 
+// Use raw body parser for webhook route only
+app.use('/api/webhooks/cashfree-webhook', express.raw({ type: 'application/json' }));
+
+// Use JSON parser for all other routes
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
@@ -73,8 +77,8 @@ app.use('/api/products', require('./routes/productRoutes'));
 app.use('/api/wishlist', require('./routes/wishlistRoutes'));
 app.use('/api/tickets', require('./routes/ticketRoutes'));
 app.use('/api', require('./routes/paymentRoutes'));
-// Webhook routes with raw body parsing
-app.use('/api/webhooks', express.raw({ type: 'application/json' }), require('./routes/webhookRoutes'));
+// Webhook routes
+app.use('/api/webhooks', require('./routes/webhookRoutes'));
 
 // Health check
 app.get('/health', (req, res) => {

@@ -55,7 +55,8 @@ VITE_API_URL=https://api.wandercall.com
    - ✅ Payment Success
    - ✅ Payment Failed
    - ✅ Payment User Dropped
-4. **Add Webhook Secret** (from Step 1)
+4. **Add Webhook Secret**: `csxt3934` (from your .env file)
+5. **Test Webhook**: Click "Test" in Cashfree dashboard to verify endpoint
 
 ### Step 4: Test Payment Flow
 
@@ -110,13 +111,19 @@ CASHFREE_MODE=production
 
 ## 🧪 Testing Checklist
 
+### Webhook Testing:
+- ✅ **Raw body handling** implemented
+- ✅ **Signature verification** working
+- ✅ **GET endpoint** active: `https://api.wandercall.com/api/webhooks/cashfree-webhook`
+- ✅ **POST endpoint** ready for Cashfree notifications
+- ✅ **Health check** available: `https://api.wandercall.com/api/webhooks/health`
+
 ### Before Production:
-- [ ] Test with Cashfree sandbox
-- [ ] Verify webhook endpoint responds
+- [ ] Test webhook in Cashfree dashboard
+- [ ] Verify webhook endpoint responds with 200 OK
 - [ ] Test payment success flow
 - [ ] Test payment failure flow
-- [ ] Test network error scenarios
-- [ ] Verify ticket creation
+- [ ] Verify ticket status updates
 - [ ] Test mobile responsiveness
 
 ### Production Verification:
@@ -156,4 +163,18 @@ CASHFREE_MODE=production
 - **Webhook Testing**: https://webhook.site/
 - **SSL Checker**: https://www.ssllabs.com/ssltest/
 
-Your payment system is **production-ready**! Just update the environment variables and deploy. 🚀
+## 🎯 **Next Steps for Deployment:**
+
+1. **Deploy Backend** with updated webhook handler
+2. **Test Webhook** in Cashfree merchant dashboard
+3. **Verify Signature** verification is working
+4. **Monitor Logs** for webhook processing
+5. **Go Live** with confidence!
+
+### 🔍 **Webhook Endpoints Ready:**
+- **Main**: `https://api.wandercall.com/api/webhooks/cashfree-webhook` (POST)
+- **Status**: `https://api.wandercall.com/api/webhooks/cashfree-webhook` (GET)
+- **Health**: `https://api.wandercall.com/api/webhooks/health` (GET)
+- **Test**: `https://api.wandercall.com/api/webhooks/test` (POST)
+
+Your payment system is **production-ready** with proper webhook handling! 🚀

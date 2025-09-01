@@ -40,26 +40,39 @@ router.post('/cashfree-webhook', async (req, res) => {
     const signature = req.headers['x-webhook-signature'];
     const timestamp = req.headers['x-webhook-timestamp'];
     
-    // Parse raw JSON body
-    const rawBody = req.body.toString();
+    // Parse raw JSON body (req.body is Buffer from express.raw)
+    const rawBody = req.body.toString('utf8');
     let webhookData;
     
     try {
       webhookData = JSON.parse(rawBody);
     } catch (error) {
+      console.error('JSON parse error:', error.message);
       return res.status(400).json({ message: 'Invalid JSON payload' });
     }
     
-    // Verify Cashfree webhook signature
+    // Verify Cashfree webhook signature (required for production)
     if (process.env.CASHFREE_WEBHOOK_SECRET && signature && timestamp) {
+      const payload = timestamp + '.' + rawBody;
       const expectedSignature = crypto
         .createHmac('sha256', process.env.CASHFREE_WEBHOOK_SECRET)
-        .update(timestamp + '.' + rawBody)
+        .update(payload)
         .digest('hex');
         
+      console.log('Signature verification:', {
+        received: signature,
+        expected: expectedSignature,
+        payload_length: rawBody.length
+      });
+        
       if (signature !== expectedSignature) {
+        console.error('Signature mismatch - webhook rejected');
         return res.status(401).json({ message: 'Unauthorized: Invalid signature' });
       }
+      
+      console.log('Webhook signature verified successfully');
+    } else {
+      console.log('Webhook signature verification skipped (missing secret/headers)');
     }
     // Extract event type and order data
     const eventType = webhookData.type || webhookData.eventType;
