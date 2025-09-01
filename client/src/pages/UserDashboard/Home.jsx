@@ -9,6 +9,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import usePageTitle from '../../hooks/usePageTitle';
 import SEO from '../../components/SEO/SEO';
 import { getPageSEO } from '../../utils/seoData';
+import { preloadRoutes } from '../../utils/preloadRoutes';
 import Slideshow from '../../components/Slideshow/Slideshow';
 import ExperienceCard from '../../components/ExperienceCard/ExperienceCard';
 import CardSkeleton from '../../components/CardSkeleton/CardSkeleton';
@@ -29,6 +30,8 @@ const Home = () => {
 
   useEffect(() => {
     dispatch(fetchProducts());
+    // Preload critical routes after initial load
+    preloadRoutes();
   }, [dispatch]);
 
   // Use products data instead of experiences
