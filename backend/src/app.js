@@ -3,9 +3,13 @@ const cors = require('cors');
 require('dotenv').config();
 const connectDB = require('./config/database');
 const { startRewardExpiryChecker } = require('./utils/rewardExpiry');
+const { startBookingCleanup } = require('./utils/cleanupBookings');
+const { cleanupDatabase } = require('./utils/dbMigration');
 
 // Connect to database
-connectDB().catch(err => {
+connectDB().then(async () => {
+  await cleanupDatabase();
+}).catch(err => {
   console.error('Database connection failed:', err);
   process.exit(1);
 });
@@ -16,6 +20,15 @@ try {
 } catch (err) {
   console.error('Reward expiry checker failed:', err);
 }
+
+// Start booking cleanup
+try {
+  startBookingCleanup();
+} catch (err) {
+  console.error('Booking cleanup failed:', err);
+}
+
+
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -76,9 +89,11 @@ app.use('/api/bookings', require('./routes/bookingRoutes'));
 app.use('/api/products', require('./routes/productRoutes'));
 app.use('/api/wishlist', require('./routes/wishlistRoutes'));
 app.use('/api/tickets', require('./routes/ticketRoutes'));
-app.use('/api', require('./routes/paymentRoutes'));
+app.use('/api/payments', require('./routes/paymentRoutes'));
 // Webhook routes
 app.use('/api/webhooks', require('./routes/webhookRoutes'));
+
+
 
 // Health check
 app.get('/health', (req, res) => {

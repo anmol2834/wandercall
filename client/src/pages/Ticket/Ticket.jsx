@@ -1,580 +1,626 @@
-import {
-  Box, Container, Typography, Button, Card, CardContent, Grid, Divider,
-  IconButton, useTheme, useMediaQuery, Chip, Paper, CircularProgress
+import { useEffect, useState } from 'react';
+import { useParams, useSearchParams, useNavigate } from 'react-router-dom';
+import { 
+  Box, Typography, CircularProgress, Alert, Paper, Grid, Chip, 
+  useTheme, useMediaQuery, Divider, Button, IconButton, Stack
 } from '@mui/material';
-import {
-  ArrowBack, CheckCircle, LocationOn, CalendarToday, Group, 
-  AccessTime, Star, Download, Share, QrCode, Celebration,
-  FlightTakeoff, LocalActivity
+import { 
+  CalendarToday, LocationOn, Person, ConfirmationNumber, 
+  CheckCircle, QrCode2, Download, Home, ArrowBack
 } from '@mui/icons-material';
-import { motion, AnimatePresence } from 'framer-motion';
-import { useNavigate, useLocation, useParams } from 'react-router-dom';
-import { useState, useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { createBooking, clearBookingData } from '../../redux/slices/checkoutSlice';
+import { motion } from 'framer-motion';
 import { useAuth } from '../../contexts/AuthContext';
+import { paymentAPI } from '../../services/api';
+import QRCode from 'qrcode';
 
 const Ticket = () => {
-  const navigate = useNavigate();
-  const location = useLocation();
   const { id } = useParams();
+  const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
   const { user } = useAuth();
+  const [loading, setLoading] = useState(true);
+  const [ticket, setTicket] = useState(null);
+  const [error, setError] = useState(null);
+  const [qrCodeUrl, setQrCodeUrl] = useState('');
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
-  const dispatch = useDispatch();
-  const { createdTicket, loading: checkoutLoading } = useSelector(state => state.checkout);
-  const [showConfetti, setShowConfetti] = useState(true);
-  const [isVerifying, setIsVerifying] = useState(false);
-  const [ticketData, setTicketData] = useState(null);
   
-  const bookingData = ticketData || location.state || {
-    experience: {
-      id: id,
-      title: "Sunset Desert Safari Adventure",
-      location: "Dubai, UAE",
-      price: 999,
-      rating: 4.8,
-      duration: "6 hours",
-      images: ["https://images.unsplash.com/photo-1539650116574-75c0c6d73c6e?w=400&h=300&fit=crop"]
-    },
-    selectedDate: new Date(),
-    participants: 2,
-    guestInfo: { name: "John Doe", email: "john@example.com", phone: "+1234567890" },
-    totalPrice: 656.82
+  const orderId = searchParams.get('order_id');
+
+  useEffect(() => {
+    if (!user) {
+      navigate('/signin');
+      return;
+    }
+    
+    if (orderId) {
+      verifyPaymentAndFetchTicket();
+    } else {
+      setError('No order ID found');
+      setLoading(false);
+    }
+  }, [user, orderId]);
+
+  const verifyPaymentAndFetchTicket = async () => {
+    try {
+      setLoading(true);
+      
+      // Wait for webhook to process
+      await new Promise(resolve => setTimeout(resolve, 3000));
+      
+      const paymentResult = await paymentAPI.verifyPayment({ order_id: orderId });
+      
+      if (paymentResult.data.status === 'PAID') {
+        // Try to fetch ticket with better error handling
+        let attempts = 0;
+        const maxAttempts = 5;
+        
+        while (attempts < maxAttempts) {
+          try {
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/api/tickets/by-order/${orderId}`, {
+              headers: {
+                'Authorization': `Bearer ${localStorage.getItem('token')}`
+              }
+            });
+            
+            const ticketData = await response.json();
+            
+            if (response.ok && ticketData.success && ticketData.ticket) {
+              setTicket(ticketData.ticket);
+              generateQRCode(ticketData.ticket);
+              return;
+            }
+            
+            // Handle different response statuses
+            if (response.status === 202 && ticketData.status === 'PENDING') {
+              console.log('Payment still processing...');
+            } else if (response.status === 400 && ticketData.status === 'FAILED') {
+              setError('Payment failed. Please try booking again.');
+              return;
+            }
+            
+          } catch (fetchError) {
+            console.log(`Attempt ${attempts + 1} failed:`, fetchError.message);
+          }
+          
+          attempts++;
+          if (attempts < maxAttempts) {
+            // Exponential backoff: 2s, 4s, 6s, 8s
+            await new Promise(resolve => setTimeout(resolve, 2000 * attempts));
+          }
+        }
+        
+        // No fallback needed - webhook should handle ticket creation
+        
+        setError(`Ticket processing delayed. Order ID: ${orderId}. Please contact support if this persists.`);
+      } else {
+        setError('Payment not completed. Please try again.');
+      }
+    } catch (error) {
+      console.error('Error verifying payment:', error);
+      setError('Failed to verify payment. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   };
 
-  // Show loading state while verifying payment or creating booking
-  if (isVerifying || checkoutLoading) {
+  const generateQRCode = async (ticketData) => {
+    try {
+      const qrData = JSON.stringify({
+        ticketNumber: ticketData.ticketNumber,
+        orderId: ticketData.orderId,
+        userId: ticketData.userId?._id,
+        productId: ticketData.productId?._id,
+        date: ticketData.selectedDate,
+        participants: ticketData.participants,
+        amount: ticketData.totalPrice
+      });
+      
+      const qrCodeDataUrl = await QRCode.toDataURL(qrData, {
+        width: isMobile ? 80 : 100,
+        margin: 1,
+        color: { 
+          dark: theme.palette.mode === 'dark' ? '#ffffff' : '#1a1a2e', 
+          light: theme.palette.mode === 'dark' ? '#1a1a2e' : '#ffffff' 
+        }
+      });
+      
+      setQrCodeUrl(qrCodeDataUrl);
+    } catch (error) {
+      console.error('Error generating QR code:', error);
+    }
+  };
+
+  const handleDownload = () => {
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    canvas.width = 800;
+    canvas.height = 600;
+    
+    // Simple ticket download (you can enhance this)
+    ctx.fillStyle = theme.palette.background.paper;
+    ctx.fillRect(0, 0, 800, 600);
+    ctx.fillStyle = theme.palette.text.primary;
+    ctx.font = '24px Arial';
+    ctx.fillText(`Ticket: ${ticket.ticketNumber}`, 50, 100);
+    ctx.fillText(`Experience: ${ticket.productId?.title}`, 50, 150);
+    
+    const link = document.createElement('a');
+    link.download = `ticket-${ticket.ticketNumber}.png`;
+    link.href = canvas.toDataURL();
+    link.click();
+  };
+
+  if (loading) {
     return (
       <Box sx={{ 
+        display: 'flex', 
+        justifyContent: 'center', 
+        alignItems: 'center', 
         minHeight: '100vh',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        background: theme.palette.mode === 'dark'
-          ? 'linear-gradient(135deg, #0f0f23 0%, #1a1a2e 25%, #16213e 50%, #0f3460 75%, #1e3c72 100%)'
-          : 'white'
+        bgcolor: 'background.default'
       }}>
-        <Box sx={{ textAlign: 'center' }}>
-          <CircularProgress size={60} />
-          <Typography variant="h6" sx={{ mt: 2 }}>Verifying Payment...</Typography>
-          <Typography variant="body2" color="text.secondary">Please wait while we confirm your booking</Typography>
-        </Box>
+        <CircularProgress size={isMobile ? 40 : 60} />
       </Box>
     );
   }
 
-  const ticketNumber = ticketData?.ticket?.ticketNumber || `WC${Date.now().toString().slice(-8)}`;
+  if (error) {
+    return (
+      <Box sx={{ 
+        display: 'flex', 
+        flexDirection: 'column',
+        justifyContent: 'center', 
+        alignItems: 'center', 
+        minHeight: '100vh',
+        bgcolor: 'background.default',
+        p: 2,
+        gap: 2
+      }}>
+        <Alert severity="error" sx={{ maxWidth: 400 }}>{error}</Alert>
+        <Button 
+          variant="outlined" 
+          startIcon={<ArrowBack />} 
+          onClick={() => navigate('/')}
+          size={isMobile ? 'small' : 'medium'}
+        >
+          Back to Home
+        </Button>
+      </Box>
+    );
+  }
 
-  useEffect(() => {
-    const timer = setTimeout(() => setShowConfetti(false), 3000);
-    return () => clearTimeout(timer);
-  }, []);
-
-  useEffect(() => {
-    const params = new URLSearchParams(location.search);
-    const orderId = params.get('order_id');
-    if (orderId && !ticketData) {
-      verifyPaymentAndCreateBooking(orderId);
-    }
-  }, [location.search, ticketData]);
-
-  const verifyPaymentAndCreateBooking = async (orderId) => {
-    setIsVerifying(true);
-    try {
-      // Get booking data from localStorage
-      const storedBooking = localStorage.getItem('pendingBooking');
-      if (!storedBooking) {
-        throw new Error('No booking data found');
-      }
-      
-      const bookingData = JSON.parse(storedBooking);
-      
-      // Create booking using Redux
-      const bookingResult = await dispatch(createBooking({
-        ...bookingData,
-        orderId: orderId,
-        paymentId: `payment_${Date.now()}`
-      }));
-
-      if (createBooking.fulfilled.match(bookingResult)) {
-        // Clear pending booking
-        localStorage.removeItem('pendingBooking');
-        
-        // Set ticket data from Redux state
-        const ticket = bookingResult.payload.ticket;
-        setTicketData({
-          experience: {
-            title: bookingData.title,
-            location: `${bookingData.city}, ${bookingData.state}`,
-            rating: 4.8,
-            duration: '6 hours'
-          },
-          selectedDate: new Date(bookingData.selectedDate),
-          participants: bookingData.participants,
-          guestInfo: bookingData.guestInfo,
-          totalPrice: bookingData.totalPrice,
-          ticket: ticket
-        });
-        
-        // Clear booking data from Redux
-        dispatch(clearBookingData());
-      } else {
-        throw new Error(bookingResult.payload || 'Failed to create booking');
-      }
-    } catch (error) {
-      console.error('Booking creation failed:', error);
-    } finally {
-      setIsVerifying(false);
-    }
-  };
+  if (!ticket) return null;
 
   return (
-    <Box sx={{ 
+    <Box sx={{
       minHeight: '100vh',
-      overflow: 'auto',
-      position: 'relative',
-      background: theme.palette.mode === 'dark'
-        ? 'linear-gradient(135deg, #0f0f23 0%, #1a1a2e 25%, #16213e 50%, #0f3460 75%, #1e3c72 100%)'
-        : 'white',
-      '&::before': {
-        content: '""',
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        background: 'radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.3) 0%, transparent 50%), radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.3) 0%, transparent 50%)',
-        pointerEvents: 'none'
-      }
+      width: '100vw',
+      bgcolor: 'background.default',
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      justifyContent: 'center',
+      p: { xs: 1, sm: 2, md: 3 },
+      position: 'relative'
     }}>
-      {/* Floating Elements */}
-      <Box sx={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, pointerEvents: 'none', zIndex: 1 }}>
-        {[...Array(6)].map((_, i) => (
-          <motion.div
-            key={i}
-            initial={{ opacity: 0, y: 100 }}
-            animate={{ 
-              opacity: [0.3, 0.7, 0.3],
-              y: [-20, -40, -20],
-              x: [0, 10, 0]
-            }}
-            transition={{ 
-              duration: 4 + i,
-              repeat: Infinity,
-              delay: i * 0.5
-            }}
-            style={{
-              position: 'absolute',
-              left: `${15 + i * 15}%`,
-              top: `${20 + i * 10}%`
-            }}
-          >
-            {i % 3 === 0 ? <FlightTakeoff sx={{ fontSize: 40, color: 'rgba(255,255,255,0.1)' }} /> :
-             i % 3 === 1 ? <LocalActivity sx={{ fontSize: 35, color: 'rgba(255,255,255,0.1)' }} /> :
-             <Celebration sx={{ fontSize: 30, color: 'rgba(255,255,255,0.1)' }} />}
-          </motion.div>
-        ))}
-      </Box>
-
-      {/* Header */}
-      <Box sx={{ position: 'relative', zIndex: 2, px: { xs: 2, sm: 3, md: 4 }, py: 2 }}>
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-        >
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-            <motion.div whileHover={{ scale: 1.1, rotate: -5 }} whileTap={{ scale: 0.9 }}>
-              <IconButton 
-                onClick={() => navigate('/')} 
-                sx={{ 
-                  backgroundColor: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)',
-                  backdropFilter: 'blur(10px)',
-                  color: theme.palette.mode === 'dark' ? 'white' : 'black',
-                  '&:hover': { 
-                    backgroundColor: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.2)'
-                  }
-                }}
-              >
-                <ArrowBack />
-              </IconButton>
-            </motion.div>
-            
-            <Box sx={{ flex: 1 }}>
-              <Typography variant="h6" fontWeight={700} sx={{ 
-                color: theme.palette.mode === 'dark' ? 'white' : 'black',
-                textShadow: theme.palette.mode === 'dark' ? '0 2px 4px rgba(0,0,0,0.3)' : '0 2px 4px rgba(255,255,255,0.8)'
-              }}>
-                🎉 Booking Confirmed!
-              </Typography>
-              <Typography variant="body2" sx={{ 
-                color: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.9)' : 'rgba(0,0,0,0.7)'
-              }}>
-                Your experience ticket is ready
-              </Typography>
-            </Box>
-          </Box>
-        </motion.div>
-      </Box>
-
-      {/* Main Ticket Container */}
-      <Box sx={{ 
-        position: 'relative', 
-        zIndex: 2,
-        px: { xs: 2, sm: 3, md: 4 },
-        py: 4,
+      {/* Header Actions */}
+      <Box sx={{
+        position: 'absolute',
+        top: { xs: 16, md: 24 },
+        left: { xs: 16, md: 24 },
+        right: { xs: 16, md: 24 },
         display: 'flex',
-        alignItems: 'flex-start',
-        justifyContent: 'center'
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        zIndex: 10
       }}>
-        <motion.div
-          initial={{ opacity: 0, y: 50 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, ease: "easeOut" }}
-          style={{ width: '100%', maxWidth: '900px' }}
+        <IconButton 
+          onClick={() => navigate('/')}
+          sx={{ 
+            bgcolor: 'background.paper',
+            boxShadow: 1,
+            '&:hover': { boxShadow: 2 }
+          }}
+          size={isMobile ? 'small' : 'medium'}
         >
-          {/* Ticket Card */}
-          <Card sx={{ 
-            background: theme.palette.mode === 'dark'
-              ? 'linear-gradient(145deg, rgba(30,30,30,0.95) 0%, rgba(20,20,20,0.9) 100%)'
-              : '#ffffff',
-            backdropFilter: 'blur(30px)',
-            borderRadius: 4,
-            overflow: 'hidden',
-            position: 'relative',
-            boxShadow: theme.palette.mode === 'dark'
-              ? '0 25px 50px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.1)'
-              : '0 4px 20px rgba(0,0,0,0.1)',
-            border: theme.palette.mode === 'dark' ? '1px solid rgba(255,255,255,0.1)' : '1px solid rgba(0,0,0,0.1)',
-            '&::before': {
-              content: '""',
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              right: 0,
-              height: '6px',
-              background: 'linear-gradient(90deg, #667eea 0%, #764ba2 25%, #f093fb 50%, #f5576c 75%, #4facfe 100%)'
-            }
-          }}>
-            {/* Ticket Header */}
-            <Box sx={{ 
-              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%)',
-              color: 'white',
-              p: 4,
-              textAlign: 'center',
-              position: 'relative',
-              overflow: 'hidden'
-            }}>
+          <Home fontSize={isMobile ? 'small' : 'medium'} />
+        </IconButton>
+        
+        <Button
+          variant="contained"
+          startIcon={<Download />}
+          onClick={handleDownload}
+          size={isMobile ? 'small' : 'medium'}
+          sx={{
+            borderRadius: 2,
+            textTransform: 'none',
+            fontWeight: 600,
+            fontSize: { xs: '0.75rem', sm: '0.875rem' }
+          }}
+        >
+          Download
+        </Button>
+      </Box>
+      
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95, y: 30 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        transition={{ duration: 0.6, ease: 'easeOut' }}
+        style={{ 
+          width: '100%', 
+          maxWidth: isMobile ? '100%' : '900px',
+          marginTop: isMobile ? '60px' : '80px'
+        }}
+      >
+        <Paper sx={{
+          bgcolor: 'background.paper',
+          borderRadius: { xs: 2, sm: 3, md: 4 },
+          overflow: 'hidden',
+          boxShadow: theme.palette.mode === 'dark' 
+            ? '0 8px 32px rgba(0,0,0,0.4)' 
+            : '0 8px 32px rgba(0,0,0,0.12)',
+          border: theme.palette.mode === 'dark' 
+            ? '1px solid rgba(255,255,255,0.1)' 
+            : '1px solid rgba(0,0,0,0.05)',
+          position: 'relative'
+        }}>
+          {/* Premium Header Strip */}
+          <Box sx={{
+            background: `linear-gradient(90deg, ${theme.palette.primary.main} 0%, ${theme.palette.secondary.main} 100%)`,
+            height: { xs: 4, sm: 6, md: 8 },
+            position: 'relative'
+          }} />
+          
+          <Box sx={{ p: { xs: 2, sm: 3, md: 4 } }}>
+            {/* Success Badge */}
+            <Box sx={{ display: 'flex', justifyContent: 'center', mb: { xs: 2, md: 3 } }}>
               <motion.div
-                animate={{ rotate: [0, 360] }}
-                transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-                style={{ position: 'absolute', top: -50, right: -50, opacity: 0.1 }}
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ delay: 0.2, type: 'spring', stiffness: 200 }}
               >
-                <Celebration sx={{ fontSize: 100 }} />
-              </motion.div>
-              
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.3 }}
-              >
-                <Typography variant="h4" fontWeight={800} mb={1} sx={{ textShadow: '0 2px 4px rgba(0,0,0,0.3)' }}>
-                  TICKET
-                </Typography>
-                <Typography variant="h5" fontWeight={600} sx={{ letterSpacing: 2 }}>
-                  #{ticketNumber}
-                </Typography>
-                <Typography variant="body2" sx={{ opacity: 0.9, mt: 1 }}>
-                  Valid for single use • Non-transferable
-                </Typography>
-              </motion.div>
-            </Box>
-
-            <CardContent sx={{ p: 4 }}>
-              <Grid container spacing={4}>
-                {/* Left Side - Experience Details */}
-                <Grid item xs={12} md={8}>
-                  {/* Experience Info */}
-                  <motion.div
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ duration: 0.6, delay: 0.5 }}
-                  >
-                    <Box sx={{ mb: 3 }}>
-                      <Typography variant="h6" fontWeight={600} mb={1} sx={{ color: theme.palette.mode === 'dark' ? 'white' : 'black' }}>
-                        {bookingData.experience.title}
-                      </Typography>
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
-                        <LocationOn sx={{ fontSize: 16, color: '#90caf9' }} />
-                        <Typography variant="body2" fontWeight={400} sx={{ color: theme.palette.mode === 'dark' ? 'grey.300' : 'grey.600' }}>
-                          {bookingData.experience.fullAddress || 
-                           (typeof bookingData.experience.location === 'object' 
-                             ? `${bookingData.experience.location.address}, ${bookingData.experience.location.city}, ${bookingData.experience.location.state} ${bookingData.experience.location.pincode}`
-                             : bookingData.experience.location)}
-                        </Typography>
-                      </Box>
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                        <Star sx={{ fontSize: 16, color: '#ffd700' }} />
-                        <Typography variant="body2" fontWeight={500} sx={{ color: theme.palette.mode === 'dark' ? 'grey.300' : 'grey.600' }}>
-                          {bookingData.experience.rating} • Experience
-                        </Typography>
-                      </Box>
-                    </Box>
-                  </motion.div>
-
-                  <Divider sx={{ mb: 4, borderColor: 'rgba(102, 126, 234, 0.2)' }} />
-
-                  {/* Booking Details */}
-                  <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.6, delay: 0.7 }}
-                  >
-                    <Grid container spacing={3} sx={{ mb: 4 }}>
-                      <Grid item xs={6} sm={3}>
-                        <Paper sx={{ p: 2, textAlign: 'center', background: 'linear-gradient(135deg, #667eea20 0%, #764ba220 100%)', border: '1px solid #667eea30' }}>
-                          <CalendarToday sx={{ fontSize: 24, color: '#667eea', mb: 1 }} />
-                          <Typography variant="caption" sx={{ color: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.7)' : 'rgba(0,0,0,0.6)' }} display="block">
-                            Date
-                          </Typography>
-                          <Typography variant="body2" fontWeight={700} sx={{ color: theme.palette.mode === 'dark' ? 'white' : 'black' }}>
-                            {new Date(bookingData.selectedDate).toLocaleDateString()}
-                          </Typography>
-                        </Paper>
-                      </Grid>
-                      
-                      <Grid item xs={6} sm={3}>
-                        <Paper sx={{ p: 2, textAlign: 'center', background: 'linear-gradient(135deg, #f5576c20 0%, #f093fb20 100%)', border: '1px solid #f5576c30' }}>
-                          <Group sx={{ fontSize: 24, color: '#f5576c', mb: 1 }} />
-                          <Typography variant="caption" sx={{ color: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.7)' : 'rgba(0,0,0,0.6)' }} display="block">
-                            Guests
-                          </Typography>
-                          <Typography variant="body2" fontWeight={700} sx={{ color: theme.palette.mode === 'dark' ? 'white' : 'black' }}>
-                            {bookingData.participants} {bookingData.participants === 1 ? 'Person' : 'People'}
-                          </Typography>
-                        </Paper>
-                      </Grid>
-                      
-                      <Grid item xs={6} sm={3}>
-                        <Paper sx={{ p: 2, textAlign: 'center', background: 'linear-gradient(135deg, #4facfe20 0%, #00f2fe20 100%)', border: '1px solid #4facfe30' }}>
-                          <AccessTime sx={{ fontSize: 24, color: '#4facfe', mb: 1 }} />
-                          <Typography variant="caption" sx={{ color: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.7)' : 'rgba(0,0,0,0.6)' }} display="block">
-                            Duration
-                          </Typography>
-                          <Typography variant="body2" fontWeight={700} sx={{ color: theme.palette.mode === 'dark' ? 'white' : 'black' }}>
-                            {bookingData.experience.duration}
-                          </Typography>
-                        </Paper>
-                      </Grid>
-                      
-                      <Grid item xs={6} sm={3}>
-                        <Paper sx={{ p: 2, textAlign: 'center', background: 'linear-gradient(135deg, #43e97b20 0%, #38f9d720 100%)', border: '1px solid #43e97b30' }}>
-                          <CheckCircle sx={{ fontSize: 24, color: '#43e97b', mb: 1 }} />
-                          <Typography variant="caption" sx={{ color: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.7)' : 'rgba(0,0,0,0.6)' }} display="block">
-                            Status
-                          </Typography>
-                          <Chip label="✓ Confirmed" color="success" size="small" sx={{ fontWeight: 700 }} />
-                        </Paper>
-                      </Grid>
-                    </Grid>
-                  </motion.div>
-
-                  {/* Guest Information */}
-                  <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.6, delay: 0.9 }}
-                  >
-                    <Paper sx={{ 
-                      p: 2, 
-                      mb: 3, 
-                      background: theme.palette.mode === 'dark'
-                        ? 'linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(240, 147, 251, 0.1) 100%)'
-                        : '#f5f5f5', 
-                      border: theme.palette.mode === 'dark' ? '1px solid rgba(102, 126, 234, 0.2)' : '1px solid rgba(0, 0, 0, 0.1)',
-                      backgroundColor: theme.palette.mode === 'dark' ? 'rgba(30,30,30,0.8)' : '#ffffff'
-                    }}>
-                      <Typography variant="subtitle1" fontWeight={600} mb={2} sx={{ color: theme.palette.mode === 'dark' ? 'white' : 'black' }}>
-                        Guest Information
-                      </Typography>
-                      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                        <Box>
-                          <Typography variant="caption" sx={{ color: theme.palette.mode === 'dark' ? 'grey.400' : 'grey.600' }} display="block">
-                            Full Name
-                          </Typography>
-                          <Typography variant="body2" fontWeight={500} sx={{ color: theme.palette.mode === 'dark' ? 'white' : 'black' }}>
-                            {bookingData.guestInfo.name}
-                          </Typography>
-                        </Box>
-                        <Box>
-                          <Typography variant="caption" sx={{ color: theme.palette.mode === 'dark' ? 'grey.400' : 'grey.600' }} display="block">
-                            Email Address
-                          </Typography>
-                          <Typography variant="body2" fontWeight={500} sx={{ color: theme.palette.mode === 'dark' ? 'white' : 'black' }}>
-                            {bookingData.guestInfo.email}
-                          </Typography>
-                        </Box>
-                        <Box>
-                          <Typography variant="caption" sx={{ color: theme.palette.mode === 'dark' ? 'grey.400' : 'grey.600' }} display="block">
-                            Phone Number
-                          </Typography>
-                          <Typography variant="body2" fontWeight={500} sx={{ color: theme.palette.mode === 'dark' ? 'white' : 'black' }}>
-                            {bookingData.guestInfo.phone}
-                          </Typography>
-                        </Box>
-                      </Box>
-                    </Paper>
-                  </motion.div>
-                </Grid>
-
-                {/* Right Side - QR Code */}
-                <Grid item xs={12} md={4}>
-                  <motion.div
-                    initial={{ opacity: 0, scale: 0.8 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ duration: 0.8, delay: 0.6 }}
-                  >
-                    <Paper sx={{ 
-                      p: 3, 
-                      textAlign: 'center',
-                      background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                      color: 'white',
-                      position: 'relative',
-                      overflow: 'hidden'
-                    }}>
-                      <motion.div
-                        animate={{ rotate: [0, 360] }}
-                        transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
-                        style={{ position: 'absolute', top: -20, right: -20, opacity: 0.1 }}
-                      >
-                        <QrCode sx={{ fontSize: 60 }} />
-                      </motion.div>
-                      
-                      <Typography variant="subtitle1" fontWeight={600} mb={2}>
-                        Scan to Verify
-                      </Typography>
-                      
-                      <motion.div
-                        animate={{ 
-                          boxShadow: [
-                            '0 0 0 0 rgba(255,255,255,0.4)',
-                            '0 0 0 10px rgba(255,255,255,0)',
-                            '0 0 0 0 rgba(255,255,255,0)'
-                          ]
-                        }}
-                        transition={{ duration: 2, repeat: Infinity }}
-                      >
-                        <Box sx={{ 
-                          width: 120, 
-                          height: 120, 
-                          backgroundColor: 'white', 
-                          borderRadius: 2, 
-                          display: 'flex', 
-                          alignItems: 'center', 
-                          justifyContent: 'center',
-                          mx: 'auto',
-                          mb: 2
-                        }}>
-                          <QrCode sx={{ fontSize: 80, color: '#667eea' }} />
-                        </Box>
-                      </motion.div>
-                      
-                      <Typography variant="caption" sx={{ opacity: 0.9 }}>
-                        Show this QR code at the venue
-                      </Typography>
-                      
-                      <Box sx={{ mt: 3, pt: 2, borderTop: '1px solid rgba(255,255,255,0.2)' }}>
-                        <Typography variant="h6" fontWeight={700}>
-                          ₹{bookingData.totalPrice.toFixed(2)}
-                        </Typography>
-                        <Typography variant="caption" sx={{ opacity: 0.8 }}>
-                          Total Amount Paid
-                        </Typography>
-                      </Box>
-                    </Paper>
-                  </motion.div>
-                </Grid>
-              </Grid>
-
-              {/* Action Buttons */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 1.1 }}
-              >
-                <Box sx={{ display: 'flex', gap: 2, flexDirection: { xs: 'column', sm: 'row' }, mt: 4 }}>
-                  <motion.div style={{ flex: 1 }} whileHover={{ scale: 1.02, y: -2 }} whileTap={{ scale: 0.98 }}>
-                    <Button
-                      variant="contained"
-                      fullWidth
-                      startIcon={<Download />}
-                      sx={{ 
-                        py: 2, 
-                        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                        '&:hover': { background: 'linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%)' },
-                        fontWeight: 600
-                      }}
-                    >
-                      Download PDF
-                    </Button>
-                  </motion.div>
-                  
-                  <motion.div style={{ flex: 1 }} whileHover={{ scale: 1.02, y: -2 }} whileTap={{ scale: 0.98 }}>
-                    <Button
-                      variant="outlined"
-                      fullWidth
-                      startIcon={<Share />}
-                      sx={{ 
-                        py: 2,
-                        borderWidth: 2,
-                        '&:hover': { borderWidth: 2, backgroundColor: 'primary.main', color: 'white' },
-                        fontWeight: 600
-                      }}
-                    >
-                      Share Ticket
-                    </Button>
-                  </motion.div>
-                </Box>
-              </motion.div>
-            </CardContent>
-          </Card>
-
-          {/* Back to Home */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.6, delay: 1.3 }}
-          >
-            <Box sx={{ textAlign: 'center', mt: 4 }}>
-              <motion.div whileHover={{ scale: 1.05, y: -3 }} whileTap={{ scale: 0.95 }}>
-                <Button
-                  variant="contained"
-                  onClick={() => navigate('/')}
+                <Chip
+                  icon={<CheckCircle sx={{ fontSize: { xs: 16, md: 18 } }} />}
+                  label="CONFIRMED"
                   sx={{
-                    px: 6,
-                    py: 2,
-                    fontSize: '1.1rem',
-                    fontWeight: 700,
-                    background: theme.palette.mode === 'dark'
-                      ? 'linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%)'
-                      : 'linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0.7) 100%)',
-                    color: theme.palette.mode === 'dark' ? 'white' : '#667eea',
-                    border: theme.palette.mode === 'dark' ? '2px solid rgba(255,255,255,0.2)' : '2px solid rgba(255,255,255,0.3)',
-                    backdropFilter: 'blur(10px)',
-                    '&:hover': {
-                      background: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.2)' : 'rgba(255,255,255,1)',
-                      transform: 'translateY(-2px)'
+                    bgcolor: 'success.main',
+                    color: 'success.contrastText',
+                    fontWeight: 600,
+                    fontSize: { xs: '0.7rem', sm: '0.75rem', md: '0.875rem' },
+                    px: { xs: 1, md: 2 },
+                    py: 0.5,
+                    '& .MuiChip-label': {
+                      px: { xs: 1, md: 1.5 }
                     }
                   }}
-                >
-                  Back to Home
-                </Button>
+                />
               </motion.div>
             </Box>
-          </motion.div>
-        </motion.div>
-      </Box>
+
+            <Grid container spacing={{ xs: 2, sm: 3, md: 4 }}>
+              {/* Main Ticket Content */}
+              <Grid item xs={12} md={8}>
+                {/* Experience Title */}
+                <Typography 
+                  variant={isMobile ? 'h5' : 'h4'} 
+                  sx={{
+                    fontWeight: 700,
+                    color: 'text.primary',
+                    mb: { xs: 2, md: 3 },
+                    lineHeight: 1.2,
+                    fontSize: { xs: '1.25rem', sm: '1.5rem', md: '2rem' }
+                  }}
+                >
+                  {ticket.productId?.title}
+                </Typography>
+
+                {/* Ticket Number */}
+                <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: { xs: 2, md: 3 } }}>
+                  <ConfirmationNumber sx={{ 
+                    fontSize: { xs: 18, md: 20 }, 
+                    color: 'primary.main' 
+                  }} />
+                  <Typography 
+                    variant={isMobile ? 'body1' : 'h6'} 
+                    sx={{ 
+                      fontWeight: 600, 
+                      color: 'text.primary',
+                      fontSize: { xs: '0.9rem', sm: '1rem', md: '1.25rem' }
+                    }}
+                  >
+                    {ticket.ticketNumber}
+                  </Typography>
+                </Stack>
+
+                <Grid container spacing={{ xs: 2, sm: 3 }}>
+                  {/* Date & Time */}
+                  <Grid item xs={6} sm={6}>
+                    <Stack direction="row" spacing={{ xs: 1, sm: 1.5 }} alignItems="flex-start">
+                      <CalendarToday sx={{ 
+                        fontSize: { xs: 16, sm: 18, md: 20 }, 
+                        color: 'primary.main',
+                        mt: 0.5
+                      }} />
+                      <Box sx={{ minWidth: 0, flex: 1 }}>
+                        <Typography 
+                          variant="caption" 
+                          sx={{ 
+                            color: 'text.secondary', 
+                            textTransform: 'uppercase', 
+                            letterSpacing: 0.5,
+                            fontSize: { xs: '0.65rem', sm: '0.75rem' },
+                            fontWeight: 500
+                          }}
+                        >
+                          Date
+                        </Typography>
+                        <Typography 
+                          variant="body2" 
+                          sx={{ 
+                            fontWeight: 600, 
+                            color: 'text.primary',
+                            fontSize: { xs: '0.8rem', sm: '0.875rem' },
+                            lineHeight: 1.2
+                          }}
+                        >
+                          {new Date(ticket.selectedDate).toLocaleDateString('en-US', {
+                            month: 'short',
+                            day: 'numeric',
+                            year: 'numeric'
+                          })}
+                        </Typography>
+                      </Box>
+                    </Stack>
+                  </Grid>
+
+                  {/* Location */}
+                  <Grid item xs={6} sm={6}>
+                    <Stack direction="row" spacing={{ xs: 1, sm: 1.5 }} alignItems="flex-start">
+                      <LocationOn sx={{ 
+                        fontSize: { xs: 16, sm: 18, md: 20 }, 
+                        color: 'primary.main',
+                        mt: 0.5
+                      }} />
+                      <Box sx={{ minWidth: 0, flex: 1 }}>
+                        <Typography 
+                          variant="caption" 
+                          sx={{ 
+                            color: 'text.secondary', 
+                            textTransform: 'uppercase', 
+                            letterSpacing: 0.5,
+                            fontSize: { xs: '0.65rem', sm: '0.75rem' },
+                            fontWeight: 500
+                          }}
+                        >
+                          Location
+                        </Typography>
+                        <Typography 
+                          variant="body2" 
+                          sx={{ 
+                            fontWeight: 600, 
+                            color: 'text.primary',
+                            fontSize: { xs: '0.8rem', sm: '0.875rem' },
+                            lineHeight: 1.2
+                          }}
+                        >
+                          {ticket.productId?.location?.city}
+                        </Typography>
+                        <Typography 
+                          variant="caption" 
+                          sx={{ 
+                            color: 'text.secondary',
+                            fontSize: { xs: '0.7rem', sm: '0.75rem' }
+                          }}
+                        >
+                          {ticket.productId?.location?.state}
+                        </Typography>
+                      </Box>
+                    </Stack>
+                  </Grid>
+
+                  {/* Participants */}
+                  <Grid item xs={6} sm={6}>
+                    <Stack direction="row" spacing={{ xs: 1, sm: 1.5 }} alignItems="flex-start">
+                      <Person sx={{ 
+                        fontSize: { xs: 16, sm: 18, md: 20 }, 
+                        color: 'primary.main',
+                        mt: 0.5
+                      }} />
+                      <Box sx={{ minWidth: 0, flex: 1 }}>
+                        <Typography 
+                          variant="caption" 
+                          sx={{ 
+                            color: 'text.secondary', 
+                            textTransform: 'uppercase', 
+                            letterSpacing: 0.5,
+                            fontSize: { xs: '0.65rem', sm: '0.75rem' },
+                            fontWeight: 500
+                          }}
+                        >
+                          Guests
+                        </Typography>
+                        <Typography 
+                          variant="body2" 
+                          sx={{ 
+                            fontWeight: 600, 
+                            color: 'text.primary',
+                            fontSize: { xs: '0.8rem', sm: '0.875rem' }
+                          }}
+                        >
+                          {ticket.participants}
+                        </Typography>
+                      </Box>
+                    </Stack>
+                  </Grid>
+
+                  {/* Guest Info */}
+                  <Grid item xs={6} sm={6}>
+                    <Stack direction="row" spacing={{ xs: 1, sm: 1.5 }} alignItems="flex-start">
+                      <Person sx={{ 
+                        fontSize: { xs: 16, sm: 18, md: 20 }, 
+                        color: 'primary.main',
+                        mt: 0.5
+                      }} />
+                      <Box sx={{ minWidth: 0, flex: 1 }}>
+                        <Typography 
+                          variant="caption" 
+                          sx={{ 
+                            color: 'text.secondary', 
+                            textTransform: 'uppercase', 
+                            letterSpacing: 0.5,
+                            fontSize: { xs: '0.65rem', sm: '0.75rem' },
+                            fontWeight: 500
+                          }}
+                        >
+                          Guest
+                        </Typography>
+                        <Typography 
+                          variant="body2" 
+                          sx={{ 
+                            fontWeight: 600, 
+                            color: 'text.primary',
+                            fontSize: { xs: '0.8rem', sm: '0.875rem' },
+                            lineHeight: 1.2
+                          }}
+                        >
+                          {ticket.userId?.name}
+                        </Typography>
+                      </Box>
+                    </Stack>
+                  </Grid>
+                </Grid>
+
+                <Divider sx={{ my: { xs: 2, md: 3 } }} />
+
+                {/* Payment Info */}
+                <Stack 
+                  direction={{ xs: 'column', sm: 'row' }} 
+                  justifyContent="space-between" 
+                  alignItems={{ xs: 'flex-start', sm: 'center' }}
+                  spacing={{ xs: 1, sm: 2 }}
+                >
+                  <Box>
+                    <Typography 
+                      variant="caption" 
+                      sx={{ 
+                        color: 'text.secondary', 
+                        textTransform: 'uppercase', 
+                        letterSpacing: 0.5,
+                        fontSize: { xs: '0.65rem', sm: '0.75rem' },
+                        fontWeight: 500
+                      }}
+                    >
+                      Total Paid
+                    </Typography>
+                    <Typography 
+                      variant={isMobile ? 'h6' : 'h5'} 
+                      sx={{ 
+                        fontWeight: 700, 
+                        color: 'text.primary',
+                        fontSize: { xs: '1.1rem', sm: '1.25rem', md: '1.5rem' }
+                      }}
+                    >
+                      ₹{ticket.totalPrice}
+                    </Typography>
+                  </Box>
+                  <Chip
+                    label={ticket.paymentStatus}
+                    sx={{
+                      bgcolor: ticket.paymentStatus === 'PAID' ? 'success.main' : 'warning.main',
+                      color: ticket.paymentStatus === 'PAID' ? 'success.contrastText' : 'warning.contrastText',
+                      fontWeight: 600,
+                      fontSize: { xs: '0.7rem', sm: '0.75rem' },
+                      px: { xs: 1, sm: 1.5 }
+                    }}
+                  />
+                </Stack>
+              </Grid>
+
+              {/* QR Code Section */}
+              <Grid item xs={12} md={4}>
+                <Box sx={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  minHeight: { xs: 180, sm: 200, md: 280 },
+                  bgcolor: theme.palette.mode === 'dark' ? 'grey.900' : 'grey.50',
+                  borderRadius: { xs: 2, md: 3 },
+                  p: { xs: 2, sm: 3 },
+                  border: `2px dashed ${theme.palette.divider}`,
+                  position: 'relative'
+                }}>
+                  <QrCode2 sx={{ 
+                    fontSize: { xs: 24, sm: 28, md: 32 }, 
+                    color: 'primary.main', 
+                    mb: { xs: 1, md: 2 } 
+                  }} />
+                  
+                  <Typography 
+                    variant={isMobile ? 'subtitle2' : 'h6'} 
+                    sx={{ 
+                      fontWeight: 600, 
+                      color: 'text.primary', 
+                      mb: { xs: 1, md: 2 }, 
+                      textAlign: 'center',
+                      fontSize: { xs: '0.9rem', sm: '1rem', md: '1.25rem' }
+                    }}
+                  >
+                    Entry QR Code
+                  </Typography>
+                  
+                  {qrCodeUrl && (
+                    <motion.div
+                      initial={{ opacity: 0, scale: 0.8 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ delay: 0.4 }}
+                    >
+                      <Box sx={{
+                        p: { xs: 1, sm: 1.5 },
+                        bgcolor: 'background.paper',
+                        borderRadius: 2,
+                        boxShadow: 1,
+                        border: `1px solid ${theme.palette.divider}`
+                      }}>
+                        <img 
+                          src={qrCodeUrl} 
+                          alt="Ticket QR Code" 
+                          style={{ 
+                            display: 'block', 
+                            width: isMobile ? '80px' : '100px', 
+                            height: isMobile ? '80px' : '100px' 
+                          }}
+                        />
+                      </Box>
+                    </motion.div>
+                  )}
+                  
+                  <Typography 
+                    variant="caption" 
+                    sx={{ 
+                      color: 'text.secondary', 
+                      textAlign: 'center', 
+                      mt: { xs: 1, md: 2 },
+                      fontSize: { xs: '0.65rem', sm: '0.75rem' },
+                      lineHeight: 1.3,
+                      px: 1
+                    }}
+                  >
+                    Show this code at venue
+                  </Typography>
+                </Box>
+              </Grid>
+            </Grid>
+          </Box>
+
+          {/* Bottom Premium Strip */}
+          <Box sx={{
+            background: `linear-gradient(90deg, ${theme.palette.primary.main} 0%, ${theme.palette.secondary.main} 100%)`,
+            height: { xs: 4, sm: 6, md: 8 }
+          }} />
+        </Paper>
+      </motion.div>
     </Box>
   );
 };

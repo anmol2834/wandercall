@@ -1,18 +1,24 @@
 const express = require('express');
 const router = express.Router();
 const User = require('../models/User');
-const Ticket = require('../models/Ticket');
+const BookingIntent = require('../models/BookingIntent');
 const verifyToken = require('../middleware/auth');
-const crypto = require('crypto');
 const axios = require('axios');
+const Ticket = require('../models/Ticket');
+const { generateOrderId, createTicketFromPayment } = require('../services/ticketService');
+
+// Test endpoint
+router.get('/test', (req, res) => {
+  res.json({ message: 'Payment routes working', timestamp: new Date().toISOString() });
+});
 
 // Create payment session
 router.post('/create-payment-session', verifyToken, async (req, res) => {
-  const { amount } = req.body;
-  
   try {
-    if (!amount || amount <= 0) {
-      return res.status(400).json({ message: 'Invalid amount' });
+    const { bookingData } = req.body;
+    
+    if (!bookingData || !bookingData.totalPrice) {
+      return res.status(400).json({ message: 'Invalid booking data' });
     }
 
     const user = await User.findById(req.user.id);
@@ -20,25 +26,39 @@ router.post('/create-payment-session', verifyToken, async (req, res) => {
       return res.status(404).json({ message: 'User not found' });
     }
 
-    const orderId = `order_${Date.now()}`;
+    const orderId = generateOrderId(user._id);
+    
+    // Create booking intent
+    const bookingIntent = new BookingIntent({
+      orderId,
+      userId: user._id,
+      productId: bookingData.productId,
+      selectedDate: new Date(bookingData.selectedDate),
+      participants: bookingData.participants,
+      totalPrice: bookingData.totalPrice,
+      gst: bookingData.gst,
+      discount: bookingData.discount || 0,
+      status: 'PENDING'
+    });
+    
+    await bookingIntent.save();
+
+    // Create Cashfree payment session
     const requestData = {
       order_id: orderId,
-      order_amount: amount,
+      order_amount: bookingData.totalPrice,
       order_currency: 'INR',
       customer_details: {
         customer_id: user._id.toString(),
-        customer_name: user.name || 'Unnamed Customer',
+        customer_name: user.name || 'Customer',
         customer_email: user.email,
         customer_phone: user.phone || '0000000000',
       },
       order_meta: {
-        return_url: process.env.NODE_ENV === 'production' 
-          ? `https://www.wandercall.com/ticket/${user._id}?order_id={order_id}`
-          : `${process.env.FRONTEND_URL || 'http://localhost:5173'}/ticket/${user._id}?order_id={order_id}`
+        return_url: `${process.env.FRONTEND_URL || 'http://localhost:5173'}/ticket/${bookingData.productId}?order_id=${orderId}`
       }
     };
 
-    // Cashfree API call - dynamic URL based on environment
     const cashfreeBaseUrl = process.env.CASHFREE_MODE === 'production' 
       ? 'https://api.cashfree.com/pg/orders'
       : 'https://sandbox.cashfree.com/pg/orders';
@@ -56,27 +76,25 @@ router.post('/create-payment-session', verifyToken, async (req, res) => {
       }
     );
 
-
-
     res.status(200).json({
       payment_session_id: cashfreeResponse.data.payment_session_id,
       order_id: orderId,
     });
   } catch (err) {
+    console.error('Payment session creation failed:', err.message);
     res.status(500).json({ message: 'Server error', error: err.message });
   }
 });
 
-// Verify payment and create ticket
+// Verify payment and trigger ticket creation if successful
 router.post('/verify-payment', verifyToken, async (req, res) => {
-  const { order_id } = req.body;
-  
   try {
+    const { order_id } = req.body;
+    
     if (!order_id) {
       return res.status(400).json({ message: 'Missing order ID' });
     }
 
-    // Verify payment with Cashfree - dynamic URL based on environment
     const cashfreeBaseUrl = process.env.CASHFREE_MODE === 'production' 
       ? 'https://api.cashfree.com/pg/orders'
       : 'https://sandbox.cashfree.com/pg/orders';
@@ -95,91 +113,31 @@ router.post('/verify-payment', verifyToken, async (req, res) => {
 
     const orderData = verifyResponse.data;
     
-    // If payment is successful, create ticket
+    // Only trigger ticket creation if webhook hasn't processed it yet
     if (orderData.order_status === 'PAID') {
-      // Get booking data from localStorage (passed from frontend)
-      const bookingData = req.body.bookingData;
+      const existingTicket = await Ticket.findOne({ orderId: order_id });
       
-      if (bookingData) {
-        const ticketNumber = `WC${Date.now().toString().slice(-8)}`;
+      if (!existingTicket) {
+        const ticketResult = await createTicketFromPayment(
+          order_id, 
+          orderData.cf_order_id || orderData.payment_id
+        );
         
-        const ticket = new Ticket({
-          ticketNumber,
-          userId: req.user.id,
-          productId: bookingData.productId,
-          orderId: order_id,
-          paymentId: orderData.cf_order_id,
-          title: bookingData.title,
-          city: bookingData.city,
-          state: bookingData.state,
-          selectedDate: new Date(bookingData.selectedDate),
-          participants: bookingData.participants,
-          guestInfo: bookingData.guestInfo,
-          totalPrice: bookingData.totalPrice,
-          gst: bookingData.gst,
-          discount: bookingData.discount || 0
-        });
-        
-        await ticket.save();
-        
-        return res.status(200).json({
-          message: 'Payment verified and ticket created successfully',
-          status: orderData.order_status,
-          paymentId: orderData.cf_order_id,
-          ticket: ticket
-        });
+        // Ticket creation handled by service
       }
     }
     
     res.status(200).json({
-      message: 'Payment verified successfully',
+      message: 'Payment status retrieved',
       status: orderData.order_status,
       paymentId: orderData.cf_order_id,
       orderData
     });
   } catch (err) {
+    console.error('Payment verification failed:', err.message);
     res.status(500).json({ 
       message: 'Server error during payment verification', 
       error: err.message 
-    });
-  }
-});
-
-// Create booking/ticket after payment verification
-router.post('/checkout', verifyToken, async (req, res) => {
-  try {
-    const bookingData = req.body;
-    const ticketNumber = `WC${Date.now().toString().slice(-8)}`;
-    
-    const ticket = new Ticket({
-      ticketNumber,
-      userId: req.user.id,
-      productId: bookingData.productId,
-      orderId: bookingData.orderId || `order_${Date.now()}`,
-      paymentId: bookingData.paymentId,
-      title: bookingData.title,
-      city: bookingData.city,
-      state: bookingData.state,
-      selectedDate: new Date(bookingData.selectedDate),
-      participants: bookingData.participants,
-      guestInfo: bookingData.guestInfo,
-      totalPrice: bookingData.totalPrice,
-      gst: bookingData.gst,
-      discount: bookingData.discount || 0
-    });
-    
-    await ticket.save();
-    
-    res.status(201).json({
-      success: true,
-      message: 'Booking created successfully',
-      ticket
-    });
-  } catch (error) {
-    res.status(500).json({ 
-      success: false, 
-      message: 'Error creating booking', 
-      error: error.message 
     });
   }
 });

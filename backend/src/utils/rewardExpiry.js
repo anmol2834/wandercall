@@ -28,7 +28,7 @@ const checkExpiredRewards = async () => {
       }
     );
     
-    console.log('Expired rewards updated successfully');
+
   } catch (error) {
     console.error('Error updating expired rewards:', error);
   }

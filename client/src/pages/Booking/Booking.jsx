@@ -287,7 +287,23 @@ const Booking = () => {
       }
 
       // Create payment session using Redux
-      const sessionResult = await dispatch(createPaymentSession({ amount: totalPrice }));
+      const sessionResult = await dispatch(createPaymentSession({ 
+        bookingData: {
+          productId: product._id,
+          title: product.title,
+          city: product.location?.city || '',
+          state: product.location?.state || '',
+          selectedDate: selectedDate.toISOString(),
+          participants,
+          guestInfo: {
+            ...guestInfo,
+            phone: guestInfo.phone || user.phone
+          },
+          totalPrice,
+          gst,
+          discount
+        }
+      }));
       
       if (createPaymentSession.rejected.match(sessionResult)) {
         throw new Error(sessionResult.payload);
@@ -295,51 +311,30 @@ const Booking = () => {
       
       const sessionData = sessionResult.payload;
       
-      // Store booking data in Redux
-      const bookingData = {
+      // Clear any previous booking data
+      localStorage.removeItem('pendingBooking');
+      
+      // Store minimal booking data for frontend state
+      const frontendBookingData = {
         productId: product._id,
         title: product.title,
-        state: product.location?.state || '',
-        city: product.location?.city || '',
-        companyName: product.company_Name || '',
-        providerName: product.provider_Name || '',
-        selectedDate: selectedDate.toISOString(),
-        participants,
-        guestInfo: {
-          ...guestInfo,
-          phone: guestInfo.phone || user.phone
-        },
         totalPrice,
-        gst,
-        discount
+        orderId: sessionData.order_id,
+        timestamp: Date.now()
       };
       
-      dispatch(setBookingData(bookingData));
-      localStorage.setItem('pendingBooking', JSON.stringify(bookingData));
+      dispatch(setBookingData(frontendBookingData));
+      localStorage.setItem('pendingBooking', JSON.stringify(frontendBookingData));
       
       // Initialize Cashfree SDK
       const cashfree = window.Cashfree({
         mode: process.env.NODE_ENV === 'production' ? 'production' : 'sandbox'
       });   
 
-      // Open Cashfree checkout with success/failure callbacks
+      // Open Cashfree checkout with redirect mode
       const checkoutOptions = {
         paymentSessionId: sessionData.payment_session_id,
-        redirectTarget: '_modal', // Opens as overlay
-        onSuccess: function(data) {
-          console.log('Payment successful:', data);
-          // Redirect to ticket page on success - production URL
-          const baseUrl = process.env.NODE_ENV === 'production' 
-            ? 'https://www.wandercall.com' 
-            : window.location.origin;
-          window.location.href = `${baseUrl}/ticket/${id}?order_id=${sessionData.order_id}`;
-        },
-        onFailure: function(data) {
-          console.log('Payment failed:', data);
-          setIsProcessing(false);
-          setPaymentInitiated(false);
-          alert('Payment failed. Please try again.');
-        }
+        redirectTarget: '_self' // Redirect in same window
       };
 
       cashfree.checkout(checkoutOptions);

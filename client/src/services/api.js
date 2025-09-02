@@ -91,9 +91,8 @@ export const ticketAPI = {
 };
 
 export const paymentAPI = {
-  createPaymentSession: (data) => api.post('/create-payment-session', data),
-  verifyPayment: (data) => api.post('/verify-payment', data),
-  createBooking: (data) => api.post('/checkout', data),
+  createPaymentSession: (data) => api.post('/payments/create-payment-session', data),
+  verifyPayment: (data) => api.post('/payments/verify-payment', data),
 };
 
 export default api;
