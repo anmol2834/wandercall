@@ -81,8 +81,12 @@ router.post('/create-payment-session', verifyToken, async (req, res) => {
       order_id: orderId,
     });
   } catch (err) {
-    console.error('Payment session creation failed:', err.message);
-    res.status(500).json({ message: 'Server error', error: err.message });
+    console.error('Payment session creation failed:', err.response?.data || err.message);
+    res.status(500).json({ 
+      message: 'Server error', 
+      error: err.response?.data || err.message,
+      details: err.response?.status ? `Cashfree API returned ${err.response.status}` : 'Network or server error'
+    });
   }
 });
 
