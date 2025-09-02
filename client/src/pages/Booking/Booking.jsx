@@ -31,12 +31,12 @@ const Booking = () => {
   const [isUpdatingUser, setIsUpdatingUser] = useState(false);
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
-  
+
   usePageTitle('Book Experience');
-  
+
   const [isProcessing, setIsProcessing] = useState(false);
   const [paymentInitiated, setPaymentInitiated] = useState(false);
-  
+
   const [activeStep, setActiveStep] = useState(0);
   const [selectedDate, setSelectedDate] = useState(null);
   const [participants, setParticipants] = useState(2);
@@ -56,7 +56,14 @@ const Booking = () => {
     '2025-01-01': false, '2025-01-02': true, '2025-01-03': true,
     '2025-01-04': true, '2025-01-05': false, '2025-01-06': true
   });
+
+  console.log(process.env.NODE_ENV);
+  console.log(process.env.VITE_NODE_ENV);
+  console.log(import.meta.env.VITE_API_URL);
+  console.log(import.meta.env.NODE_ENV);
   
+  
+
   useEffect(() => {
     if (id && !product) {
       dispatch(fetchProductById(id));
@@ -103,7 +110,7 @@ const Booking = () => {
         email: userData.email || '',
         phone: userData.phone || ''
       });
-      
+
       // If phone is missing, stay on step 1 to collect it
       if (!userData.phone && activeStep === 2) {
         setActiveStep(1);
@@ -124,9 +131,9 @@ const Booking = () => {
         },
         body: JSON.stringify(userData)
       });
-      
+
       const data = await response.json();
-      
+
       if (data.success) {
         updateUser(data.user);
         setGuestInfo(prev => ({ ...prev, ...userData }));
@@ -192,7 +199,7 @@ const Booking = () => {
 
   const validateStep = (step) => {
     const errors = {};
-    
+
     if (step === 0) {
       if (!selectedDate) errors.date = 'Please select a date';
       if (!participants) errors.participants = 'Please select number of participants';
@@ -207,7 +214,7 @@ const Booking = () => {
         errors.phone = 'Please enter a valid phone number';
       }
     }
-    
+
     setValidationErrors(errors);
     return Object.keys(errors).length === 0;
   };
@@ -218,14 +225,14 @@ const Booking = () => {
         const updateData = {};
         const currentName = guestInfo.name.trim();
         const currentPhone = guestInfo.phone.trim();
-        
+
         if (currentName && currentName !== (user.name || '')) {
           updateData.name = currentName;
         }
         if (currentPhone && currentPhone !== (user.phone || '')) {
           updateData.phone = currentPhone;
         }
-        
+
         if (Object.keys(updateData).length > 0) {
           await updateUserData(updateData);
         }
@@ -246,7 +253,7 @@ const Booking = () => {
 
   const handleBooking = async () => {
     if (!validateStep(activeStep) || isProcessing || paymentInitiated) return;
-    
+
     if (!user) {
       navigate('/signin');
       return;
@@ -268,14 +275,14 @@ const Booking = () => {
         const updateData = {};
         const currentName = guestInfo.name.trim();
         const currentPhone = guestInfo.phone.trim();
-        
+
         if (currentName && currentName !== (user.name || '')) {
           updateData.name = currentName;
         }
         if (currentPhone && currentPhone !== (user.phone || '')) {
           updateData.phone = currentPhone;
         }
-        
+
         if (Object.keys(updateData).length > 0) {
           await updateUserData(updateData);
         }
@@ -287,7 +294,7 @@ const Booking = () => {
       }
 
       // Create payment session using Redux
-      const sessionResult = await dispatch(createPaymentSession({ 
+      const sessionResult = await dispatch(createPaymentSession({
         bookingData: {
           productId: product._id,
           title: product.title,
@@ -304,16 +311,16 @@ const Booking = () => {
           discount
         }
       }));
-      
+
       if (createPaymentSession.rejected.match(sessionResult)) {
         throw new Error(sessionResult.payload);
       }
-      
+
       const sessionData = sessionResult.payload;
-      
+
       // Clear any previous booking data
       localStorage.removeItem('pendingBooking');
-      
+
       // Store minimal booking data for frontend state
       const frontendBookingData = {
         productId: product._id,
@@ -322,14 +329,14 @@ const Booking = () => {
         orderId: sessionData.order_id,
         timestamp: Date.now()
       };
-      
+
       dispatch(setBookingData(frontendBookingData));
       localStorage.setItem('pendingBooking', JSON.stringify(frontendBookingData));
-      
+
       // Initialize Cashfree SDK
       const cashfree = window.Cashfree({
         mode: process.env.NODE_ENV === 'production' ? 'production' : 'sandbox'
-      });   
+      });
 
       // Open Cashfree checkout with redirect mode
       const checkoutOptions = {
@@ -338,7 +345,7 @@ const Booking = () => {
       };
 
       cashfree.checkout(checkoutOptions);
-      
+
     } catch (error) {
       console.error('Payment initiation failed:', error);
       setIsProcessing(false);
@@ -353,21 +360,21 @@ const Booking = () => {
     const lastDay = new Date(year, month + 1, 0);
     const startDate = new Date(firstDay);
     startDate.setDate(startDate.getDate() - firstDay.getDay());
-    
+
     const days = [];
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    
+
     for (let i = 0; i < 42; i++) {
       const date = new Date(startDate);
       date.setDate(startDate.getDate() + i);
-      
+
       const dateStr = date.toISOString().split('T')[0];
       const isCurrentMonth = date.getMonth() === month;
       const isPast = date < today;
       const isAvailable = availableDates[dateStr] !== undefined ? availableDates[dateStr] : true;
       const isSelected = selectedDate && selectedDate.toDateString() === date.toDateString();
-      
+
       days.push({
         date,
         dateStr,
@@ -378,7 +385,7 @@ const Booking = () => {
         isSelected
       });
     }
-    
+
     return days;
   };
 
@@ -390,17 +397,17 @@ const Booking = () => {
   };
 
   return (
-    <Box sx={{ 
-      minHeight: '100vh', 
+    <Box sx={{
+      minHeight: '100vh',
       backgroundColor: theme.palette.background.default,
-      background: theme.palette.mode === 'dark' 
+      background: theme.palette.mode === 'dark'
         ? 'linear-gradient(135deg, #0f0f23 0%, #1a1a2e 25%, #16213e 50%, #0f3460 75%, #1e3c72 100%)'
         : 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)'
     }}>
       {/* Header */}
-      <Paper elevation={0} sx={{ 
-        position: 'sticky', 
-        top: 0, 
+      <Paper elevation={0} sx={{
+        position: 'sticky',
+        top: 0,
         zIndex: 1100,
         background: 'rgba(255, 255, 255, 0.05)',
         backdropFilter: 'blur(20px)',
@@ -414,7 +421,7 @@ const Booking = () => {
                   <ArrowBack />
                 </IconButton>
               </motion.div>
-              <Box 
+              <Box
                 component="img"
                 src={wandercallLogo2}
                 alt="WanderCall"
@@ -427,7 +434,7 @@ const Booking = () => {
                 onClick={() => navigate('/')}
               />
             </Box>
-            
+
             <Box sx={{ flex: 1 }}>
               <Typography variant="h6" fontWeight={600}>
                 Book Your Experience
@@ -475,7 +482,7 @@ const Booking = () => {
                         />
                       )}
                     </motion.div>
-                    <Typography variant="caption" sx={{ 
+                    <Typography variant="caption" sx={{
                       color: activeStep >= index ? 'primary.main' : 'text.secondary',
                       fontWeight: activeStep === index ? 600 : 400,
                       mt: 1,
@@ -486,9 +493,9 @@ const Booking = () => {
                     </Typography>
                   </Box>
                 ))}
-                
+
                 {/* Progress Line */}
-                <Box sx={{ 
+                <Box sx={{
                   position: 'absolute',
                   top: 20,
                   left: 20,
@@ -518,7 +525,7 @@ const Booking = () => {
       {/* Main Content */}
       <Container maxWidth="lg" sx={{ py: 4, px: { xs: 2, sm: 3, md: 4 } }}>
         <Grid container spacing={4}>
-          
+
           {/* Left Column - Booking Forms */}
           <Grid item xs={12} lg={8}>
             <AnimatePresence mode="wait">
@@ -529,10 +536,10 @@ const Booking = () => {
                 exit={{ opacity: 0, x: -50 }}
                 transition={{ duration: 0.3 }}
               >
-                
+
                 {/* Step 1: Booking Details */}
                 {activeStep === 0 && (
-                  <Card sx={{ 
+                  <Card sx={{
                     mb: 3,
                     background: 'rgba(255, 255, 255, 0.05)',
                     backdropFilter: 'blur(10px)',
@@ -542,21 +549,21 @@ const Booking = () => {
                       <Typography variant="h5" fontWeight={700} mb={3}>
                         Select Date & Participants
                       </Typography>
-                      
+
                       <Grid container spacing={3}>
                         <Grid item xs={12}>
                           <Typography variant="h6" fontWeight={600} mb={2}>
                             Select Your Date
                           </Typography>
-                          
+
                           {/* Modern Calendar */}
                           <motion.div
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ duration: 0.5 }}
                           >
-                            <Card sx={{ 
-                              p: { xs: 1, sm: 2 }, 
+                            <Card sx={{
+                              p: { xs: 1, sm: 2 },
                               border: validationErrors.date ? '2px solid #f44336' : '1px solid #e0e0e0',
                               borderRadius: 3,
                               width: { xs: '100%', md: '80%' },
@@ -574,17 +581,17 @@ const Booking = () => {
                                   <ArrowBack sx={{ transform: 'rotate(180deg)' }} />
                                 </IconButton>
                               </Box>
-                              
+
                               {/* Calendar Grid */}
-                              <Box sx={{ 
-                                display: 'grid', 
-                                gridTemplateColumns: 'repeat(7, 1fr)', 
+                              <Box sx={{
+                                display: 'grid',
+                                gridTemplateColumns: 'repeat(7, 1fr)',
                                 gap: { xs: 0.3, sm: 1 },
                                 width: '100%',
                                 mb: 2
                               }}>
                                 {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
-                                  <Box key={day} sx={{ 
+                                  <Box key={day} sx={{
                                     display: 'flex',
                                     alignItems: 'center',
                                     justifyContent: 'center',
@@ -596,10 +603,10 @@ const Booking = () => {
                                   </Box>
                                 ))}
                               </Box>
-                              
-                              <Box sx={{ 
-                                display: 'grid', 
-                                gridTemplateColumns: 'repeat(7, 1fr)', 
+
+                              <Box sx={{
+                                display: 'grid',
+                                gridTemplateColumns: 'repeat(7, 1fr)',
                                 gap: { xs: 0.3, sm: 1 },
                                 width: '100%'
                               }}>
@@ -621,18 +628,18 @@ const Booking = () => {
                                         justifyContent: 'center',
                                         borderRadius: 2,
                                         cursor: day.isAvailable ? 'pointer' : 'not-allowed',
-                                        backgroundColor: day.isSelected 
-                                          ? '#667eea' 
-                                          : day.isPast 
+                                        backgroundColor: day.isSelected
+                                          ? '#667eea'
+                                          : day.isPast
                                             ? '#f5f5f5'
-                                            : day.isAvailable 
+                                            : day.isAvailable
                                               ? '#e8f5e8'
                                               : '#ffebee',
-                                        color: day.isSelected 
+                                        color: day.isSelected
                                           ? 'white'
-                                          : day.isPast 
+                                          : day.isPast
                                             ? '#bdbdbd'
-                                            : day.isAvailable 
+                                            : day.isAvailable
                                               ? '#2e7d32'
                                               : '#c62828',
                                         opacity: day.isCurrentMonth ? 1 : 0.3,
@@ -643,8 +650,8 @@ const Booking = () => {
                                         } : {}
                                       }}
                                     >
-                                      <Typography 
-                                        variant="body2" 
+                                      <Typography
+                                        variant="body2"
                                         fontWeight={day.isSelected ? 600 : 400}
                                         sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}
                                       >
@@ -654,7 +661,7 @@ const Booking = () => {
                                   </motion.div>
                                 ))}
                               </Box>
-                              
+
                               {/* Legend */}
                               <Box sx={{ display: 'flex', justifyContent: 'center', gap: 3, mt: 2, flexWrap: 'wrap' }}>
                                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
@@ -671,7 +678,7 @@ const Booking = () => {
                                 </Box>
                               </Box>
                             </Card>
-                            
+
                             {validationErrors.date && (
                               <motion.div
                                 initial={{ opacity: 0, x: -10 }}
@@ -685,7 +692,7 @@ const Booking = () => {
                             )}
                           </motion.div>
                         </Grid>
-                        
+
                         <Grid item xs={12}>
                           <motion.div
                             animate={validationErrors.participants ? { x: [-5, 5, -5, 0] } : {}}
@@ -717,7 +724,7 @@ const Booking = () => {
                                   </InputAdornment>
                                 }
                               >
-                                {[1,2,3,4,5,6,7,8,9,10].map(num => (
+                                {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(num => (
                                   <MenuItem key={num} value={num}>
                                     {num} {num === 1 ? 'Person' : 'People'}
                                   </MenuItem>
@@ -745,7 +752,7 @@ const Booking = () => {
                             onChange={(e) => setCouponCode(e.target.value)}
                             size="small"
                             variant="filled"
-                            sx={{ 
+                            sx={{
                               flex: 1,
                               '& .MuiFilledInput-root': {
                                 borderRadius: 2,
@@ -769,8 +776,8 @@ const Booking = () => {
                             helperText={couponValid === false ? 'Invalid coupon code' : ''}
                           />
                           <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                            <Button 
-                              variant="outlined" 
+                            <Button
+                              variant="outlined"
                               onClick={handleCouponApply}
                               disabled={!couponCode}
                             >
@@ -778,7 +785,7 @@ const Booking = () => {
                             </Button>
                           </motion.div>
                         </Box>
-                        
+
                         {couponApplied && (
                           <motion.div
                             initial={{ opacity: 0, y: 10 }}
@@ -800,7 +807,7 @@ const Booking = () => {
 
                 {/* Step 2: Guest Information */}
                 {activeStep === 1 && (
-                  <Card sx={{ 
+                  <Card sx={{
                     mb: 3,
                     background: 'rgba(255, 255, 255, 0.05)',
                     backdropFilter: 'blur(10px)',
@@ -810,7 +817,7 @@ const Booking = () => {
                       <Typography variant="h5" fontWeight={700} mb={3}>
                         User Information
                       </Typography>
-                      
+
                       <Grid container spacing={3}>
                         <Grid item xs={12}>
                           <motion.div
@@ -822,7 +829,7 @@ const Booking = () => {
                               label="Full Name"
                               value={guestInfo.name}
                               onChange={(e) => {
-                                setGuestInfo({...guestInfo, name: e.target.value});
+                                setGuestInfo({ ...guestInfo, name: e.target.value });
                                 setValidationErrors(prev => ({ ...prev, name: null }));
                               }}
                               error={!!validationErrors.name}
@@ -850,7 +857,7 @@ const Booking = () => {
                             />
                           </motion.div>
                         </Grid>
-                        
+
                         <Grid item xs={12} md={6}>
                           <motion.div
                             animate={validationErrors.email ? { x: [-5, 5, -5, 0] } : {}}
@@ -887,7 +894,7 @@ const Booking = () => {
                             />
                           </motion.div>
                         </Grid>
-                        
+
                         <Grid item xs={12} md={6}>
                           <motion.div
                             animate={validationErrors.phone ? { x: [-5, 5, -5, 0] } : {}}
@@ -898,7 +905,7 @@ const Booking = () => {
                               label="Phone Number"
                               value={guestInfo.phone}
                               onChange={(e) => {
-                                setGuestInfo({...guestInfo, phone: e.target.value});
+                                setGuestInfo({ ...guestInfo, phone: e.target.value });
                                 setValidationErrors(prev => ({ ...prev, phone: null }));
                               }}
                               error={!!validationErrors.phone}
@@ -933,7 +940,7 @@ const Booking = () => {
 
                 {/* Step 3: Payment */}
                 {activeStep === 2 && (
-                  <Card sx={{ 
+                  <Card sx={{
                     mb: 3,
                     background: 'rgba(255, 255, 255, 0.05)',
                     backdropFilter: 'blur(10px)',
@@ -943,7 +950,7 @@ const Booking = () => {
                       <Typography variant="h5" fontWeight={700} mb={3}>
                         Complete Payment
                       </Typography>
-                      
+
                       <Box sx={{ textAlign: 'center', py: 4 }}>
                         <Button
                           variant="contained"
@@ -965,19 +972,19 @@ const Booking = () => {
                         >
                           {isProcessing ? 'Processing...' : `Pay via Cashfree - ₹${totalPrice.toFixed(2)}`}
                         </Button>
-                        
+
                         <Typography variant="body2" color="text.secondary" sx={{ mt: 2 }}>
                           Secure payment powered by Cashfree
                         </Typography>
-                        
+
                         <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1, mt: 2 }}>
                           <Chip icon={<CheckCircle />} label="256-bit SSL Encrypted" size="small" />
                           <Chip icon={<CheckCircle />} label="PCI DSS Compliant" size="small" />
                         </Box>
-                        
+
                         <Box sx={{ mt: 3 }}>
-                          <Button 
-                            variant="outlined" 
+                          <Button
+                            variant="outlined"
                             onClick={handleBack}
                             startIcon={<ArrowBack />}
                             sx={{
@@ -1007,8 +1014,8 @@ const Booking = () => {
             {activeStep < steps.length - 1 && (
               <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 3 }}>
                 <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                  <Button 
-                    variant="outlined" 
+                  <Button
+                    variant="outlined"
                     onClick={handleBack}
                     startIcon={<ArrowBack />}
                     sx={{
@@ -1026,14 +1033,14 @@ const Booking = () => {
                     {activeStep === 0 ? 'Back to Details' : 'Previous'}
                   </Button>
                 </motion.div>
-                
+
                 <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                  <Button 
-                    variant="contained" 
+                  <Button
+                    variant="contained"
                     onClick={handleNext}
                     disabled={isUpdatingUser}
                     startIcon={isUpdatingUser ? <CircularProgress size={20} /> : null}
-                    sx={{ 
+                    sx={{
                       minWidth: 140,
                       height: 48,
                       background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
@@ -1056,8 +1063,8 @@ const Booking = () => {
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.6 }}
             >
-              <Card sx={{ 
-                position: 'sticky', 
+              <Card sx={{
+                position: 'sticky',
                 top: 120,
                 background: 'rgba(255, 255, 255, 0.05)',
                 backdropFilter: 'blur(20px)',
@@ -1106,7 +1113,7 @@ const Booking = () => {
                     <Typography variant="subtitle2" fontWeight={600} mb={2}>
                       Booking Details
                     </Typography>
-                    
+
                     {selectedDate && (
                       <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
                         <Typography variant="body2" color="text.secondary">Date:</Typography>
@@ -1115,14 +1122,14 @@ const Booking = () => {
                         </Typography>
                       </Box>
                     )}
-                    
+
                     <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
                       <Typography variant="body2" color="text.secondary">Participants:</Typography>
                       <Typography variant="body2" fontWeight={500}>
                         {participants} {participants === 1 ? 'Person' : 'People'}
                       </Typography>
                     </Box>
-                    
+
                     <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
                       <Typography variant="body2" color="text.secondary">Duration:</Typography>
                       <Typography variant="body2" fontWeight={500}>
@@ -1138,14 +1145,14 @@ const Booking = () => {
                     <Typography variant="subtitle2" fontWeight={600} mb={2}>
                       Price Breakdown
                     </Typography>
-                    
+
                     <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
                       <Typography variant="body2" color="text.secondary">
                         Base Price ({participants} × ₹{experience.price})
                       </Typography>
                       <Typography variant="body2">₹{basePrice}</Typography>
                     </Box>
-                    
+
                     {couponApplied && (
                       <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
                         <Typography variant="body2" color="success.main">
@@ -1156,16 +1163,16 @@ const Booking = () => {
                         </Typography>
                       </Box>
                     )}
-                    
+
                     <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
                       <Typography variant="body2" color="text.secondary">
                         GST (18%)
                       </Typography>
                       <Typography variant="body2">₹{gst.toFixed(2)}</Typography>
                     </Box>
-                    
+
                     <Divider sx={{ my: 2 }} />
-                    
+
                     <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
                       <Typography variant="h6" fontWeight={700}>
                         Total Amount
@@ -1182,9 +1189,9 @@ const Booking = () => {
                       <Typography variant="caption" color="text.secondary" mb={1} display="block">
                         Step {activeStep + 1} of {steps.length}: {steps[activeStep].label}
                       </Typography>
-                      <Box sx={{ 
-                        height: 4, 
-                        backgroundColor: 'divider', 
+                      <Box sx={{
+                        height: 4,
+                        backgroundColor: 'divider',
                         borderRadius: 2,
                         overflow: 'hidden'
                       }}>
