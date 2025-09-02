@@ -57,6 +57,9 @@ const Booking = () => {
     '2025-01-04': true, '2025-01-05': false, '2025-01-06': true
   });
 
+  console.log(process.env.NODE_ENV);
+  
+
   useEffect(() => {
     if (id && !product) {
       dispatch(fetchProductById(id));
