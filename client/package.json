@@ -25,7 +25,8 @@
     "react-redux": "^9.2.0",
     "react-router-dom": "6.26.2",
     "set-cookie-parser": "^2.7.1",
-    "swiper": "^11.0.5"
+    "swiper": "^11.0.5",
+    "vite": "^7.1.4"
   },
   "devDependencies": {
     "@types/react": "^18.2.43",
@@ -34,7 +35,6 @@
     "eslint": "^8.55.0",
     "eslint-plugin-react": "^7.33.2",
     "eslint-plugin-react-hooks": "^4.6.0",
-    "eslint-plugin-react-refresh": "^0.4.5",
-    "vite": "^5.0.8"
+    "eslint-plugin-react-refresh": "^0.4.5"
   }
 }
