@@ -57,13 +57,6 @@ const Booking = () => {
     '2025-01-04': true, '2025-01-05': false, '2025-01-06': true
   });
 
-  console.log(process.env.NODE_ENV);
-  console.log(process.env.VITE_NODE_ENV);
-  console.log(import.meta.env.VITE_API_URL);
-  console.log(import.meta.env.NODE_ENV);
-  
-  
-
   useEffect(() => {
     if (id && !product) {
       dispatch(fetchProductById(id));
@@ -252,102 +245,93 @@ const Booking = () => {
   };
 
   const handleBooking = async () => {
-    if (!validateStep(activeStep) || isProcessing || paymentInitiated) return;
+    if (!validateStep(activeStep) || isProcessing || paymentInitiated) {
+      console.log('Booking blocked: Validation failed or already processing.');
+      return;
+    }
 
     if (!user) {
       navigate('/signin');
       return;
     }
 
-    // Check if phone number is missing
     if (!guestInfo.phone.trim()) {
       setValidationErrors({ phone: 'Phone number is required' });
-      setActiveStep(1); // Go back to user info step
+      setActiveStep(1);
       return;
     }
 
+    console.log('--- Initiating New Booking ---');
     setIsProcessing(true);
     setPaymentInitiated(true);
 
     try {
-      // Update user data if needed
-      if (user) {
-        const updateData = {};
-        const currentName = guestInfo.name.trim();
-        const currentPhone = guestInfo.phone.trim();
-
-        if (currentName && currentName !== (user.name || '')) {
-          updateData.name = currentName;
-        }
-        if (currentPhone && currentPhone !== (user.phone || '')) {
-          updateData.phone = currentPhone;
-        }
-
-        if (Object.keys(updateData).length > 0) {
-          await updateUserData(updateData);
-        }
-      }
-
-      const scriptLoaded = await loadCashfreeScript();
-      if (!scriptLoaded) {
-        throw new Error('Failed to load Cashfree SDK');
-      }
-
-      // Create payment session using Redux
-      const sessionResult = await dispatch(createPaymentSession({
-        bookingData: {
-          productId: product._id,
-          title: product.title,
-          city: product.location?.city || '',
-          state: product.location?.state || '',
-          selectedDate: selectedDate.toISOString(),
-          participants,
-          guestInfo: {
-            ...guestInfo,
-            phone: guestInfo.phone || user.phone
-          },
-          totalPrice,
-          gst,
-          discount
-        }
-      }));
-
-      if (createPaymentSession.rejected.match(sessionResult)) {
-        throw new Error(sessionResult.payload);
-      }
-
-      const sessionData = sessionResult.payload;
-
-      // Clear any previous booking data
-      localStorage.removeItem('pendingBooking');
-
-      // Store minimal booking data for frontend state
-      const frontendBookingData = {
+      // Step 1: Prepare Booking Data
+      const bookingPayload = {
         productId: product._id,
         title: product.title,
+        city: product.location?.city || '',
+        state: product.location?.state || '',
+        selectedDate: selectedDate.toISOString(),
+        participants,
+        guestInfo: {
+          ...guestInfo,
+          phone: guestInfo.phone || user.phone,
+        },
         totalPrice,
-        orderId: sessionData.order_id,
-        timestamp: Date.now()
+        gst,
+        discount,
       };
+      console.log('[DEBUG] Booking data prepared for backend:', bookingPayload);
 
-      dispatch(setBookingData(frontendBookingData));
-      localStorage.setItem('pendingBooking', JSON.stringify(frontendBookingData));
+      // Step 2: Load Cashfree SDK
+      console.log('[DEBUG] Loading Cashfree SDK script...');
+      const scriptLoaded = await loadCashfreeScript();
+      if (!scriptLoaded) {
+        throw new Error('SDK_LOAD_FAILED');
+      }
+      console.log('[SUCCESS] Cashfree SDK loaded.');
 
-      // Initialize Cashfree SDK
-      const cashfree = window.Cashfree({
-        mode: process.env.NODE_ENV === 'production' ? 'production' : 'production', // Use 'production' for live
-      });
+      // Step 3: Create Payment Session via Backend
+      console.log('[DEBUG] Calling backend to create payment session...');
+      const sessionResult = await dispatch(createPaymentSession({ bookingData: bookingPayload }));
 
-      // Open Cashfree checkout with redirect mode
+      if (createPaymentSession.rejected.match(sessionResult)) {
+        // This will now catch errors from your Redux thunk and log them
+        console.error('[ERROR] Backend failed to create session. Payload:', sessionResult.payload);
+        throw new Error(`Backend Error: ${sessionResult.payload || 'Unknown error'}`);
+      }
+      
+      const sessionData = sessionResult.payload;
+      console.log('[SUCCESS] Backend returned session data:', sessionData);
+
+      if (!sessionData || !sessionData.payment_session_id) {
+        throw new Error('INVALID_SESSION_ID_FROM_BACKEND');
+      }
+
+      // Step 4: Initialize Cashfree SDK on Frontend
+      const cfMode = import.meta.env.PROD ? 'production' : 'sandbox';
+      console.log(`[DEBUG] Initializing Cashfree SDK in "${cfMode}" mode.`);
+      const cashfree = window.Cashfree({ mode: cfMode });
+      
       const checkoutOptions = {
         paymentSessionId: sessionData.payment_session_id,
-        redirectTarget: '_self' // Redirect in same window
+        redirectTarget: '_self',
       };
-
+      console.log('[DEBUG] Calling cashfree.checkout with options:', checkoutOptions);
+      
+      // Step 5: Redirect to Cashfree
       cashfree.checkout(checkoutOptions);
+      console.log('[SUCCESS] Redirecting to Cashfree...');
 
     } catch (error) {
-      console.error('Payment initiation failed:', error);
+      console.error('--- PAYMENT INITIATION FAILED ---');
+      console.error('Error occurred at step:', error.message);
+      console.error('Full error object:', error);
+      
+      // Optional: Add a user-facing error message here
+      // setPaymentErrorState('Something went wrong. Please try again.');
+      
       setIsProcessing(false);
       setPaymentInitiated(false);
     }
