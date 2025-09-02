@@ -15,9 +15,13 @@ export default defineConfig({
   },
   build: {
     outDir: 'dist',
-    sourcemap: false, // Disable sourcemaps in production for smaller bundles
+    sourcemap: false,
+    assetsDir: 'assets',
     rollupOptions: {
       output: {
+        entryFileNames: 'assets/[name]-[hash].js',
+        chunkFileNames: 'assets/[name]-[hash].js',
+        assetFileNames: 'assets/[name]-[hash].[ext]',
         manualChunks: {
           vendor: ['react', 'react-dom'],
           mui: ['@mui/material', '@mui/icons-material'],
@@ -27,7 +31,6 @@ export default defineConfig({
         }
       },
       external: (id) => {
-        // Exclude problematic dependencies
         if (id.includes('@sentry') || id.includes('sentry') || id.includes('websocket')) {
           return true;
         }
