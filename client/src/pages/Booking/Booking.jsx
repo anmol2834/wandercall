@@ -335,7 +335,7 @@ const Booking = () => {
 
       // Initialize Cashfree SDK
       const cashfree = window.Cashfree({
-        mode: process.env.NODE_ENV === 'production' ? 'production' : 'sandbox'
+        mode: process.env.NODE_ENV === 'production' ? 'production' : 'production', // Use 'production' for live
       });
 
       // Open Cashfree checkout with redirect mode
