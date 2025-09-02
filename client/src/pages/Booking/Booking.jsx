@@ -56,8 +56,6 @@ const Booking = () => {
     '2025-01-01': false, '2025-01-02': true, '2025-01-03': true,
     '2025-01-04': true, '2025-01-05': false, '2025-01-06': true
   });
-
-  console.log(process.env.NODE_ENV);
   
 
   useEffect(() => {
@@ -94,7 +92,7 @@ const Booking = () => {
 
   const fetchUserData = async () => {
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/users/profile`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL || 'https://api.wandercall.com'}/api/users/profile`, {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`
         }
@@ -119,7 +117,7 @@ const Booking = () => {
   const updateUserData = async (userData) => {
     setIsUpdatingUser(true);
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/users/profile`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL || 'https://api.wandercall.com'}/api/users/profile`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -313,7 +311,7 @@ const Booking = () => {
       }
 
       // Step 4: Initialize Cashfree SDK on Frontend
-      const cfMode = import.meta.env.PROD ? 'production' : 'sandbox';
+      const cfMode = import.meta.env.PROD ? 'production' : 'production';
       console.log(`[DEBUG] Initializing Cashfree SDK in "${cfMode}" mode.`);
       const cashfree = window.Cashfree({ mode: cfMode });
       

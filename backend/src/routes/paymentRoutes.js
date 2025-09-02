@@ -16,6 +16,7 @@ router.get('/test', (req, res) => {
 router.post('/create-payment-session', verifyToken, async (req, res) => {
   try {
     const { bookingData } = req.body;
+    console.log(bookingData)
     
     if (!bookingData || !bookingData.totalPrice) {
       return res.status(400).json({ message: 'Invalid booking data' });
@@ -55,13 +56,13 @@ router.post('/create-payment-session', verifyToken, async (req, res) => {
         customer_phone: user.phone || '0000000000',
       },
       order_meta: {
-        return_url: `${process.env.FRONTEND_URL || 'http://localhost:5173'}/ticket/${bookingData.productId}?order_id=${orderId}`
+        return_url: `${process.env.FRONTEND_URL || 'http://www.wandercall.com'}/ticket/${bookingData.productId}?order_id=${orderId}`
       }
     };
 
     const cashfreeBaseUrl = process.env.CASHFREE_MODE === 'production' 
       ? 'https://api.cashfree.com/pg/orders'
-      : 'https://sandbox.cashfree.com/pg/orders';
+      : 'https://api.cashfree.com/pg/orders';
       
     const cashfreeResponse = await axios.post(
       cashfreeBaseUrl,
@@ -81,12 +82,8 @@ router.post('/create-payment-session', verifyToken, async (req, res) => {
       order_id: orderId,
     });
   } catch (err) {
-    console.error('Payment session creation failed:', err.response?.data || err.message);
-    res.status(500).json({ 
-      message: 'Server error', 
-      error: err.response?.data || err.message,
-      details: err.response?.status ? `Cashfree API returned ${err.response.status}` : 'Network or server error'
-    });
+    console.error('Payment session creation failed:', err.message);
+    res.status(500).json({ message: 'Server error', error: err.message });
   }
 });
 
