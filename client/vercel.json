@@ -11,39 +11,9 @@
           "value": "nosniff"
         }
       ]
-    },
-    {
-      "source": "/assets/(.*)\\.js$",
-      "headers": [
-        {
-          "key": "Content-Type",
-          "value": "application/javascript; charset=utf-8"
-        }
-      ]
-    },
-    {
-      "source": "/assets/(.*)\\.mjs$",
-      "headers": [
-        {
-          "key": "Content-Type",
-          "value": "application/javascript; charset=utf-8"
-        }
-      ]
-    },
-    {
-      "source": "/(.*)\\.js$",
-      "headers": [
-        {
-          "key": "Content-Type",
-          "value": "application/javascript; charset=utf-8"
-        }
-      ]
     }
   ],
   "rewrites": [
-    {
-      "source": "/(.*)",
-      "destination": "/index.html"
-    }
+    { "source": "/(.*)", "destination": "/" }
   ]
 }
