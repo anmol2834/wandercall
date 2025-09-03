@@ -87,7 +87,13 @@ const TicketModal = ({ open, onClose, ticketData }) => {
             exit={{ opacity: 0, scale: 0.9, y: 20 }}
             transition={{ duration: 0.3, ease: "easeOut" }}
           >
-            <DialogContent sx={{ p: 0, position: 'relative' }}>
+            <DialogContent sx={{ 
+              p: 0, 
+              position: 'relative',
+              overflow: { xs: 'auto', md: 'hidden' },
+              height: { xs: '100vh', md: 'auto' },
+              maxHeight: { xs: '100vh', md: 'none' }
+            }}>
               {/* Close Button */}
               <IconButton
                 onClick={onClose}
@@ -191,7 +197,10 @@ const TicketModal = ({ open, onClose, ticketData }) => {
                     borderRadius: '24px 24px 0 0',
                     p: { xs: 2, sm: 3 },
                     position: 'relative',
-                    zIndex: 2
+                    zIndex: 2,
+                    overflowY: { xs: 'auto', md: 'visible' },
+                    minHeight: { xs: '100vh', md: 'auto' },
+                    maxHeight: { xs: 'none', md: 'none' }
                   }}
                 >
                   {/* Event Title */}

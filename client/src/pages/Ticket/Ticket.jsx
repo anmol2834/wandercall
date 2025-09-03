@@ -6,7 +6,7 @@ import {
 } from '@mui/material';
 import { 
   CalendarToday, LocationOn, Person, ConfirmationNumber, 
-  CheckCircle, QrCode2, Download, Home, ArrowBack
+  CheckCircle, QrCode2, Download, Home, ArrowBack, FileDownload
 } from '@mui/icons-material';
 import { motion } from 'framer-motion';
 import { useAuth } from '../../contexts/AuthContext';
@@ -236,20 +236,49 @@ const Ticket = () => {
           fileName={`wandercall-ticket-${ticket.ticketNumber}.pdf`}
         >
           {({ loading, error }) => (
-            <Button
-              variant="contained"
-              startIcon={loading ? <CircularProgress size={16} /> : <Download />}
-              disabled={loading || error || !ticket}
-              size={isMobile ? 'small' : 'medium'}
-              sx={{
-                borderRadius: 2,
-                textTransform: 'none',
-                fontWeight: 600,
-                fontSize: { xs: '0.75rem', sm: '0.875rem' }
-              }}
+            <motion.div
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              transition={{ duration: 0.2 }}
             >
-              {loading ? 'Generating...' : error ? 'Error' : 'Download PDF'}
-            </Button>
+              <Button
+                variant="contained"
+                startIcon={loading ? <CircularProgress size={18} sx={{ color: 'white' }} /> : <FileDownload sx={{ color: 'white' }} />}
+                disabled={loading || error || !ticket}
+                size={isMobile ? 'small' : 'medium'}
+                sx={{
+                  backgroundColor: loading ? '#64748b' : '#0f172a',
+                  color: 'white',
+                  borderRadius: 2,
+                  textTransform: 'none',
+                  fontWeight: 500,
+                  fontSize: { xs: '0.8rem', sm: '0.9rem' },
+                  px: { xs: 3, sm: 4 },
+                  py: { xs: 1, sm: 1.1 },
+                  minWidth: { xs: 120, sm: 140 },
+                  boxShadow: '0 3px 10px rgba(15, 23, 42, 0.2)',
+                  border: 'none',
+                  '&:hover': {
+                    backgroundColor: loading ? '#64748b' : '#1e293b',
+                    boxShadow: '0 5px 15px rgba(15, 23, 42, 0.3)'
+                  },
+                  '&:disabled': {
+                    backgroundColor: '#94a3b8',
+                    color: 'white !important',
+                    '& .MuiSvgIcon-root': {
+                      color: 'white !important'
+                    }
+                  },
+                  '& .MuiSvgIcon-root': {
+                    color: 'white'
+                  }
+                }}
+              >
+                <Box sx={{ color: 'white' }}>
+                  {loading ? 'Generating...' : error ? 'Retry' : 'Download PDF'}
+                </Box>
+              </Button>
+            </motion.div>
           )}
         </TicketDownloader>
       </Box>
