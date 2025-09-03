@@ -15,6 +15,7 @@ import BookingsPageLoader from '../../../components/loaders/BookingsPageLoader';
 import TicketDownloader from '../../../components/PDFTicket/TicketDownloader';
 import TicketModal from '../../../components/TicketModal/TicketModal';
 import CustomAlert from '../../../components/Alert/CustomAlert';
+import ConfirmDialog from '../../../components/Alert/ConfirmDialog';
 import { cancellationAPI } from '../../../services/cancellationAPI';
 
 const BookingsPage = () => {
@@ -26,6 +27,7 @@ const BookingsPage = () => {
   const [cancellingTickets, setCancellingTickets] = useState(new Set());
   const [cancellationEligibility, setCancellationEligibility] = useState({});
   const [alertConfig, setAlertConfig] = useState({ open: false, type: 'info', title: '', message: '' });
+  const [confirmConfig, setConfirmConfig] = useState({ open: false, ticketId: null });
   const { bookings, loading, error } = useSelector(state => state.tickets);
 
   useEffect(() => {
@@ -503,9 +505,10 @@ const BookingsPage = () => {
                                   startIcon={cancellingTickets.has(booking._id) ? 
                                     <CircularProgress size={14} /> : <CancelOutlined />}
                                   onClick={() => {
-                                    if (window.confirm('Are you sure you want to cancel this booking? This action cannot be undone.')) {
-                                      handleCancelBooking(booking._id);
-                                    }
+                                    setConfirmConfig({
+                                      open: true,
+                                      ticketId: booking._id
+                                    });
                                   }}
                                   disabled={cancellingTickets.has(booking._id)}
                                   sx={{ 
@@ -571,6 +574,22 @@ const BookingsPage = () => {
         type={alertConfig.type}
         title={alertConfig.title}
         message={alertConfig.message}
+      />
+
+      {/* Confirmation Dialog */}
+      <ConfirmDialog
+        open={confirmConfig.open}
+        onClose={() => setConfirmConfig({ open: false, ticketId: null })}
+        onConfirm={() => {
+          if (confirmConfig.ticketId) {
+            handleCancelBooking(confirmConfig.ticketId);
+          }
+        }}
+        title="Cancel Booking"
+        message="Are you sure you want to cancel this booking? This action cannot be undone and a refund will be processed."
+        confirmText="Yes, Cancel"
+        cancelText="Keep Booking"
+        type="danger"
       />
     </Container>
   );
