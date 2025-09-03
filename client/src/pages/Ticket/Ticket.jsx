@@ -12,6 +12,7 @@ import { motion } from 'framer-motion';
 import { useAuth } from '../../contexts/AuthContext';
 import { paymentAPI } from '../../services/api';
 import QRCode from 'qrcode';
+import TicketDownloader from '../../components/PDFTicket/TicketDownloader';
 
 const Ticket = () => {
   const { id } = useParams();
@@ -131,24 +132,27 @@ const Ticket = () => {
     }
   };
 
-  const handleDownload = () => {
-    const canvas = document.createElement('canvas');
-    const ctx = canvas.getContext('2d');
-    canvas.width = 800;
-    canvas.height = 600;
+  const formatTicketData = () => {
+    if (!ticket) return null;
     
-    // Simple ticket download (you can enhance this)
-    ctx.fillStyle = theme.palette.background.paper;
-    ctx.fillRect(0, 0, 800, 600);
-    ctx.fillStyle = theme.palette.text.primary;
-    ctx.font = '24px Arial';
-    ctx.fillText(`Ticket: ${ticket.ticketNumber}`, 50, 100);
-    ctx.fillText(`Experience: ${ticket.productId?.title}`, 50, 150);
-    
-    const link = document.createElement('a');
-    link.download = `ticket-${ticket.ticketNumber}.png`;
-    link.href = canvas.toDataURL();
-    link.click();
+    const basePrice = ticket.totalPrice - ticket.gst - (ticket.discount || 0);
+    return {
+      ticketNumber: ticket.ticketNumber,
+      title: ticket.productId?.title || 'Experience',
+      userName: ticket.userId?.name || 'Guest',
+      userEmail: ticket.userId?.email || '',
+      userPhone: ticket.userId?.phone || '',
+      selectedDate: ticket.selectedDate,
+      participants: ticket.participants,
+      location: `${ticket.productId?.location?.city || 'City'}, ${ticket.productId?.location?.state || 'State'}`,
+      fullAddress: ticket.productId?.location?.address || `${ticket.productId?.location?.city || 'City'}, ${ticket.productId?.location?.state || 'State'}`,
+      pincode: ticket.productId?.location?.pincode || '000000',
+      totalPrice: ticket.totalPrice,
+      basePrice: basePrice > 0 ? basePrice : ticket.totalPrice,
+      gst: ticket.gst || 0,
+      discount: ticket.discount || 0,
+      paymentId: ticket.paymentId || 'Processing'
+    };
   };
 
   if (loading) {
@@ -227,20 +231,27 @@ const Ticket = () => {
           <Home fontSize={isMobile ? 'small' : 'medium'} />
         </IconButton>
         
-        <Button
-          variant="contained"
-          startIcon={<Download />}
-          onClick={handleDownload}
-          size={isMobile ? 'small' : 'medium'}
-          sx={{
-            borderRadius: 2,
-            textTransform: 'none',
-            fontWeight: 600,
-            fontSize: { xs: '0.75rem', sm: '0.875rem' }
-          }}
+        <TicketDownloader
+          ticketData={formatTicketData()}
+          fileName={`wandercall-ticket-${ticket.ticketNumber}.pdf`}
         >
-          Download
-        </Button>
+          {({ loading, error }) => (
+            <Button
+              variant="contained"
+              startIcon={loading ? <CircularProgress size={16} /> : <Download />}
+              disabled={loading || error || !ticket}
+              size={isMobile ? 'small' : 'medium'}
+              sx={{
+                borderRadius: 2,
+                textTransform: 'none',
+                fontWeight: 600,
+                fontSize: { xs: '0.75rem', sm: '0.875rem' }
+              }}
+            >
+              {loading ? 'Generating...' : error ? 'Error' : 'Download PDF'}
+            </Button>
+          )}
+        </TicketDownloader>
       </Box>
       
       <motion.div
