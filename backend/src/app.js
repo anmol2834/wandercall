@@ -90,6 +90,7 @@ app.use('/api/products', require('./routes/productRoutes'));
 app.use('/api/wishlist', require('./routes/wishlistRoutes'));
 app.use('/api/tickets', require('./routes/ticketRoutes'));
 app.use('/api/payments', require('./routes/paymentRoutes'));
+app.use('/api/transactions', require('./routes/transactionRoutes'));
 // Webhook routes
 app.use('/api/webhooks', require('./routes/webhookRoutes'));
 

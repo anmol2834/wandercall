@@ -5,18 +5,22 @@ import {
 } from '@mui/material';
 import {
   Explore, LocationOn, Star, 
-  CheckCircle, Cancel, Schedule, CalendarToday, Download
+  CheckCircle, Cancel, Schedule, CalendarToday, Download, Visibility, RateReview
 } from '@mui/icons-material';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTheme } from '@mui/material/styles';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchMyBookings, markTicketAsDownloaded } from '../../../redux/slices/ticketSlice';
 import BookingsPageLoader from '../../../components/loaders/BookingsPageLoader';
+import TicketDownloader from '../../../components/PDFTicket/TicketDownloader';
+import TicketModal from '../../../components/TicketModal/TicketModal';
 
 const BookingsPage = () => {
   const theme = useTheme();
   const dispatch = useDispatch();
   const [tabValue, setTabValue] = useState(0);
+  const [selectedTicket, setSelectedTicket] = useState(null);
+  const [ticketModalOpen, setTicketModalOpen] = useState(false);
   const { bookings, loading, error } = useSelector(state => state.tickets);
 
   useEffect(() => {
@@ -26,10 +30,41 @@ const BookingsPage = () => {
   const handleDownloadTicket = async (ticketId) => {
     try {
       await dispatch(markTicketAsDownloaded(ticketId));
-      alert('Ticket download started!');
     } catch (error) {
       console.error('Error downloading ticket:', error);
     }
+  };
+
+  const handleViewTicket = (booking) => {
+    setSelectedTicket(formatTicketData(booking));
+    setTicketModalOpen(true);
+  };
+
+  const handleCloseTicketModal = () => {
+    setTicketModalOpen(false);
+    setSelectedTicket(null);
+  };
+
+  const formatTicketData = (booking) => {
+    const basePrice = booking.totalPrice - booking.gst - (booking.discount || 0);
+    const productLocation = booking.productId?.location || {};
+    return {
+      ticketNumber: booking.ticketNumber || 'TKT001',
+      title: booking.productId?.title || booking.title || 'Experience',
+      userName: booking.guestInfo?.name || booking.userId?.name || 'Guest',
+      userEmail: booking.guestInfo?.email || booking.userId?.email || 'guest@example.com',
+      userPhone: booking.guestInfo?.phone || booking.userId?.phone || '+91 9999999999',
+      selectedDate: booking.selectedDate || new Date().toISOString(),
+      participants: booking.participants || 1,
+      location: `${productLocation.city || booking.city || 'City'}, ${productLocation.state || booking.state || 'State'}`,
+      fullAddress: productLocation.address || `${booking.city || 'City'}, ${booking.state || 'State'}`,
+      pincode: productLocation.pincode || '000000',
+      totalPrice: booking.totalPrice || 0,
+      basePrice: basePrice > 0 ? basePrice : booking.totalPrice || 0,
+      gst: booking.gst || 0,
+      discount: booking.discount || 0,
+      paymentId: booking.paymentId || 'Processing'
+    };
   };
 
   const getStatusColor = (status) => {
@@ -161,20 +196,54 @@ const BookingsPage = () => {
                     borderRadius: 3,
                     overflow: 'hidden',
                     position: 'relative',
-                    height: 420,
+                    height: 450,
                     width: '100%',
                     display: 'flex',
                     flexDirection: 'column'
                   }}>
                     <Box sx={{ 
-                      height: 180, 
-                      background: `linear-gradient(45deg, ${getStatusColor(booking.status)}40, ${getStatusColor(booking.status)}20)`,
+                      height: 200, 
                       position: 'relative',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center'
+                      overflow: 'hidden'
                     }}>
-                      <Typography sx={{ fontSize: '4rem' }}>🎫</Typography>
+                      <Box
+                        component="img"
+                        src={booking.productId?.img1 || '/placeholder-image.jpg'}
+                        alt={booking.title}
+                        sx={{
+                          width: '100%',
+                          height: '100%',
+                          objectFit: 'cover'
+                        }}
+                      />
+                      
+                      {/* Location icon with map link */}
+                      {booking.productId?.location?.mapLink && (
+                        <Box
+                          component="a"
+                          href={booking.productId.location.mapLink}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          sx={{
+                            position: 'absolute',
+                            top: 12,
+                            left: 12,
+                            backgroundColor: 'rgba(0,0,0,0.7)',
+                            borderRadius: '50%',
+                            p: 1,
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            color: 'white',
+                            textDecoration: 'none',
+                            '&:hover': {
+                              backgroundColor: 'rgba(0,0,0,0.9)'
+                            }
+                          }}
+                        >
+                          <LocationOn fontSize="small" />
+                        </Box>
+                      )}
                       
                       <Chip
                         icon={getStatusIcon(booking.status)}
@@ -192,53 +261,82 @@ const BookingsPage = () => {
                     </Box>
 
                     <CardContent sx={{ p: 3, flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
-                      <Typography variant="h6" sx={{ fontWeight: 600, mb: 1, fontSize: { xs: '1rem', sm: '1.1rem' } }}>
-                        {booking.title}
-                      </Typography>
-                      
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
-                        <LocationOn fontSize="small" color="primary" />
-                        <Typography variant="body2" color="text.secondary" sx={{ fontSize: { xs: '0.8rem', sm: '0.875rem' } }}>
-                          {booking.city}, {booking.state}
+                      <Box>
+                        <Typography variant="h6" sx={{ fontWeight: 600, mb: 1, fontSize: { xs: '1rem', sm: '1.1rem' } }}>
+                          {booking.productId?.title || booking.title}
                         </Typography>
-                      </Box>
-                      
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
-                        <CalendarToday fontSize="small" color="primary" />
-                        <Typography variant="body2" color="text.secondary" sx={{ fontSize: { xs: '0.8rem', sm: '0.875rem' } }}>
-                          {new Date(booking.selectedDate).toLocaleDateString()}
-                        </Typography>
-                      </Box>
+                        
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+                          <CalendarToday fontSize="small" color="primary" />
+                          <Typography variant="body2" color="text.secondary" sx={{ fontSize: { xs: '0.8rem', sm: '0.875rem' } }}>
+                            {new Date(booking.status === 'used' && booking.bookingIntent ? booking.bookingIntent.selectedDate : booking.selectedDate).toLocaleDateString()}
+                          </Typography>
+                        </Box>
 
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
-                        <Typography variant="body2" color="text.secondary" sx={{ fontSize: { xs: '0.8rem', sm: '0.875rem' } }}>
-                          Participants: {booking.participants}
-                        </Typography>
-                      </Box>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+                          <Typography variant="body2" color="text.secondary" sx={{ fontSize: { xs: '0.8rem', sm: '0.875rem' } }}>
+                            Participants: {booking.status === 'used' && booking.bookingIntent ? booking.bookingIntent.participants : booking.participants}
+                          </Typography>
+                        </Box>
 
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
-                        <Typography variant="body2" color="text.secondary" sx={{ fontSize: { xs: '0.8rem', sm: '0.875rem' } }}>
-                          Ticket: {booking.ticketNumber}
-                        </Typography>
+                        {booking.status !== 'used' && (
+                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
+                            <Typography variant="body2" color="text.secondary" sx={{ fontSize: { xs: '0.8rem', sm: '0.875rem' } }}>
+                              Ticket: {booking.ticketNumber}
+                            </Typography>
+                          </Box>
+                        )}
                       </Box>
                       
                       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: 2, gap: 1 }}>
                         <Typography variant="h6" sx={{ fontWeight: 700, color: getStatusColor(booking.status), fontSize: { xs: '1rem', sm: '1.1rem' } }}>
-                          ₹{booking.totalPrice.toFixed(2)}
+                          ₹{(booking.status === 'used' && booking.bookingIntent ? booking.bookingIntent.totalPrice : booking.totalPrice).toFixed(2)}
                         </Typography>
-                        <Button 
-                          variant="outlined" 
-                          size="small"
-                          startIcon={<Download />}
-                          onClick={() => handleDownloadTicket(booking._id)}
-                          sx={{ 
-                            borderRadius: 2,
-                            fontSize: { xs: '0.7rem', sm: '0.8rem' },
-                            px: 2
-                          }}
-                        >
-                          Download
-                        </Button>
+                        
+                        <Box sx={{ display: 'flex', gap: 1 }}>
+                          {booking.status === 'used' ? (
+                            <Button 
+                              variant="outlined" 
+                              size="small"
+                              startIcon={<RateReview />}
+                              sx={{ 
+                                borderRadius: 2,
+                                fontSize: { xs: '0.7rem', sm: '0.8rem' },
+                                px: 2
+                              }}
+                            >
+                              Review
+                            </Button>
+                          ) : (
+                            <>
+                              <Button 
+                                variant="outlined" 
+                                size="small"
+                                startIcon={<Visibility />}
+                                onClick={() => handleViewTicket(booking)}
+                                sx={{ 
+                                  borderRadius: 2,
+                                  fontSize: { xs: '0.7rem', sm: '0.8rem' },
+                                  px: 2
+                                }}
+                              >
+                                View
+                              </Button>
+                              <TicketDownloader
+                                ticketData={formatTicketData(booking)}
+                                fileName={`wandercall-ticket-${booking.ticketNumber || 'ticket'}.pdf`}
+                                buttonProps={{
+                                  onClick: () => handleDownloadTicket(booking._id),
+                                  sx: {
+                                    borderRadius: 2,
+                                    fontSize: { xs: '0.7rem', sm: '0.8rem' },
+                                    px: 2
+                                  }
+                                }}
+                              />
+                            </>
+                          )}
+                        </Box>
                       </Box>
                     </CardContent>
                   </Card>
@@ -272,6 +370,13 @@ const BookingsPage = () => {
           )}
         </motion.div>
       </AnimatePresence>
+
+      {/* Ticket Modal */}
+      <TicketModal
+        open={ticketModalOpen}
+        onClose={handleCloseTicketModal}
+        ticketData={selectedTicket}
+      />
     </Container>
   );
 };

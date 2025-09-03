@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Box, Container, Typography, Card, CardContent, Grid, 
   Chip, Button, Avatar, Tab, Tabs, Paper, Divider,
@@ -17,14 +17,46 @@ const TransactionHistoryPage = () => {
   const theme = useTheme();
   const [tabValue, setTabValue] = useState(0);
   const [searchQuery, setSearchQuery] = useState('');
+  const [transactions, setTransactions] = useState([]);
+  const [stats, setStats] = useState({});
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  const transactions = [];
+  // Fetch transactions
+  useEffect(() => {
+    const fetchTransactions = async () => {
+      try {
+        setLoading(true);
+        const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+        console.log('Fetching transactions from:', `${apiUrl}/api/transactions/history`);
+        
+        const response = await fetch(`${apiUrl}/api/transactions/history`, {
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          }
+        });
+        
+        console.log('Response status:', response.status);
+        
+        const data = await response.json();
+        
+        console.log('Response data:', data);
+        
+        if (data.success) {
+          setTransactions(data.transactions || []);
+          setStats(data.stats || {});
+        } else {
+          setError(data.message || 'Failed to load transactions');
+        }
+      } catch (err) {
+        setError('Failed to fetch transactions');
+        console.error('Error fetching transactions:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  // Simulate loading
-  React.useEffect(() => {
-    const timer = setTimeout(() => setLoading(false), 1500);
-    return () => clearTimeout(timer);
+    fetchTransactions();
   }, []);
 
   const getStatusColor = (status) => {
@@ -56,27 +88,33 @@ const TransactionHistoryPage = () => {
     }
   };
 
-  const filteredTransactions = transactions.filter(transaction => {
-    const matchesSearch = transaction.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         transaction.id.toLowerCase().includes(searchQuery.toLowerCase());
+  const filteredTransactions = (transactions || []).filter(transaction => {
+    const matchesSearch = (transaction.title || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+                         (transaction.id || '').toLowerCase().includes(searchQuery.toLowerCase());
     
     if (tabValue === 0) return matchesSearch; // All
     if (tabValue === 1) return matchesSearch && transaction.type === 'booking';
     if (tabValue === 2) return matchesSearch && transaction.type === 'refund';
-    if (tabValue === 3) return matchesSearch && transaction.type === 'reward';
     return matchesSearch;
   });
 
-  const totalSpent = transactions
-    .filter(t => t.type === 'booking' && t.status === 'completed')
-    .reduce((sum, t) => sum + t.amount, 0);
-
-  const totalRefunded = Math.abs(transactions
-    .filter(t => t.type === 'refund' && t.status === 'completed')
-    .reduce((sum, t) => sum + t.amount, 0));
+  const totalSpent = stats.totalSpent || 0;
+  const totalFailed = stats.totalFailed || 0;
+  const pendingCount = stats.pendingCount || 0;
+  const thisMonthCount = stats.thisMonthCount || 0;
 
   if (loading) {
     return <TransactionHistoryPageLoader />;
+  }
+
+  if (error) {
+    return (
+      <Container maxWidth="lg" sx={{ py: 4, textAlign: 'center' }}>
+        <Typography variant="h6" color="error" sx={{ mb: 2 }}>Error loading transactions</Typography>
+        <Typography variant="body2" color="text.secondary">{error}</Typography>
+        <Button onClick={() => window.location.reload()} sx={{ mt: 2 }}>Retry</Button>
+      </Container>
+    );
   }
 
   return (
@@ -119,7 +157,7 @@ const TransactionHistoryPage = () => {
                   Track all your payments, refunds, and reward transactions
                 </Typography>
                 <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
-                  <Chip label={`${transactions.length} Total Transactions`} sx={{ backgroundColor: 'rgba(255, 255, 255, 0.2)', color: 'white' }} />
+                  <Chip label={`${stats.totalTransactions || 0} Total Transactions`} sx={{ backgroundColor: 'rgba(255, 255, 255, 0.2)', color: 'white' }} />
                   <Chip label={`₹${totalSpent.toFixed(2)} Spent`} sx={{ backgroundColor: 'rgba(255, 255, 255, 0.2)', color: 'white' }} />
                 </Box>
               </Grid>
@@ -149,9 +187,9 @@ const TransactionHistoryPage = () => {
         <Grid container spacing={3} sx={{ mb: 4 }}>
           {[
             { title: 'Total Spent', value: `₹${totalSpent.toFixed(2)}`, icon: <TrendingUp />, color: '#10b981' },
-            { title: 'Total Refunded', value: `₹${totalRefunded.toFixed(2)}`, icon: <Refresh />, color: '#f59e0b' },
-            { title: 'Pending Transactions', value: transactions.filter(t => t.status === 'pending').length, icon: <Pending />, color: '#6366f1' },
-            { title: 'This Month', value: transactions.filter(t => new Date(t.date).getMonth() === new Date().getMonth()).length, icon: <CalendarToday />, color: '#ec4899' }
+            { title: 'Failed Amount', value: `₹${totalFailed.toFixed(2)}`, icon: <Cancel />, color: '#ef4444' },
+            { title: 'Pending Transactions', value: pendingCount, icon: <Pending />, color: '#6366f1' },
+            { title: 'This Month', value: thisMonthCount, icon: <CalendarToday />, color: '#ec4899' }
           ].map((stat, index) => (
             <Grid item xs={6} md={3} key={stat.title}>
               <motion.div
@@ -205,14 +243,20 @@ const TransactionHistoryPage = () => {
           border: '1px solid rgba(255, 255, 255, 0.1)',
           mb: 3
         }}>
-          <CardContent sx={{ p: 3 }}>
-            <Box sx={{ display: 'flex', gap: 2, alignItems: 'center', flexWrap: 'wrap' }}>
+          <CardContent sx={{ p: { xs: 2, sm: 3 } }}>
+            <Box sx={{ display: 'flex', gap: { xs: 1, sm: 2 }, alignItems: 'center', flexWrap: 'wrap' }}>
               <TextField
                 placeholder="Search transactions..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 size="small"
-                sx={{ flex: 1, minWidth: 200 }}
+                sx={{ 
+                  flex: 1, 
+                  minWidth: { xs: 150, sm: 200 },
+                  '& .MuiInputBase-root': {
+                    fontSize: { xs: '0.8rem', sm: '0.875rem' }
+                  }
+                }}
                 InputProps={{
                   startAdornment: (
                     <InputAdornment position="start">
@@ -224,12 +268,17 @@ const TransactionHistoryPage = () => {
               <Button
                 variant="outlined"
                 startIcon={<Download />}
-                sx={{ borderRadius: 2 }}
+                size="small"
+                sx={{ 
+                  borderRadius: 2,
+                  fontSize: { xs: '0.7rem', sm: '0.8rem' },
+                  px: { xs: 1.5, sm: 2 }
+                }}
               >
                 Export
               </Button>
-              <IconButton>
-                <FilterList />
+              <IconButton size="small">
+                <FilterList fontSize="small" />
               </IconButton>
             </Box>
           </CardContent>
@@ -243,16 +292,22 @@ const TransactionHistoryPage = () => {
           onChange={(e, newValue) => setTabValue(newValue)}
           variant="fullWidth"
           sx={{
+            minHeight: { xs: 40, sm: 48 },
             '& .MuiTab-root': {
               fontWeight: 500,
-              fontSize: { xs: '0.8rem', sm: '0.9rem' }
+              fontSize: { xs: '0.75rem', sm: '0.85rem' },
+              minHeight: { xs: 40, sm: 48 },
+              py: { xs: 1, sm: 1.5 },
+              px: { xs: 1, sm: 2 }
+            },
+            '& .MuiTabs-indicator': {
+              height: { xs: 2, sm: 3 }
             }
           }}
         >
           <Tab label="All" />
           <Tab label="Bookings" />
           <Tab label="Refunds" />
-          <Tab label="Rewards" />
         </Tabs>
       </Box>
 
@@ -280,8 +335,128 @@ const TransactionHistoryPage = () => {
                   transition={{ delay: index * 0.1 }}
                   whileHover={{ backgroundColor: 'rgba(255, 255, 255, 0.02)' }}
                 >
-                  <Box sx={{ p: 3, borderBottom: index < filteredTransactions.length - 1 ? '1px solid rgba(255, 255, 255, 0.1)' : 'none' }}>
-                    <Grid container spacing={2} alignItems="center">
+                  <Box sx={{ p: { xs: 2, sm: 3 }, borderBottom: index < filteredTransactions.length - 1 ? '1px solid rgba(255, 255, 255, 0.1)' : 'none' }}>
+                    {/* Mobile Layout */}
+                    <Box sx={{ display: { xs: 'block', md: 'none' } }}>
+                      <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1.5, mb: 1.5 }}>
+                        <Avatar sx={{
+                          backgroundColor: getStatusColor(transaction.status) + '20',
+                          color: getStatusColor(transaction.status),
+                          width: 36,
+                          height: 36,
+                          flexShrink: 0
+                        }}>
+                          <Typography sx={{ fontSize: '1.1rem' }}>
+                            {getTypeIcon(transaction.type)}
+                          </Typography>
+                        </Avatar>
+                        <Box sx={{ flex: 1, minWidth: 0 }}>
+                          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 0.5 }}>
+                            <Typography variant="h6" sx={{ 
+                              fontWeight: 600, 
+                              fontSize: '0.85rem',
+                              lineHeight: 1.3,
+                              pr: 1,
+                              overflow: 'hidden',
+                              textOverflow: 'ellipsis',
+                              display: '-webkit-box',
+                              WebkitLineClamp: 2,
+                              WebkitBoxOrient: 'vertical'
+                            }}>
+                              {transaction.title}
+                            </Typography>
+                            <Chip
+                              icon={getStatusIcon(transaction.status)}
+                              label={transaction.status.toUpperCase()}
+                              size="small"
+                              sx={{
+                                backgroundColor: getStatusColor(transaction.status) + '20',
+                                color: getStatusColor(transaction.status),
+                                fontWeight: 600,
+                                fontSize: '0.6rem',
+                                height: 22,
+                                flexShrink: 0,
+                                ml: 1
+                              }}
+                            />
+                          </Box>
+                          <Typography variant="body2" color="text.secondary" sx={{ 
+                            fontSize: '0.7rem', 
+                            mb: 0.3,
+                            fontWeight: 500
+                          }}>
+                            Payment ID: {transaction.paymentId || 'Pending'}
+                          </Typography>
+                          {transaction.participants && (
+                            <Typography variant="caption" color="text.secondary" sx={{ 
+                              fontSize: '0.65rem', 
+                              display: 'block', 
+                              mb: 0.5,
+                              opacity: 0.8
+                            }}>
+                              {transaction.participants} participants
+                            </Typography>
+                          )}
+                        </Box>
+                      </Box>
+                      
+                      <Box sx={{ 
+                        display: 'flex', 
+                        justifyContent: 'space-between', 
+                        alignItems: 'flex-end',
+                        pt: 1,
+                        borderTop: '1px solid rgba(255, 255, 255, 0.05)'
+                      }}>
+                        <Box sx={{ flex: 1 }}>
+                          <Typography variant="h6" sx={{ 
+                            fontWeight: 700, 
+                            color: transaction.status === 'failed' ? '#ef4444' : 'text.primary',
+                            fontSize: '0.95rem',
+                            mb: 0.3
+                          }}>
+                            ₹{transaction.amount.toFixed(2)}
+                          </Typography>
+                          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.1 }}>
+                            <Typography variant="caption" color="text.secondary" sx={{ 
+                              fontSize: '0.65rem',
+                              opacity: 0.8
+                            }}>
+                              Base: ₹{transaction.basePrice.toFixed(2)}
+                            </Typography>
+                            {transaction.discount > 0 && (
+                              <Typography variant="caption" color="success.main" sx={{ 
+                                fontSize: '0.65rem',
+                                fontWeight: 500
+                              }}>
+                                -₹{transaction.discount.toFixed(2)} discount
+                              </Typography>
+                            )}
+                            <Typography variant="caption" color="text.secondary" sx={{ 
+                              fontSize: '0.65rem',
+                              opacity: 0.8
+                            }}>
+                              +₹{transaction.gst.toFixed(2)} GST
+                            </Typography>
+                          </Box>
+                        </Box>
+                        <Box sx={{ textAlign: 'right', ml: 2 }}>
+                          <Typography variant="body2" color="text.secondary" sx={{ 
+                            fontSize: '0.7rem',
+                            fontWeight: 500,
+                            opacity: 0.9
+                          }}>
+                            {new Date(transaction.date).toLocaleDateString('en-IN', {
+                              day: '2-digit',
+                              month: 'short',
+                              year: '2-digit'
+                            })}
+                          </Typography>
+                        </Box>
+                      </Box>
+                    </Box>
+
+                    {/* Desktop Layout */}
+                    <Grid container spacing={2} alignItems="center" sx={{ display: { xs: 'none', md: 'flex' } }}>
                       <Grid item xs={12} sm={6} md={4}>
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
                           <Avatar sx={{
@@ -299,8 +474,13 @@ const TransactionHistoryPage = () => {
                               {transaction.title}
                             </Typography>
                             <Typography variant="body2" color="text.secondary" sx={{ fontSize: { xs: '0.75rem', sm: '0.8rem' } }}>
-                              {transaction.id} • {transaction.method}
+                              Payment ID: {transaction.paymentId || 'Pending'}
                             </Typography>
+                            {transaction.participants && (
+                              <Typography variant="caption" color="text.secondary">
+                                {transaction.participants} participants
+                              </Typography>
+                            )}
                           </Box>
                         </Box>
                       </Grid>
@@ -308,13 +488,21 @@ const TransactionHistoryPage = () => {
                       <Grid item xs={6} sm={3} md={2}>
                         <Typography variant="h6" sx={{ 
                           fontWeight: 700, 
-                          color: transaction.amount < 0 ? '#10b981' : 'text.primary',
+                          color: transaction.status === 'failed' ? '#ef4444' : 'text.primary',
                           fontSize: { xs: '0.9rem', sm: '1rem' }
                         }}>
-                          {transaction.amount < 0 ? '+' : ''}₹{Math.abs(transaction.amount).toFixed(2)}
+                          ₹{transaction.amount.toFixed(2)}
                         </Typography>
                         <Typography variant="caption" color="text.secondary">
-                          {transaction.amount < 0 ? 'Refund' : 'Payment'}
+                          Base: ₹{transaction.basePrice.toFixed(2)}
+                        </Typography>
+                        {transaction.discount > 0 && (
+                          <Typography variant="caption" color="success.main" display="block">
+                            -₹{transaction.discount.toFixed(2)} discount
+                          </Typography>
+                        )}
+                        <Typography variant="caption" color="text.secondary" display="block">
+                          +₹{transaction.gst.toFixed(2)} GST
                         </Typography>
                       </Grid>
                       
@@ -333,13 +521,10 @@ const TransactionHistoryPage = () => {
                       </Grid>
                       
                       <Grid item xs={12} sm={12} md={4}>
-                        <Box sx={{ display: 'flex', justifyContent: { xs: 'flex-start', md: 'flex-end' }, alignItems: 'center', gap: 1 }}>
+                        <Box sx={{ display: 'flex', justifyContent: { xs: 'flex-start', md: 'flex-end' }, alignItems: 'center' }}>
                           <Typography variant="body2" color="text.secondary" sx={{ fontSize: { xs: '0.75rem', sm: '0.8rem' } }}>
                             {new Date(transaction.date).toLocaleDateString()}
                           </Typography>
-                          <Button size="small" variant="outlined" sx={{ borderRadius: 2, fontSize: '0.7rem' }}>
-                            View Details
-                          </Button>
                         </Box>
                       </Grid>
                     </Grid>

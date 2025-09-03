@@ -4,15 +4,30 @@ const Ticket = require('../models/Ticket');
 const BookingIntent = require('../models/BookingIntent');
 const verifyToken = require('../middleware/auth');
 
-// Get user's tickets/bookings
+// Get user's tickets/bookings with booking intents for completed ones
 router.get('/my-bookings', verifyToken, async (req, res) => {
   try {
     const tickets = await Ticket.find({ userId: req.user.id })
-      .populate('productId', 'title img1 location')
+      .populate('productId', 'title img1 img2 img3 img4 location')
       .populate('userId', 'name email phone')
       .sort({ createdAt: -1 });
     
-    res.json({ success: true, tickets });
+    // For completed tickets, also get booking intent data
+    const bookingsWithIntents = await Promise.all(
+      tickets.map(async (ticket) => {
+        if (ticket.status === 'used') {
+          const bookingIntent = await BookingIntent.findOne({ orderId: ticket.orderId })
+            .populate('productId', 'title img1 img2 img3 img4 location');
+          return {
+            ...ticket.toObject(),
+            bookingIntent: bookingIntent || null
+          };
+        }
+        return ticket.toObject();
+      })
+    );
+    
+    res.json({ success: true, tickets: bookingsWithIntents });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
