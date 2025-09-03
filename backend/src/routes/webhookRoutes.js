@@ -2,6 +2,30 @@ const express = require('express');
 const router = express.Router();
 const crypto = require('crypto');
 const { createTicketFromPayment, markPaymentFailed } = require('../services/ticketService');
+const Ticket = require('../models/Ticket');
+const BookingIntent = require('../models/BookingIntent');
+
+// Handle successful refund from Cashfree dashboard
+const handleRefundSuccess = async (orderId) => {
+  try {
+
+    
+    // Find and delete ticket
+    const ticket = await Ticket.findOne({ orderId });
+    if (ticket) {
+      await Promise.all([
+        Ticket.findByIdAndDelete(ticket._id),
+        BookingIntent.findOneAndDelete({ orderId })
+      ]);
+      
+
+    } else {
+
+    }
+  } catch (error) {
+
+  }
+};
 
 // Test endpoint for webhook
 router.get('/cashfree-webhook', (req, res) => {
@@ -84,6 +108,20 @@ router.post('/cashfree-webhook', async (req, res) => {
       const { order_id } = orderData;
       
       await markPaymentFailed(order_id);
+    }
+    
+    // Handle refund events
+    else if (eventType === 'REFUND_STATUS_WEBHOOK') {
+      const refundData = webhookData.data?.refund || webhookData.refund;
+      
+      if (refundData && refundData.refund_status === 'SUCCESS') {
+        const { order_id } = refundData;
+        
+        if (order_id) {
+
+          await handleRefundSuccess(order_id);
+        }
+      }
     }
 
     // Final success response

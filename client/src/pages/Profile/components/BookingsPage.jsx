@@ -5,7 +5,7 @@ import {
 } from '@mui/material';
 import {
   Explore, LocationOn, Star, 
-  CheckCircle, Cancel, Schedule, CalendarToday, Download, Visibility, RateReview
+  CheckCircle, Cancel, Schedule, CalendarToday, Download, Visibility, RateReview, CancelOutlined
 } from '@mui/icons-material';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTheme } from '@mui/material/styles';
@@ -14,6 +14,8 @@ import { fetchMyBookings, markTicketAsDownloaded } from '../../../redux/slices/t
 import BookingsPageLoader from '../../../components/loaders/BookingsPageLoader';
 import TicketDownloader from '../../../components/PDFTicket/TicketDownloader';
 import TicketModal from '../../../components/TicketModal/TicketModal';
+import CustomAlert from '../../../components/Alert/CustomAlert';
+import { cancellationAPI } from '../../../services/cancellationAPI';
 
 const BookingsPage = () => {
   const theme = useTheme();
@@ -21,6 +23,9 @@ const BookingsPage = () => {
   const [tabValue, setTabValue] = useState(0);
   const [selectedTicket, setSelectedTicket] = useState(null);
   const [ticketModalOpen, setTicketModalOpen] = useState(false);
+  const [cancellingTickets, setCancellingTickets] = useState(new Set());
+  const [cancellationEligibility, setCancellationEligibility] = useState({});
+  const [alertConfig, setAlertConfig] = useState({ open: false, type: 'info', title: '', message: '' });
   const { bookings, loading, error } = useSelector(state => state.tickets);
 
   useEffect(() => {
@@ -44,6 +49,71 @@ const BookingsPage = () => {
     setTicketModalOpen(false);
     setSelectedTicket(null);
   };
+
+  const handleCancelBooking = async (ticketId) => {
+    try {
+      setCancellingTickets(prev => new Set([...prev, ticketId]));
+      const result = await cancellationAPI.cancelBooking(ticketId);
+      
+      if (result.success) {
+        dispatch(fetchMyBookings());
+        const message = result.refundId ? 
+          'Booking cancelled and refund initiated successfully. Refund will be processed within 5-7 business days.' :
+          'Booking cancelled successfully.';
+        setAlertConfig({
+          open: true,
+          type: 'success',
+          title: 'Cancellation Successful',
+          message
+        });
+      } else {
+        setAlertConfig({
+          open: true,
+          type: 'error',
+          title: 'Cancellation Failed',
+          message: result.message || 'Failed to cancel booking'
+        });
+      }
+    } catch (error) {
+      console.error('Error cancelling booking:', error);
+      setAlertConfig({
+        open: true,
+        type: 'error',
+        title: 'Error',
+        message: 'Failed to cancel booking. Please try again.'
+      });
+    } finally {
+      setCancellingTickets(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(ticketId);
+        return newSet;
+      });
+    }
+  };
+
+  const checkCancellationEligibility = async (ticketId) => {
+    try {
+      const result = await cancellationAPI.checkCancellationEligibility(ticketId);
+      if (result.success) {
+        setCancellationEligibility(prev => ({
+          ...prev,
+          [ticketId]: result
+        }));
+      }
+    } catch (error) {
+      console.error('Error checking cancellation eligibility:', error);
+    }
+  };
+
+  useEffect(() => {
+    if (bookings && bookings.length > 0) {
+      bookings.forEach(booking => {
+        if (booking.status === 'active') {
+          checkCancellationEligibility(booking._id);
+        }
+      });
+    }
+  }, [bookings]);
 
   const formatTicketData = (booking) => {
     const basePrice = booking.totalPrice - booking.gst - (booking.discount || 0);
@@ -245,55 +315,151 @@ const BookingsPage = () => {
                         </Box>
                       )}
                       
-                      <Chip
-                        icon={getStatusIcon(booking.status)}
-                        label={getStatusLabel(booking.status)}
-                        sx={{
-                          position: 'absolute',
-                          top: 12,
-                          right: 12,
-                          backgroundColor: getStatusColor(booking.status),
-                          color: 'white',
-                          fontWeight: 600,
-                          fontSize: '0.7rem'
-                        }}
-                      />
+                      <TicketDownloader
+                        ticketData={formatTicketData(booking)}
+                        fileName={`wandercall-ticket-${booking.ticketNumber || 'ticket'}.pdf`}
+                      >
+                        {({ loading, error }) => (
+                          <Box
+                            onClick={() => !loading && !error && handleDownloadTicket(booking._id)}
+                            sx={{
+                              position: 'absolute',
+                              top: 12,
+                              right: 12,
+                              backgroundColor: loading ? 'rgba(100, 116, 139, 0.7)' : 'rgba(0,0,0,0.7)',
+                              borderRadius: '50%',
+                              p: 1,
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              color: 'white',
+                              cursor: loading || error ? 'default' : 'pointer',
+                              '&:hover': {
+                                backgroundColor: loading || error ? 'rgba(100, 116, 139, 0.7)' : 'rgba(0,0,0,0.9)'
+                              }
+                            }}
+                          >
+                            {loading ? (
+                              <CircularProgress size={16} sx={{ color: 'white' }} />
+                            ) : (
+                              <Download fontSize="small" />
+                            )}
+                          </Box>
+                        )}
+                      </TicketDownloader>
                     </Box>
 
-                    <CardContent sx={{ p: 3, flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
-                      <Box>
-                        <Typography variant="h6" sx={{ fontWeight: 600, mb: 1, fontSize: { xs: '1rem', sm: '1.1rem' } }}>
+                    <CardContent sx={{ 
+                      p: { xs: 1.5, sm: 3 }, 
+                      flex: 1, 
+                      display: 'flex', 
+                      flexDirection: 'column',
+                      height: '100%'
+                    }}>
+                      {/* Content Section */}
+                      <Box sx={{ flex: 1 }}>
+                        <Typography 
+                          variant="h6" 
+                          sx={{ 
+                            fontWeight: 600, 
+                            mb: { xs: 1, sm: 1.5 }, 
+                            fontSize: { xs: '0.9rem', sm: '1.1rem' },
+                            lineHeight: 1.3,
+                            minHeight: { xs: '2.2rem', sm: '2.6rem' },
+                            display: '-webkit-box',
+                            WebkitLineClamp: 2,
+                            WebkitBoxOrient: 'vertical',
+                            overflow: 'hidden'
+                          }}
+                        >
                           {booking.productId?.title || booking.title}
                         </Typography>
                         
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
-                          <CalendarToday fontSize="small" color="primary" />
-                          <Typography variant="body2" color="text.secondary" sx={{ fontSize: { xs: '0.8rem', sm: '0.875rem' } }}>
-                            {new Date(booking.status === 'used' && booking.bookingIntent ? booking.bookingIntent.selectedDate : booking.selectedDate).toLocaleDateString()}
-                          </Typography>
-                        </Box>
-
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
-                          <Typography variant="body2" color="text.secondary" sx={{ fontSize: { xs: '0.8rem', sm: '0.875rem' } }}>
-                            Participants: {booking.status === 'used' && booking.bookingIntent ? booking.bookingIntent.participants : booking.participants}
-                          </Typography>
-                        </Box>
-
-                        {booking.status !== 'used' && (
-                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
-                            <Typography variant="body2" color="text.secondary" sx={{ fontSize: { xs: '0.8rem', sm: '0.875rem' } }}>
-                              Ticket: {booking.ticketNumber}
+                        {/* Mobile Compact Layout */}
+                        <Box sx={{ 
+                          display: { xs: 'block', sm: 'flex' },
+                          flexDirection: { sm: 'column' },
+                          gap: { xs: 0.5, sm: 0.8 },
+                          mb: { xs: 1.5, sm: 2 }
+                        }}>
+                          {/* Date and Participants in one row on mobile */}
+                          <Box sx={{ 
+                            display: { xs: 'flex', sm: 'block' },
+                            justifyContent: { xs: 'space-between', sm: 'flex-start' },
+                            alignItems: { xs: 'center', sm: 'flex-start' },
+                            mb: { xs: 0.5, sm: 0 }
+                          }}>
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                              <CalendarToday sx={{ fontSize: { xs: 14, sm: 18 } }} color="primary" />
+                              <Typography 
+                                variant="body2" 
+                                color="text.secondary" 
+                                sx={{ fontSize: { xs: '0.7rem', sm: '0.85rem' } }}
+                              >
+                                {new Date(booking.status === 'used' && booking.bookingIntent ? booking.bookingIntent.selectedDate : booking.selectedDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                              </Typography>
+                            </Box>
+                            
+                            <Typography 
+                              variant="body2" 
+                              color="text.secondary" 
+                              sx={{ 
+                                fontSize: { xs: '0.7rem', sm: '0.85rem' },
+                                pl: { xs: 0, sm: 3.2 },
+                                mt: { xs: 0, sm: 0.5 }
+                              }}
+                            >
+                              {booking.status === 'used' && booking.bookingIntent ? booking.bookingIntent.participants : booking.participants} people
                             </Typography>
                           </Box>
-                        )}
+
+                          {booking.status !== 'used' && (
+                            <Typography 
+                              variant="body2" 
+                              color="text.secondary" 
+                              sx={{ 
+                                fontSize: { xs: '0.7rem', sm: '0.85rem' },
+                                pl: { xs: 0, sm: 3.2 },
+                                textAlign: { xs: 'center', sm: 'left' }
+                              }}
+                            >
+                              #{booking.ticketNumber}
+                            </Typography>
+                          )}
+                        </Box>
                       </Box>
                       
-                      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: 2, gap: 1 }}>
-                        <Typography variant="h6" sx={{ fontWeight: 700, color: getStatusColor(booking.status), fontSize: { xs: '1rem', sm: '1.1rem' } }}>
-                          ₹{(booking.status === 'used' && booking.bookingIntent ? booking.bookingIntent.totalPrice : booking.totalPrice).toFixed(2)}
-                        </Typography>
+                      {/* Price and Actions Section */}
+                      <Box sx={{ 
+                        borderTop: '1px solid rgba(255, 255, 255, 0.1)',
+                        pt: { xs: 1.5, sm: 2 },
+                        mt: 'auto'
+                      }}>
+                        {/* Price */}
+                        <Box sx={{ 
+                          mb: { xs: 1.5, sm: 2 },
+                          textAlign: 'center'
+                        }}>
+                          <Typography 
+                            variant="h6" 
+                            sx={{ 
+                              fontWeight: 700, 
+                              color: getStatusColor(booking.status), 
+                              fontSize: { xs: '1rem', sm: '1.1rem' }
+                            }}
+                          >
+                            ₹{(booking.status === 'used' && booking.bookingIntent ? booking.bookingIntent.totalPrice : booking.totalPrice).toFixed(2)}
+                          </Typography>
+                        </Box>
                         
-                        <Box sx={{ display: 'flex', gap: 1 }}>
+                        {/* Action Buttons - All Devices */}
+                        <Box sx={{ 
+                          display: 'flex',
+                          flexDirection: { xs: 'column', sm: 'row' },
+                          gap: { xs: 0.8, sm: 0.6 },
+                          justifyContent: 'center',
+                          alignItems: 'stretch'
+                        }}>
                           {booking.status === 'used' ? (
                             <Button 
                               variant="outlined" 
@@ -301,8 +467,11 @@ const BookingsPage = () => {
                               startIcon={<RateReview />}
                               sx={{ 
                                 borderRadius: 2,
-                                fontSize: { xs: '0.7rem', sm: '0.8rem' },
-                                px: 2
+                                fontSize: { xs: '0.75rem', sm: '0.8rem' },
+                                px: { xs: 2, sm: 1.5 },
+                                py: { xs: 1, sm: 0.8 },
+                                minWidth: { xs: 'auto', sm: 90 },
+                                flex: { xs: 1, sm: 'none' }
                               }}
                             >
                               Review
@@ -316,24 +485,41 @@ const BookingsPage = () => {
                                 onClick={() => handleViewTicket(booking)}
                                 sx={{ 
                                   borderRadius: 2,
-                                  fontSize: { xs: '0.7rem', sm: '0.8rem' },
-                                  px: 2
+                                  fontSize: { xs: '0.75rem', sm: '0.8rem' },
+                                  px: { xs: 2, sm: 1.5 },
+                                  py: { xs: 1, sm: 0.8 },
+                                  minWidth: { xs: 'auto', sm: 80 },
+                                  flex: { xs: 1, sm: 'none' }
                                 }}
                               >
                                 View
                               </Button>
-                              <TicketDownloader
-                                ticketData={formatTicketData(booking)}
-                                fileName={`wandercall-ticket-${booking.ticketNumber || 'ticket'}.pdf`}
-                                buttonProps={{
-                                  onClick: () => handleDownloadTicket(booking._id),
-                                  sx: {
+
+                              {booking.status === 'active' && cancellationEligibility[booking._id]?.canCancel && (
+                                <Button 
+                                  variant="outlined" 
+                                  size="small"
+                                  color="error"
+                                  startIcon={cancellingTickets.has(booking._id) ? 
+                                    <CircularProgress size={14} /> : <CancelOutlined />}
+                                  onClick={() => {
+                                    if (window.confirm('Are you sure you want to cancel this booking? This action cannot be undone.')) {
+                                      handleCancelBooking(booking._id);
+                                    }
+                                  }}
+                                  disabled={cancellingTickets.has(booking._id)}
+                                  sx={{ 
                                     borderRadius: 2,
-                                    fontSize: { xs: '0.7rem', sm: '0.8rem' },
-                                    px: 2
-                                  }
-                                }}
-                              />
+                                    fontSize: { xs: '0.75rem', sm: '0.8rem' },
+                                    px: { xs: 2, sm: 1.5 },
+                                    py: { xs: 1, sm: 0.8 },
+                                    minWidth: { xs: 'auto', sm: 80 },
+                                    flex: { xs: 1, sm: 'none' }
+                                  }}
+                                >
+                                  {cancellingTickets.has(booking._id) ? 'Cancelling...' : 'Cancel'}
+                                </Button>
+                              )}
                             </>
                           )}
                         </Box>
@@ -376,6 +562,15 @@ const BookingsPage = () => {
         open={ticketModalOpen}
         onClose={handleCloseTicketModal}
         ticketData={selectedTicket}
+      />
+
+      {/* Custom Alert */}
+      <CustomAlert
+        open={alertConfig.open}
+        onClose={() => setAlertConfig({ ...alertConfig, open: false })}
+        type={alertConfig.type}
+        title={alertConfig.title}
+        message={alertConfig.message}
       />
     </Container>
   );

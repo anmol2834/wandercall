@@ -91,6 +91,8 @@ app.use('/api/wishlist', require('./routes/wishlistRoutes'));
 app.use('/api/tickets', require('./routes/ticketRoutes'));
 app.use('/api/payments', require('./routes/paymentRoutes'));
 app.use('/api/transactions', require('./routes/transactionRoutes'));
+app.use('/api/cancellation', require('./routes/cancellationRoutes'));
+app.use('/api/refund', require('./routes/refundRoutes'));
 // Webhook routes
 app.use('/api/webhooks', require('./routes/webhookRoutes'));
 
