@@ -62,7 +62,7 @@ router.post('/create-payment-session', verifyToken, async (req, res) => {
 
     const cashfreeBaseUrl = process.env.CASHFREE_MODE === 'production' 
       ? 'https://api.cashfree.com/pg/orders'
-      : 'https://api.cashfree.com/pg/orders';
+      : 'https://sandbox.cashfree.com/pg/orders';
       
     const cashfreeResponse = await axios.post(
       cashfreeBaseUrl,
