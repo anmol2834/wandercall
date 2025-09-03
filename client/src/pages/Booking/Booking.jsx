@@ -311,7 +311,7 @@ const Booking = () => {
       }
 
       // Step 4: Initialize Cashfree SDK on Frontend
-      const cfMode = import.meta.env.PROD ? 'production' : 'production';
+      const cfMode = import.meta.env.PROD ? 'production' : 'sandbox';
       console.log(`[DEBUG] Initializing Cashfree SDK in "${cfMode}" mode.`);
       const cashfree = window.Cashfree({ mode: cfMode });
       

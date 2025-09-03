@@ -16,7 +16,6 @@ router.get('/test', (req, res) => {
 router.post('/create-payment-session', verifyToken, async (req, res) => {
   try {
     const { bookingData } = req.body;
-    console.log(bookingData)
     
     if (!bookingData || !bookingData.totalPrice) {
       return res.status(400).json({ message: 'Invalid booking data' });
