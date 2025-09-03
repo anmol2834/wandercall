@@ -853,9 +853,13 @@ const Booking = () => {
                               label="Email Address"
                               type="email"
                               value={guestInfo.email}
-                              disabled={true}
+                              onChange={(e) => {
+                                setGuestInfo({ ...guestInfo, email: e.target.value });
+                                setValidationErrors(prev => ({ ...prev, email: null }));
+                              }}
+                              disabled={!!user}
                               error={!!validationErrors.email}
-                              helperText={validationErrors.email || 'Email cannot be changed'}
+                              helperText={validationErrors.email || (user ? 'Email cannot be changed' : '')}
                               variant="filled"
                               sx={{
                                 '& .MuiFilledInput-root': {
