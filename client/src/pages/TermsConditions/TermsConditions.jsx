@@ -372,7 +372,7 @@ const TermsConditions = () => {
           <List>
             <ListItem>
               <ListItemIcon><CheckCircle color="primary" /></ListItemIcon>
-              <ListItemText primary="Service bookings can only be canceled within 48 hours of purchase" />
+              <ListItemText primary="Service bookings can only be canceled within 48 hours of booking" />
             </ListItem>
             <ListItem>
               <ListItemIcon><CheckCircle color="primary" /></ListItemIcon>

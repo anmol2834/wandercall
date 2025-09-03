@@ -940,57 +940,133 @@ const Booking = () => {
                         Complete Payment
                       </Typography>
 
-                      <Box sx={{ textAlign: 'center', py: 4 }}>
-                        <Button
-                          variant="contained"
-                          size="large"
-                          onClick={handleBooking}
-                          disabled={isProcessing || paymentInitiated}
-                          startIcon={isProcessing ? <CircularProgress size={20} /> : <CreditCard />}
-                          sx={{
-                            py: 2,
-                            px: { xs: 3, sm: 6 },
-                            fontSize: { xs: '0.9rem', sm: '1.2rem' },
-                            fontWeight: 700,
-                            borderRadius: 3,
-                            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                            '&:hover': {
-                              background: 'linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%)'
-                            }
-                          }}
+
+
+                      {/* Payment Section */}
+                      <Box sx={{ 
+                        display: 'flex', 
+                        flexDirection: 'column', 
+                        alignItems: 'center',
+                        gap: 3,
+                        py: 2
+                      }}>
+                        {/* Main Payment Button */}
+                        <motion.div
+                          whileHover={{ scale: 1.02 }}
+                          whileTap={{ scale: 0.98 }}
+                          transition={{ duration: 0.2 }}
                         >
-                          {isProcessing ? 'Processing...' : `Pay via Cashfree - ₹${totalPrice.toFixed(2)}`}
-                        </Button>
-
-                        <Typography variant="body2" color="text.secondary" sx={{ mt: 2 }}>
-                          Secure payment powered by Cashfree
-                        </Typography>
-
-                        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1, mt: 2 }}>
-                          <Chip icon={<CheckCircle />} label="256-bit SSL Encrypted" size="small" />
-                          <Chip icon={<CheckCircle />} label="PCI DSS Compliant" size="small" />
-                        </Box>
-
-                        <Box sx={{ mt: 3 }}>
                           <Button
-                            variant="outlined"
-                            onClick={handleBack}
-                            startIcon={<ArrowBack />}
+                            variant="contained"
+                            size="large"
+                            onClick={handleBooking}
+                            disabled={isProcessing || paymentInitiated}
+                            startIcon={isProcessing ? <CircularProgress size={24} sx={{ color: 'white' }} /> : <CreditCard />}
                             sx={{
-                              minWidth: 140,
-                              height: 48,
-                              color: 'text.primary',
-                              borderColor: 'divider',
+                              py: { xs: 2, sm: 2.5 },
+                              px: { xs: 4, sm: 8 },
+                              fontSize: { xs: '1rem', sm: '1.3rem' },
+                              fontWeight: 700,
+                              borderRadius: 4,
+                              minWidth: { xs: 280, sm: 360 },
+                              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                              boxShadow: '0 8px 32px rgba(102, 126, 234, 0.4)',
+                              textTransform: 'none',
                               '&:hover': {
-                                borderColor: 'primary.main',
-                                backgroundColor: 'primary.main',
+                                background: 'linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%)',
+                                boxShadow: '0 12px 40px rgba(102, 126, 234, 0.5)',
+                                transform: 'translateY(-2px)'
+                              },
+                              '&:disabled': {
+                                background: 'rgba(102, 126, 234, 0.6)',
                                 color: 'white'
                               }
                             }}
                           >
-                            Previous
+                            {isProcessing ? 'Processing Payment...' : `Pay ₹${totalPrice.toFixed(2)} via Cashfree`}
                           </Button>
+                        </motion.div>
+
+                        {/* Security Features */}
+                        <Box sx={{ 
+                          display: 'flex', 
+                          flexDirection: { xs: 'column', sm: 'row' },
+                          alignItems: 'center', 
+                          gap: { xs: 1, sm: 2 },
+                          justifyContent: 'center'
+                        }}>
+                          <Chip 
+                            icon={<CheckCircle />} 
+                            label="256-bit SSL Encrypted" 
+                            size="small"
+                            sx={{
+                              backgroundColor: 'rgba(76, 175, 80, 0.1)',
+                              color: 'success.main',
+                              border: '1px solid rgba(76, 175, 80, 0.3)'
+                            }}
+                          />
+                          <Chip 
+                            icon={<CheckCircle />} 
+                            label="PCI DSS Compliant" 
+                            size="small"
+                            sx={{
+                              backgroundColor: 'rgba(76, 175, 80, 0.1)',
+                              color: 'success.main',
+                              border: '1px solid rgba(76, 175, 80, 0.3)'
+                            }}
+                          />
                         </Box>
+
+                        {/* Powered by Cashfree */}
+                        <Typography 
+                          variant="body2" 
+                          color="text.secondary" 
+                          sx={{ 
+                            textAlign: 'center',
+                            fontSize: { xs: '0.85rem', sm: '0.9rem' }
+                          }}
+                        >
+                          🔒 Secure payment powered by Cashfree
+                        </Typography>
+
+                        {/* Cancellation Notice - Subtle */}
+                        <Box sx={{
+                          backgroundColor: 'rgba(158, 158, 158, 0.08)',
+                          border: '1px solid rgba(158, 158, 158, 0.2)',
+                          borderRadius: 2,
+                          p: 2,
+                          maxWidth: 400,
+                          textAlign: 'center'
+                        }}>
+                          <Typography 
+                            variant="caption" 
+                            color="text.secondary"
+                            sx={{ 
+                              fontSize: '0.75rem',
+                              lineHeight: 1.4
+                            }}
+                          >
+                            Cancellation Policy: Bookings can be cancelled within 48 hours for a full refund.
+                          </Typography>
+                        </Box>
+
+                        {/* Back Button */}
+                        <Button
+                          variant="text"
+                          onClick={handleBack}
+                          startIcon={<ArrowBack />}
+                          sx={{
+                            mt: 2,
+                            color: 'text.secondary',
+                            textTransform: 'none',
+                            '&:hover': {
+                              backgroundColor: 'rgba(0, 0, 0, 0.04)',
+                              color: 'text.primary'
+                            }
+                          }}
+                        >
+                          Back to User Information
+                        </Button>
                       </Box>
                     </CardContent>
                   </Card>

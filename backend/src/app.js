@@ -72,12 +72,6 @@ app.use('/api/webhooks/cashfree-webhook', express.raw({ type: 'application/json'
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-// Request logging disabled for clean terminal
-// app.use((req, res, next) => {
-//   console.log(`${req.method} ${req.path} - Origin: ${req.headers.origin}`);
-//   next();
-// });
-
 // Routes
 app.use('/api/auth', require('./routes/authRoutes'));
 app.use('/api/waitlist', require('./routes/waitlistRoutes'));
@@ -93,7 +87,6 @@ app.use('/api/payments', require('./routes/paymentRoutes'));
 app.use('/api/transactions', require('./routes/transactionRoutes'));
 app.use('/api/cancellation', require('./routes/cancellationRoutes'));
 app.use('/api/refund', require('./routes/refundRoutes'));
-// Webhook routes
 app.use('/api/webhooks', require('./routes/webhookRoutes'));
 
 
