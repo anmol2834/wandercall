@@ -2,13 +2,13 @@ import { useEffect, useState } from 'react';
 import { useParams, useSearchParams, useNavigate } from 'react-router-dom';
 import { 
   Box, Typography, CircularProgress, Alert, Paper, Grid, Chip, 
-  useTheme, useMediaQuery, Divider, Button, IconButton, Stack
+  useTheme, useMediaQuery, Divider, Button, IconButton, Stack, Container
 } from '@mui/material';
 import { 
   CalendarToday, LocationOn, Person, ConfirmationNumber, 
-  CheckCircle, QrCode2, Download, Home, ArrowBack, FileDownload
+  CheckCircle, QrCode2, Download, Home, ArrowBack, FileDownload, Celebration
 } from '@mui/icons-material';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../../contexts/AuthContext';
 import { paymentAPI } from '../../services/api';
 import QRCode from 'qrcode';
@@ -199,179 +199,272 @@ const Ticket = () => {
   return (
     <Box sx={{
       minHeight: '100vh',
-      width: '100vw',
-      bgcolor: 'background.default',
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      justifyContent: 'center',
-      p: { xs: 1, sm: 2, md: 3 },
-      position: 'relative'
+      background: theme.palette.mode === 'dark'
+        ? 'linear-gradient(135deg, #0f0f23 0%, #1a1a2e 25%, #16213e 50%, #0f3460 75%, #1e3c72 100%)'
+        : 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 25%, #f1f5f9 50%, #e0e7ff 75%, #f3f4f6 100%)',
+      position: 'relative',
+      overflow: 'hidden'
     }}>
-      {/* Header Actions */}
-      <Box sx={{
-        position: 'absolute',
-        top: { xs: 16, md: 24 },
-        left: { xs: 16, md: 24 },
-        right: { xs: 16, md: 24 },
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        zIndex: 10
-      }}>
-        <IconButton 
-          onClick={() => navigate('/')}
-          sx={{ 
-            bgcolor: 'background.paper',
-            boxShadow: 1,
-            '&:hover': { boxShadow: 2 }
+      {/* Celebration Animation */}
+      <AnimatePresence>
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 2 }}
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            pointerEvents: 'none',
+            zIndex: 1
           }}
-          size={isMobile ? 'small' : 'medium'}
         >
-          <Home fontSize={isMobile ? 'small' : 'medium'} />
-        </IconButton>
-        
-        <TicketDownloader
-          ticketData={formatTicketData()}
-          fileName={`wandercall-ticket-${ticket.ticketNumber}.pdf`}
-        >
-          {({ loading, error }) => (
+          {[...Array(20)].map((_, i) => (
             <motion.div
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              transition={{ duration: 0.2 }}
-            >
-              <Button
-                variant="contained"
-                startIcon={loading ? <CircularProgress size={18} sx={{ color: 'white' }} /> : <FileDownload sx={{ color: 'white' }} />}
-                disabled={loading || error || !ticket}
-                size={isMobile ? 'small' : 'medium'}
-                sx={{
-                  backgroundColor: loading ? '#64748b' : '#0f172a',
-                  color: 'white',
-                  borderRadius: 2,
-                  textTransform: 'none',
-                  fontWeight: 500,
-                  fontSize: { xs: '0.8rem', sm: '0.9rem' },
-                  px: { xs: 3, sm: 4 },
-                  py: { xs: 1, sm: 1.1 },
-                  minWidth: { xs: 120, sm: 140 },
-                  boxShadow: '0 3px 10px rgba(15, 23, 42, 0.2)',
-                  border: 'none',
-                  '&:hover': {
-                    backgroundColor: loading ? '#64748b' : '#1e293b',
-                    boxShadow: '0 5px 15px rgba(15, 23, 42, 0.3)'
-                  },
-                  '&:disabled': {
-                    backgroundColor: '#94a3b8',
-                    color: 'white !important',
-                    '& .MuiSvgIcon-root': {
-                      color: 'white !important'
-                    }
-                  },
-                  '& .MuiSvgIcon-root': {
-                    color: 'white'
-                  }
-                }}
-              >
-                <Box sx={{ color: 'white' }}>
-                  {loading ? 'Generating...' : error ? 'Retry' : 'Download PDF'}
-                </Box>
-              </Button>
-            </motion.div>
-          )}
-        </TicketDownloader>
-      </Box>
-      
-      <motion.div
-        initial={{ opacity: 0, scale: 0.95, y: 30 }}
-        animate={{ opacity: 1, scale: 1, y: 0 }}
-        transition={{ duration: 0.6, ease: 'easeOut' }}
-        style={{ 
-          width: '100%', 
-          maxWidth: isMobile ? '100%' : '900px',
-          marginTop: isMobile ? '60px' : '80px'
-        }}
-      >
-        <Paper sx={{
-          bgcolor: 'background.paper',
-          borderRadius: { xs: 2, sm: 3, md: 4 },
-          overflow: 'hidden',
-          boxShadow: theme.palette.mode === 'dark' 
-            ? '0 8px 32px rgba(0,0,0,0.4)' 
-            : '0 8px 32px rgba(0,0,0,0.12)',
-          border: theme.palette.mode === 'dark' 
-            ? '1px solid rgba(255,255,255,0.1)' 
-            : '1px solid rgba(0,0,0,0.05)',
-          position: 'relative'
-        }}>
-          {/* Premium Header Strip */}
-          <Box sx={{
-            background: `linear-gradient(90deg, ${theme.palette.primary.main} 0%, ${theme.palette.secondary.main} 100%)`,
-            height: { xs: 4, sm: 6, md: 8 },
-            position: 'relative'
-          }} />
-          
-          <Box sx={{ p: { xs: 2, sm: 3, md: 4 } }}>
-            {/* Success Badge */}
-            <Box sx={{ display: 'flex', justifyContent: 'center', mb: { xs: 2, md: 3 } }}>
-              <motion.div
-                initial={{ scale: 0 }}
-                animate={{ scale: 1 }}
-                transition={{ delay: 0.2, type: 'spring', stiffness: 200 }}
-              >
-                <Chip
-                  icon={<CheckCircle sx={{ fontSize: { xs: 16, md: 18 } }} />}
-                  label="CONFIRMED"
-                  sx={{
-                    bgcolor: 'success.main',
-                    color: 'success.contrastText',
-                    fontWeight: 600,
-                    fontSize: { xs: '0.7rem', sm: '0.75rem', md: '0.875rem' },
-                    px: { xs: 1, md: 2 },
-                    py: 0.5,
-                    '& .MuiChip-label': {
-                      px: { xs: 1, md: 1.5 }
-                    }
-                  }}
-                />
-              </motion.div>
-            </Box>
+              key={i}
+              initial={{ 
+                opacity: 0,
+                scale: 0,
+                x: Math.random() * window.innerWidth,
+                y: window.innerHeight + 100
+              }}
+              animate={{
+                opacity: [0, 1, 0],
+                scale: [0, 1, 0],
+                y: -100,
+                rotate: 360
+              }}
+              transition={{
+                duration: 3 + Math.random() * 2,
+                delay: Math.random() * 2,
+                ease: 'easeOut'
+              }}
+              style={{
+                position: 'absolute',
+                width: '8px',
+                height: '8px',
+                background: `hsl(${Math.random() * 360}, 70%, 60%)`,
+                borderRadius: '50%'
+              }}
+            />
+          ))}
+        </motion.div>
+      </AnimatePresence>
 
-            <Grid container spacing={{ xs: 2, sm: 3, md: 4 }}>
-              {/* Main Ticket Content */}
-              <Grid item xs={12} md={8}>
-                {/* Experience Title */}
-                <Typography 
-                  variant={isMobile ? 'h5' : 'h4'} 
+      <Container maxWidth="lg" sx={{ 
+        minHeight: '100vh',
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'center',
+        py: { xs: 2, sm: 4 },
+        position: 'relative',
+        zIndex: 2
+      }}>
+        {/* Header Actions */}
+        <Box sx={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          mb: { xs: 3, sm: 4 }
+        }}>
+          <motion.div
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            <IconButton 
+              onClick={() => navigate('/')}
+              sx={{ 
+                bgcolor: 'rgba(255, 255, 255, 0.9)',
+                backdropFilter: 'blur(10px)',
+                boxShadow: '0 4px 20px rgba(0, 0, 0, 0.1)',
+                border: '1px solid rgba(255, 255, 255, 0.2)',
+                color: theme.palette.mode === 'dark' ? '#1a1a2e' : '#333',
+                '&:hover': { 
+                  boxShadow: '0 6px 25px rgba(0, 0, 0, 0.15)',
+                  bgcolor: 'rgba(255, 255, 255, 1)',
+                  color: theme.palette.mode === 'dark' ? '#000' : '#333'
+                }
+              }}
+              size={isMobile ? 'small' : 'medium'}
+            >
+              <Home fontSize={isMobile ? 'small' : 'medium'} />
+            </IconButton>
+          </motion.div>
+        
+          <TicketDownloader
+            ticketData={formatTicketData()}
+            fileName={`wandercall-ticket-${ticket.ticketNumber}.pdf`}
+          >
+            {({ loading, error }) => (
+              <motion.div
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                transition={{ duration: 0.2 }}
+              >
+                <Button
+                  variant="contained"
+                  startIcon={loading ? <CircularProgress size={16} sx={{ color: 'white' }} /> : <FileDownload />}
+                  disabled={loading || error || !ticket}
+                  size={isMobile ? 'small' : 'medium'}
                   sx={{
-                    fontWeight: 700,
-                    color: 'text.primary',
-                    mb: { xs: 2, md: 3 },
-                    lineHeight: 1.2,
-                    fontSize: { xs: '1.25rem', sm: '1.5rem', md: '2rem' }
+                    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                    color: 'white',
+                    borderRadius: 3,
+                    textTransform: 'none',
+                    fontWeight: 600,
+                    fontSize: { xs: '0.75rem', sm: '0.85rem' },
+                    px: { xs: 2.5, sm: 3.5 },
+                    py: { xs: 1, sm: 1.2 },
+                    minWidth: { xs: 100, sm: 120 },
+                    boxShadow: '0 4px 20px rgba(102, 126, 234, 0.3)',
+                    '&:hover': {
+                      background: 'linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%)',
+                      boxShadow: '0 6px 25px rgba(102, 126, 234, 0.4)',
+                      transform: 'translateY(-1px)'
+                    },
+                    '&:disabled': {
+                      background: 'rgba(102, 126, 234, 0.6)',
+                      color: 'white'
+                    }
                   }}
                 >
-                  {ticket.productId?.title}
-                </Typography>
-
-                {/* Ticket Number */}
-                <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: { xs: 2, md: 3 } }}>
-                  <ConfirmationNumber sx={{ 
-                    fontSize: { xs: 18, md: 20 }, 
-                    color: 'primary.main' 
-                  }} />
-                  <Typography 
-                    variant={isMobile ? 'body1' : 'h6'} 
-                    sx={{ 
-                      fontWeight: 600, 
-                      color: 'text.primary',
-                      fontSize: { xs: '0.9rem', sm: '1rem', md: '1.25rem' }
+                  {loading ? 'Generating...' : 'Download'}
+                </Button>
+              </motion.div>
+            )}
+          </TicketDownloader>
+        </Box>
+        
+        {/* Main Ticket Card */}
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9, y: 50 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          transition={{ 
+            duration: 0.8, 
+            ease: [0.25, 0.46, 0.45, 0.94],
+            delay: 0.2
+          }}
+        >
+          <Paper sx={{
+            background: theme.palette.mode === 'dark'
+              ? 'rgba(255, 255, 255, 0.05)'
+              : 'rgba(255, 255, 255, 0.95)',
+            backdropFilter: 'blur(20px)',
+            borderRadius: { xs: 3, sm: 4 },
+            overflow: 'hidden',
+            boxShadow: theme.palette.mode === 'dark' 
+              ? '0 25px 50px rgba(0, 0, 0, 0.5)' 
+              : '0 25px 50px rgba(0, 0, 0, 0.15)',
+            border: theme.palette.mode === 'dark' 
+              ? '1px solid rgba(255, 255, 255, 0.1)' 
+              : '1px solid rgba(255, 255, 255, 0.8)',
+            position: 'relative'
+          }}>
+            {/* Premium Header Strip */}
+            <Box sx={{
+              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%)',
+              height: { xs: 6, sm: 8 },
+              position: 'relative'
+            }} />
+          
+            <Box sx={{ p: { xs: 3, sm: 4, md: 5 } }}>
+              {/* Success Badge */}
+              <Box sx={{ display: 'flex', justifyContent: 'center', mb: { xs: 3, sm: 4 } }}>
+                <motion.div
+                  initial={{ scale: 0, rotate: -180 }}
+                  animate={{ scale: 1, rotate: 0 }}
+                  transition={{ 
+                    delay: 0.5, 
+                    type: 'spring', 
+                    stiffness: 200,
+                    damping: 10
+                  }}
+                >
+                  <Chip
+                    icon={<CheckCircle sx={{ fontSize: { xs: 18, sm: 20 } }} />}
+                    label="BOOKING CONFIRMED"
+                    sx={{
+                      background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+                      color: 'white',
+                      fontWeight: 700,
+                      fontSize: { xs: '0.8rem', sm: '0.9rem' },
+                      px: { xs: 2, sm: 3 },
+                      py: { xs: 1, sm: 1.2 },
+                      borderRadius: 3,
+                      boxShadow: '0 4px 20px rgba(16, 185, 129, 0.3)',
+                      '& .MuiChip-label': {
+                        px: { xs: 1, sm: 1.5 }
+                      }
                     }}
+                  />
+                </motion.div>
+              </Box>
+
+              <Grid container spacing={{ xs: 3, sm: 4 }}>
+                {/* Main Ticket Content */}
+                <Grid item xs={12} md={8}>
+                  {/* Experience Title */}
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.6, duration: 0.6 }}
                   >
-                    {ticket.ticketNumber}
-                  </Typography>
-                </Stack>
+                    <Typography 
+                      variant={isMobile ? 'h5' : 'h4'} 
+                      sx={{
+                        fontWeight: 800,
+                        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                        backgroundClip: 'text',
+                        WebkitBackgroundClip: 'text',
+                        WebkitTextFillColor: 'transparent',
+                        mb: { xs: 2, sm: 3 },
+                        lineHeight: 1.2,
+                        fontSize: { xs: '1.4rem', sm: '1.8rem', md: '2.2rem' }
+                      }}
+                    >
+                      {ticket.productId?.title}
+                    </Typography>
+                  </motion.div>
+
+                  {/* Ticket Number */}
+                  <motion.div
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.7, duration: 0.5 }}
+                  >
+                    <Box sx={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: 1.5,
+                      mb: { xs: 3, sm: 4 },
+                      px: 2,
+                      py: 1,
+                      borderRadius: 2,
+                      background: theme.palette.mode === 'dark'
+                        ? 'rgba(102, 126, 234, 0.1)'
+                        : 'rgba(102, 126, 234, 0.05)',
+                      border: '1px solid rgba(102, 126, 234, 0.2)'
+                    }}>
+                      <ConfirmationNumber sx={{ 
+                        fontSize: { xs: 20, sm: 22 }, 
+                        color: 'primary.main' 
+                      }} />
+                      <Typography 
+                        variant="h6"
+                        sx={{ 
+                          fontWeight: 700, 
+                          color: 'text.primary',
+                          fontSize: { xs: '1rem', sm: '1.1rem' },
+                          letterSpacing: 0.5
+                        }}
+                      >
+                        {ticket.ticketNumber}
+                      </Typography>
+                    </Box>
+                  </motion.div>
 
                 <Grid container spacing={{ xs: 2, sm: 3 }}>
                   {/* Date & Time */}
@@ -654,13 +747,14 @@ const Ticket = () => {
             </Grid>
           </Box>
 
-          {/* Bottom Premium Strip */}
-          <Box sx={{
-            background: `linear-gradient(90deg, ${theme.palette.primary.main} 0%, ${theme.palette.secondary.main} 100%)`,
-            height: { xs: 4, sm: 6, md: 8 }
-          }} />
-        </Paper>
-      </motion.div>
+            {/* Bottom Premium Strip */}
+            <Box sx={{
+              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%)',
+              height: { xs: 6, sm: 8 }
+            }} />
+          </Paper>
+        </motion.div>
+      </Container>
     </Box>
   );
 };
