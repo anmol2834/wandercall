@@ -53,7 +53,7 @@ app.use(cors(corsOptions));
 // Additional CORS headers for all responses
 app.use((req, res, next) => {
   const origin = req.headers.origin;
-  const allowedOrigins = ['https://wandercall.vercel.app', 'http://wandercall.vercel.app', 'http://localhost:5173'];
+  const allowedOrigins = ['https://wandercall.vercel.app', 'https://www.wandercall.com', 'http://localhost:5173', 'https://wandercall.com', ];
 
   if (!origin || allowedOrigins.includes(origin) || origin.includes('vercel.app')) {
     res.header('Access-Control-Allow-Origin', origin || 'https://wandercall.vercel.app');
