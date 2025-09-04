@@ -209,8 +209,114 @@ const sendPasswordResetOTP = async (email, otp, userName) => {
   }
 };
 
+// Send booking confirmation email to provider
+const sendBookingNotificationToProvider = async (providerEmail, bookingData) => {
+  try {
+    // Clean email address (remove mailto: prefix if present)
+    const cleanEmail = providerEmail.replace('mailto:', '');
+    
+    const { ticketNumber, title, userName, userEmail, userPhone, selectedDate, participants, totalPrice, location } = bookingData;
+    
+    const mailOptions = {
+      from: '"WanderCall" <teamwandercall@gmail.com>',
+      to: cleanEmail,
+      subject: `🎉 New Booking Received - ${title}`,
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <h2 style="color: #00026aff;">🎉 New Booking Received!</h2>
+          
+          <div style="background: #f8fafc; padding: 20px; border-radius: 8px; margin: 20px 0;">
+            <h3 style="color: #1f2937; margin-top: 0;">Booking Details</h3>
+            <p><strong>Experience:</strong> ${title}</p>
+            <p><strong>Ticket Number:</strong> #${ticketNumber}</p>
+            <p><strong>Date:</strong> ${new Date(selectedDate).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
+            <p><strong>Participants:</strong> ${participants} ${participants === 1 ? 'Person' : 'People'}</p>
+            <p><strong>Total Amount:</strong> ₹${totalPrice}</p>
+            <p><strong>Location:</strong> ${location}</p>
+          </div>
+          
+          <div style="background: #e0f2fe; padding: 20px; border-radius: 8px; margin: 20px 0;">
+            <h3 style="color: #1f2937; margin-top: 0;">Customer Details</h3>
+            <p><strong>Name:</strong> ${userName}</p>
+            <p><strong>Email:</strong> ${userEmail}</p>
+            <p><strong>Phone:</strong> ${userPhone}</p>
+          </div>
+          
+          <div style="background: #fff3cd; padding: 15px; border-radius: 8px; margin: 20px 0;">
+            <p style="margin: 0; color: #856404;"><strong>Action Required:</strong> Please prepare for the upcoming experience and contact the customer if needed.</p>
+          </div>
+          
+          <hr style="margin: 30px 0; border: none; border-top: 1px solid #e5e7eb;">
+          <p style="color: #6b7280; font-size: 14px; text-align: center;">
+            This is an automated notification from WanderCall<br>
+            <a href="mailto:teamwandercall@gmail.com" style="color: #00026aff;">teamwandercall@gmail.com</a>
+          </p>
+        </div>
+      `
+    };
+
+    await transporter.sendMail(mailOptions);
+  } catch (error) {
+    console.error('Error sending booking notification to provider:', error);
+  }
+};
+
+// Send cancellation notification to provider
+const sendCancellationNotificationToProvider = async (providerEmail, cancellationData) => {
+  try {
+    // Clean email address (remove mailto: prefix if present)
+    const cleanEmail = providerEmail.replace('mailto:', '');
+    
+    const { ticketNumber, title, userName, userEmail, userPhone, selectedDate, participants, totalPrice, location } = cancellationData;
+    
+    const mailOptions = {
+      from: '"WanderCall" <teamwandercall@gmail.com>',
+      to: cleanEmail,
+      subject: `❌ Booking Cancelled - ${title}`,
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <h2 style="color: #dc2626;">❌ Booking Cancelled</h2>
+          
+          <div style="background: #fef2f2; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #dc2626;">
+            <h3 style="color: #1f2937; margin-top: 0;">Cancelled Booking Details</h3>
+            <p><strong>Experience:</strong> ${title}</p>
+            <p><strong>Ticket Number:</strong> #${ticketNumber}</p>
+            <p><strong>Date:</strong> ${new Date(selectedDate).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
+            <p><strong>Participants:</strong> ${participants} ${participants === 1 ? 'Person' : 'People'}</p>
+            <p><strong>Amount Refunded:</strong> ₹${totalPrice}</p>
+            <p><strong>Location:</strong> ${location}</p>
+          </div>
+          
+          <div style="background: #f3f4f6; padding: 20px; border-radius: 8px; margin: 20px 0;">
+            <h3 style="color: #1f2937; margin-top: 0;">Customer Details</h3>
+            <p><strong>Name:</strong> ${userName}</p>
+            <p><strong>Email:</strong> ${userEmail}</p>
+            <p><strong>Phone:</strong> ${userPhone}</p>
+          </div>
+          
+          <div style="background: #fef3c7; padding: 15px; border-radius: 8px; margin: 20px 0;">
+            <p style="margin: 0; color: #92400e;"><strong>Note:</strong> This booking has been cancelled within the 48-hour window. Full refund has been processed.</p>
+          </div>
+          
+          <hr style="margin: 30px 0; border: none; border-top: 1px solid #e5e7eb;">
+          <p style="color: #6b7280; font-size: 14px; text-align: center;">
+            This is an automated notification from WanderCall<br>
+            <a href="mailto:teamwandercall@gmail.com" style="color: #00026aff;">teamwandercall@gmail.com</a>
+          </p>
+        </div>
+      `
+    };
+
+    await transporter.sendMail(mailOptions);
+  } catch (error) {
+    console.error('Error sending cancellation notification to provider:', error);
+  }
+};
+
 module.exports = {
   sendOTPEmail,
   sendWelcomeEmail,
-  sendPasswordResetOTP
+  sendPasswordResetOTP,
+  sendBookingNotificationToProvider,
+  sendCancellationNotificationToProvider
 };

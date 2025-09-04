@@ -9,13 +9,13 @@ const cleanupExpiredRewards = async () => {
     const result = await Waitlist.updateMany(
       {
         isRewardsClaimed: true,
-        'exclusiveRewards.rewardType': 'discount',
+        'exclusiveRewards.rewardType': 'DISCOUNT',
         'exclusiveRewards.claimedAt': { $lt: thirtyDaysAgo }
       },
       {
         $pull: {
           exclusiveRewards: {
-            rewardType: 'discount',
+            rewardType: 'DISCOUNT',
             claimedAt: { $lt: thirtyDaysAgo }
           }
         },

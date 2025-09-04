@@ -5,7 +5,7 @@ import { store } from './redux/store'
 import App from './App.jsx'
 import './index.css'
 
-// Block Sentry and console completely
+// Block Sentry only
 if (typeof window !== 'undefined') {
   // Override Sentry object
   window.Sentry = {
@@ -13,12 +13,6 @@ if (typeof window !== 'undefined') {
     captureException: () => null,
     captureMessage: () => null
   };
-  
-  // Disable console
-  const noop = () => {};
-  Object.keys(console).forEach(key => {
-    console[key] = noop;
-  });
 }
 
 createRoot(document.getElementById('root')).render(

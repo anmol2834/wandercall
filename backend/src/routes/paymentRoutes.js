@@ -15,7 +15,17 @@ router.get('/test', (req, res) => {
 // Create payment session
 router.post('/create-payment-session', verifyToken, async (req, res) => {
   try {
+    // Check required environment variables
+    if (!process.env.CF_CLIENT_ID || !process.env.CF_CLIENT_SECRET) {
+      console.error('Missing Cashfree credentials');
+      return res.status(500).json({ 
+        message: 'Payment service configuration error',
+        error: 'Missing Cashfree credentials'
+      });
+    }
+    
     const { bookingData } = req.body;
+    console.log('Received booking data:', bookingData);
     
     if (!bookingData || !bookingData.totalPrice) {
       return res.status(400).json({ message: 'Invalid booking data' });
@@ -81,8 +91,27 @@ router.post('/create-payment-session', verifyToken, async (req, res) => {
       order_id: orderId,
     });
   } catch (err) {
-    console.error('Payment session creation failed:', err.message);
-    res.status(500).json({ message: 'Server error', error: err.message });
+    console.error('Payment session creation failed:', err);
+    console.error('Error details:', {
+      message: err.message,
+      response: err.response?.data,
+      status: err.response?.status
+    });
+    
+    // Check if it's a Cashfree API error
+    if (err.response?.data) {
+      return res.status(500).json({ 
+        message: 'Cashfree API error', 
+        error: err.response.data,
+        details: err.message 
+      });
+    }
+    
+    res.status(500).json({ 
+      message: 'Server error', 
+      error: err.message,
+      stack: process.env.NODE_ENV === 'development' ? err.stack : undefined
+    });
   }
 });
 

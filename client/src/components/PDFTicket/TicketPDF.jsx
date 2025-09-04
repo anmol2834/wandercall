@@ -1,6 +1,6 @@
 import React from 'react';
 import { Document, Page, Text, View, StyleSheet, Image } from '@react-pdf/renderer';
-import wandercallLogo from '../../assets/wandercall-logo2.svg';
+// Remove SVG import as it causes warnings in react-pdf
 
 const styles = StyleSheet.create({
   page: {
@@ -24,11 +24,7 @@ const styles = StyleSheet.create({
     alignItems: 'center'
   },
   
-  logoImage: {
-    width: 140,
-    height: 35,
-    marginRight: 15
-  },
+  // Removed logoImage style as we're using text instead
   
   logoText: {
     fontSize: 28,
@@ -263,19 +259,6 @@ const TicketPDF = ({ ticketData }) => {
     paymentId
   } = ticketData;
 
-  // Generate QR code placeholder
-  const qrCodeData = `data:image/svg+xml;base64,${btoa(`
-    <svg width="120" height="120" xmlns="http://www.w3.org/2000/svg">
-      <rect width="120" height="120" fill="#f3f4f6" stroke="#e5e7eb" stroke-width="2"/>
-      <text x="60" y="55" text-anchor="middle" font-family="Arial" font-size="10" fill="#6b7280">
-        QR Code
-      </text>
-      <text x="60" y="75" text-anchor="middle" font-family="Arial" font-size="8" fill="#9ca3af">
-        ${ticketNumber}
-      </text>
-    </svg>
-  `)}`;
-
   return (
     <Document>
       <Page size="A4" style={styles.page}>
@@ -387,7 +370,10 @@ const TicketPDF = ({ ticketData }) => {
           </View>
           
           <View style={styles.qrSection}>
-            <Image style={styles.qrCode} src={qrCodeData} />
+            <View style={[styles.qrCode, { backgroundColor: '#f3f4f6', border: '2 solid #e5e7eb', alignItems: 'center', justifyContent: 'center' }]}>
+              <Text style={{ fontSize: 10, color: '#6b7280', textAlign: 'center' }}>QR Code</Text>
+              <Text style={{ fontSize: 8, color: '#9ca3af', textAlign: 'center', marginTop: 5 }}>{ticketNumber}</Text>
+            </View>
             <Text style={styles.qrText}>
               Scan this QR code at the venue for quick entry
             </Text>

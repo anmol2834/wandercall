@@ -16,6 +16,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { fetchProductById } from '../../redux/slices/productsSlice';
 import { createPaymentSession, setBookingData } from '../../redux/slices/checkoutSlice';
 import { useAuth } from '../../contexts/AuthContext';
+import { useRewards } from '../../contexts/RewardsContext';
 import usePageTitle from '../../hooks/usePageTitle';
 import wandercallLogo2 from '../../assets/wandercall-logo2.svg';
 import BookingWireframe from '../../components/BookingWireframe/BookingWireframe';
@@ -28,6 +29,7 @@ const Booking = () => {
   const { selectedProduct: product, productLoading, error } = useSelector(state => state.products);
   const { loading: checkoutLoading, paymentSession, error: checkoutError } = useSelector(state => state.checkout);
   const { user, updateUser } = useAuth();
+  const { hasActiveDiscount, waitlistRewards } = useRewards();
   const [isUpdatingUser, setIsUpdatingUser] = useState(false);
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
@@ -39,10 +41,12 @@ const Booking = () => {
 
   const [activeStep, setActiveStep] = useState(0);
   const [selectedDate, setSelectedDate] = useState(null);
-  const [participants, setParticipants] = useState(2);
+  const [participants, setParticipants] = useState(1);
   const [couponCode, setCouponCode] = useState('');
   const [couponApplied, setCouponApplied] = useState(false);
+  const [waitlistReward, setWaitlistReward] = useState(false);
   const [couponValid, setCouponValid] = useState(null);
+  const [couponDiscount, setCouponDiscount] = useState(0);
   const [guestInfo, setGuestInfo] = useState({
     name: '',
     email: '',
@@ -56,13 +60,18 @@ const Booking = () => {
     '2025-01-01': false, '2025-01-02': true, '2025-01-03': true,
     '2025-01-04': true, '2025-01-05': false, '2025-01-06': true
   });
-  
 
   useEffect(() => {
     if (id && !product) {
       dispatch(fetchProductById(id));
     }
   }, [dispatch, id, product]);
+
+  useEffect(() => {
+    if (hasActiveDiscount) {
+      setWaitlistReward(true);
+    }
+  }, [hasActiveDiscount]);
 
   useEffect(() => {
     if (user && !guestInfo.name) {
@@ -79,11 +88,9 @@ const Booking = () => {
       const script = document.createElement('script');
       script.src = 'https://sdk.cashfree.com/js/v3/cashfree.js';
       script.onload = () => {
-        console.log('Cashfree SDK loaded successfully');
         resolve(true);
       };
       script.onerror = () => {
-        console.error('Failed to load Cashfree SDK');
         resolve(false);
       };
       document.body.appendChild(script);
@@ -110,7 +117,7 @@ const Booking = () => {
         setActiveStep(1);
       }
     } catch (error) {
-      console.error('Error fetching user data:', error);
+      // Handle error silently
     }
   };
 
@@ -133,7 +140,7 @@ const Booking = () => {
         setGuestInfo(prev => ({ ...prev, ...userData }));
       }
     } catch (error) {
-      console.error('Error updating user data:', error);
+      // Handle error silently
     } finally {
       setIsUpdatingUser(false);
     }
@@ -177,17 +184,24 @@ const Booking = () => {
     { label: 'Payment', icon: <Payment /> }
   ];
   const basePrice = experience.price * participants;
-  const discount = couponApplied ? basePrice * 0.1 : 0;
+  const waitlistDiscountAmount = waitlistReward ? basePrice * 0.1 : 0;
+  const couponDiscountAmount = couponApplied ? basePrice * (couponDiscount / 100) : 0;
+  const discount = waitlistDiscountAmount + couponDiscountAmount;
+  
   const gst = (basePrice - discount) * 0.18;
   const totalPrice = basePrice - discount + gst;
 
   const handleCouponApply = () => {
-    if (couponCode.toLowerCase() === 'save10') {
+    const code = couponCode.toLowerCase();
+    
+    if (code === 'save10') {
       setCouponValid(true);
       setCouponApplied(true);
+      setCouponDiscount(10);
     } else {
       setCouponValid(false);
       setCouponApplied(false);
+      setCouponDiscount(0);
     }
   };
 
@@ -247,7 +261,6 @@ const Booking = () => {
 
   const handleBooking = async () => {
     if (!validateStep(activeStep) || isProcessing || paymentInitiated) {
-      console.log('Booking blocked: Validation failed or already processing.');
       return;
     }
 
@@ -262,7 +275,6 @@ const Booking = () => {
       return;
     }
 
-    console.log('--- Initiating New Booking ---');
     setIsProcessing(true);
     setPaymentInitiated(true);
 
@@ -279,32 +291,29 @@ const Booking = () => {
           ...guestInfo,
           phone: guestInfo.phone || user.phone,
         },
-        totalPrice,
-        gst,
-        discount,
+        totalPrice: Math.round(totalPrice * 100) / 100, // Ensure proper decimal formatting
+        gst: Math.round(gst * 100) / 100,
+        discount: Math.round(discount * 100) / 100,
       };
-      console.log('[DEBUG] Booking data prepared for backend:', bookingPayload);
+      
+
 
       // Step 2: Load Cashfree SDK
-      console.log('[DEBUG] Loading Cashfree SDK script...');
       const scriptLoaded = await loadCashfreeScript();
       if (!scriptLoaded) {
         throw new Error('SDK_LOAD_FAILED');
       }
-      console.log('[SUCCESS] Cashfree SDK loaded.');
 
       // Step 3: Create Payment Session via Backend
-      console.log('[DEBUG] Calling backend to create payment session...');
       const sessionResult = await dispatch(createPaymentSession({ bookingData: bookingPayload }));
 
       if (createPaymentSession.rejected.match(sessionResult)) {
         // This will now catch errors from your Redux thunk and log them
-        console.error('[ERROR] Backend failed to create session. Payload:', sessionResult.payload);
+
         throw new Error(`Backend Error: ${sessionResult.payload || 'Unknown error'}`);
       }
       
       const sessionData = sessionResult.payload;
-      console.log('[SUCCESS] Backend returned session data:', sessionData);
 
       if (!sessionData || !sessionData.payment_session_id) {
         throw new Error('INVALID_SESSION_ID_FROM_BACKEND');
@@ -312,27 +321,18 @@ const Booking = () => {
 
       // Step 4: Initialize Cashfree SDK on Frontend
       const cfMode = import.meta.env.PROD ? 'production' : 'sandbox';
-      console.log(`[DEBUG] Initializing Cashfree SDK in "${cfMode}" mode.`);
       const cashfree = window.Cashfree({ mode: cfMode });
       
       const checkoutOptions = {
         paymentSessionId: sessionData.payment_session_id,
         redirectTarget: '_self',
       };
-      console.log('[DEBUG] Calling cashfree.checkout with options:', checkoutOptions);
       
       // Step 5: Redirect to Cashfree
       cashfree.checkout(checkoutOptions);
-      console.log('[SUCCESS] Redirecting to Cashfree...');
 
     } catch (error) {
-      console.error('--- PAYMENT INITIATION FAILED ---');
-      console.error('Error occurred at step:', error.message);
-      console.error('Full error object:', error);
-      
-      // Optional: Add a user-facing error message here
-      // setPaymentErrorState('Something went wrong. Please try again.');
-      
+      console.error('Payment initiation failed:', error.message);
       setIsProcessing(false);
       setPaymentInitiated(false);
     }
@@ -779,7 +779,7 @@ const Booking = () => {
                           >
                             <Chip
                               icon={<CheckCircle />}
-                              label="Coupon applied! 10% discount"
+                              label={`Coupon applied! ${couponDiscount}% discount`}
                               color="success"
                               sx={{ mt: 1 }}
                             />
@@ -1218,13 +1218,26 @@ const Booking = () => {
                       <Typography variant="body2">₹{basePrice}</Typography>
                     </Box>
 
+                    {/* Show waitlist reward */}
+                    {(waitlistReward || hasActiveDiscount) && (
+                      <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
+                        <Typography variant="body2" color="success.main">
+                          Waitlist Reward (10%)
+                        </Typography>
+                        <Typography variant="body2" color="success.main">
+                          -₹{(basePrice * 0.1).toFixed(2)}
+                        </Typography>
+                      </Box>
+                    )}
+                    
+                    {/* Show coupon discount */}
                     {couponApplied && (
                       <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
                         <Typography variant="body2" color="success.main">
-                          Discount (10%)
+                          Coupon Discount ({couponDiscount}%)
                         </Typography>
                         <Typography variant="body2" color="success.main">
-                          -₹{discount.toFixed(2)}
+                          -₹{(basePrice * (couponDiscount / 100)).toFixed(2)}
                         </Typography>
                       </Box>
                     )}

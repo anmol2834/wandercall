@@ -28,7 +28,7 @@ const Home = () => {
   const seoData = getPageSEO('home');
 
   useEffect(() => {
-    dispatch(fetchProducts());
+    dispatch(fetchProducts()); 
   }, [dispatch]);
 
   // Use products data instead of experiences

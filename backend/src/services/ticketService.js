@@ -1,6 +1,8 @@
 const crypto = require('crypto');
 const Ticket = require('../models/Ticket');
 const BookingIntent = require('../models/BookingIntent');
+const Product = require('../models/Product');
+const { sendBookingNotificationToProvider } = require('./emailService');
 
 // Generate cryptographically secure unique order ID
 const generateOrderId = (userId) => {
@@ -51,6 +53,28 @@ const createTicketFromPayment = async (orderId, paymentId = null) => {
 
     // Mark as PAID
     await BookingIntent.findByIdAndUpdate(bookingIntent._id, { status: 'PAID' });
+
+    // Send email notification to provider
+    try {
+      const product = await Product.findById(bookingIntent.productId._id);
+      if (product && product.email) {
+        const emailData = {
+          ticketNumber,
+          title: product.title,
+          userName: bookingIntent.userId.name,
+          userEmail: bookingIntent.userId.email,
+          userPhone: bookingIntent.userId.phone,
+          selectedDate: bookingIntent.selectedDate,
+          participants: bookingIntent.participants,
+          totalPrice: bookingIntent.totalPrice,
+          location: `${product.location.city}, ${product.location.state}`
+        };
+        
+        await sendBookingNotificationToProvider(product.email, emailData);
+      }
+    } catch (emailError) {
+      console.error('Failed to send provider notification:', emailError);
+    }
 
     return { success: true, ticket, created: true };
 

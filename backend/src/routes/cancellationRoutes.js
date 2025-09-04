@@ -2,8 +2,11 @@ const express = require('express');
 const router = express.Router();
 const Ticket = require('../models/Ticket');
 const BookingIntent = require('../models/BookingIntent');
+const Product = require('../models/Product');
+const User = require('../models/User');
 const verifyToken = require('../middleware/auth');
 const axios = require('axios');
+const { sendCancellationNotificationToProvider } = require('../services/emailService');
 
 // Cancel booking within 48 hours
 router.post('/cancel/:ticketId', verifyToken, async (req, res) => {
@@ -38,9 +41,12 @@ router.post('/cancel/:ticketId', verifyToken, async (req, res) => {
           ? 'https://api.cashfree.com/pg/orders'
           : 'https://sandbox.cashfree.com/pg/orders';
 
+        // Generate short refund ID (max 40 chars)
+        const shortRefundId = `rf_${ticket.orderId.slice(-10)}_${Date.now().toString().slice(-8)}`;
+        
         const refundRequest = {
           refund_amount: ticket.totalPrice,
-          refund_id: `refund_${ticket.orderId}_${Date.now()}`,
+          refund_id: shortRefundId,
           refund_note: 'Booking cancelled by user within 48 hours'
         };
 
@@ -65,6 +71,32 @@ router.post('/cancel/:ticketId', verifyToken, async (req, res) => {
           message: 'Failed to process refund. Please contact support.'
         });
       }
+    }
+
+    // Send cancellation email to provider before deletion
+    try {
+      const [product, user] = await Promise.all([
+        Product.findById(ticket.productId),
+        User.findById(ticket.userId)
+      ]);
+      
+      if (product && product.email && user) {
+        const emailData = {
+          ticketNumber: ticket.ticketNumber,
+          title: product.title,
+          userName: user.name,
+          userEmail: user.email,
+          userPhone: user.phone,
+          selectedDate: ticket.selectedDate,
+          participants: ticket.participants,
+          totalPrice: ticket.totalPrice,
+          location: `${product.location.city}, ${product.location.state}`
+        };
+        
+        await sendCancellationNotificationToProvider(product.email, emailData);
+      }
+    } catch (emailError) {
+      console.error('Failed to send cancellation notification:', emailError);
     }
 
     // Delete from both collections

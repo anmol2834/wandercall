@@ -220,8 +220,6 @@
     </script>
     <script>
       window.Sentry = { init: () => {}, captureException: () => {}, captureMessage: () => {} };
-      const noop = () => {};
-      console.log = console.warn = console.error = console.info = console.debug = noop;
       window.addEventListener('error', e => { e.preventDefault(); return false; }, true);
       window.addEventListener('unhandledrejection', e => { e.preventDefault(); return false; }, true);
     </script>
