@@ -190,7 +190,7 @@ const Slideshow = () => {
             height: { xs: 32, sm: 40 },
             width: 'auto',
             cursor: 'pointer',
-            filter: theme.palette.mode === 'dark' ? 'invert(1)' : 'invert(0)',
+            filter:'invert(1)',
             transform: 'scale(3)',
             transformOrigin: 'center',
             ml: { xs: 3, sm: 3 }
@@ -260,34 +260,19 @@ const Slideshow = () => {
       </Toolbar>
       
       <Box className="hero-content">
-        <motion.div
-          key={`title-${currentSlide}`}
-          initial={{ y: 50, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ duration: 0.8, delay: 0.3 }}
-        >
+        <div>
           <Typography variant="h1" className="hero-title">
             {slides[currentSlide].title}
           </Typography>
-        </motion.div>
+        </div>
         
-        <motion.div
-          key={`subtitle-${currentSlide}`}
-          initial={{ y: 30, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ duration: 0.8, delay: 0.6 }}
-        >
+        <div>
           <Typography variant="h6" className="hero-subtitle">
             {slides[currentSlide].subtitle}
           </Typography>
-        </motion.div>
+        </div>
         
-        <motion.div
-          key={`button-${currentSlide}`}
-          initial={{ y: 20, opacity: 0, scale: 0.9 }}
-          animate={{ y: 0, opacity: 1, scale: 1 }}
-          transition={{ duration: 0.8, delay: 0.9 }}
-        >
+        <div>
           <Box sx={{ 
             display: 'flex', 
             gap: { xs: 2, sm: 3 }, 
@@ -330,7 +315,7 @@ const Slideshow = () => {
               Join Waitlist
             </Button>
           </Box>
-        </motion.div>
+        </div>
       </Box>
       
       <IconButton 
@@ -353,16 +338,14 @@ const Slideshow = () => {
       
       <Box className="progress-indicators">
         {slides.map((_, index) => (
-          <motion.div
+          <div
             key={index}
             className={`progress-bar ${index === currentSlide ? 'active' : ''}`}
             onClick={() => setCurrentSlide(index)}
-            initial={false}
-            animate={{
+            style={{
               width: index === currentSlide ? '40px' : '12px',
               backgroundColor: index === currentSlide ? '#6366f1' : 'rgba(255, 255, 255, 0.5)'
             }}
-            transition={{ duration: 0.3 }}
           />
         ))}
       </Box>

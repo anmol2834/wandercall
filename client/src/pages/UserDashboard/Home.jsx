@@ -15,7 +15,7 @@ import CardSkeleton from '../../components/CardSkeleton/CardSkeleton';
 import HowItWorks from '../../components/HowItWorks/HowItWorks';
 import Navbar from '../../components/Navbar/Navbar';
 import Footer from '../../components/Footer/Footer';
-import BackgroundAnimation from '../../components/BackgroundAnimation/BackgroundAnimation';
+
 import './Home.css';
 
 const Home = () => {
@@ -42,8 +42,34 @@ const Home = () => {
     <>
       <SEO {...seoData} />
       <Box className="home-container">
-      {/* Animated Background */}
-      <BackgroundAnimation />
+      {/* Modern Background Elements */}
+      <div className="homepage-bg-elements">
+        <div className="homepage-bg-camera" />
+        <div className="homepage-bg-mountain" />
+        <div className="homepage-bg-compass" />
+        <div className="homepage-bg-plane" />
+        <div className="homepage-bg-star" />
+        <div className="homepage-bg-heart" />
+        <div className="homepage-bg-location" />
+        <div className="homepage-bg-ticket" />
+        <div className="homepage-bg-backpack" />
+        <div className="homepage-bg-tent" />
+        <div className="homepage-bg-binoculars" />
+        <div className="homepage-bg-map" />
+        <div className="homepage-bg-trophy" />
+        <div className="homepage-bg-calendar" />
+        <div className="homepage-bg-sun" />
+        <div className="homepage-bg-moon" />
+        <div className="homepage-bg-wave" />
+        <div className="homepage-bg-tree" />
+        <div className="homepage-bg-fire" />
+        <div className="homepage-bg-balloon" />
+        <div className="homepage-bg-gradient-1" />
+        <div className="homepage-bg-gradient-2" />
+        <div className="homepage-bg-gradient-3" />
+        <div className="homepage-bg-dots" />
+        <div className="homepage-bg-mesh" />
+      </div>
       
       {/* Hero Slideshow */}
       <Slideshow />
