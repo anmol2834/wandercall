@@ -66,8 +66,7 @@ const createTicketFromPayment = async (orderId, paymentId = null) => {
           userPhone: bookingIntent.userId.phone,
           selectedDate: bookingIntent.selectedDate,
           participants: bookingIntent.participants,
-          totalPrice: bookingIntent.totalPrice,
-          location: `${product.location.city}, ${product.location.state}`
+          totalPrice: bookingIntent.totalPrice
         };
         
         await sendBookingNotificationToProvider(product.email, emailData);

@@ -89,8 +89,7 @@ router.post('/cancel/:ticketId', verifyToken, async (req, res) => {
           userPhone: user.phone,
           selectedDate: ticket.selectedDate,
           participants: ticket.participants,
-          totalPrice: ticket.totalPrice,
-          location: `${product.location.city}, ${product.location.state}`
+          totalPrice: ticket.totalPrice
         };
         
         await sendCancellationNotificationToProvider(product.email, emailData);

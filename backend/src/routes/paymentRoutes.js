@@ -17,7 +17,6 @@ router.post('/create-payment-session', verifyToken, async (req, res) => {
   try {
     // Check required environment variables
     if (!process.env.CF_CLIENT_ID || !process.env.CF_CLIENT_SECRET) {
-      console.error('Missing Cashfree credentials');
       return res.status(500).json({ 
         message: 'Payment service configuration error',
         error: 'Missing Cashfree credentials'
@@ -25,7 +24,6 @@ router.post('/create-payment-session', verifyToken, async (req, res) => {
     }
     
     const { bookingData } = req.body;
-    console.log('Received booking data:', bookingData);
     
     if (!bookingData || !bookingData.totalPrice) {
       return res.status(400).json({ message: 'Invalid booking data' });
@@ -91,12 +89,6 @@ router.post('/create-payment-session', verifyToken, async (req, res) => {
       order_id: orderId,
     });
   } catch (err) {
-    console.error('Payment session creation failed:', err);
-    console.error('Error details:', {
-      message: err.message,
-      response: err.response?.data,
-      status: err.response?.status
-    });
     
     // Check if it's a Cashfree API error
     if (err.response?.data) {
@@ -163,7 +155,6 @@ router.post('/verify-payment', verifyToken, async (req, res) => {
       orderData
     });
   } catch (err) {
-    console.error('Payment verification failed:', err.message);
     res.status(500).json({ 
       message: 'Server error during payment verification', 
       error: err.message 

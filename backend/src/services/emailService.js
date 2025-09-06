@@ -3,8 +3,8 @@ const nodemailer = require('nodemailer');
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
-    user: 'teamwandercall@gmail.com',
-    pass: 'dhbb wdgi qsle akkg'
+    user: process.env.EMAIL_USER?.replace('mailto:', '') || 'teamwandercall@gmail.com',
+    pass: process.env.APP_PASS || 'dhbb wdgi qsle akkg'
   }
 });
 
@@ -123,7 +123,6 @@ const sendOTPEmail = async (email, otp, userName) => {
 
     return await transporter.sendMail(mailOptions);
   } catch (error) {
-
     return { success: false, error: error.message };
   }
 };
@@ -204,7 +203,6 @@ const sendPasswordResetOTP = async (email, otp, userName) => {
 
     return await transporter.sendMail(mailOptions);
   } catch (error) {
-
     return { success: false, error: error.message };
   }
 };
@@ -215,7 +213,7 @@ const sendBookingNotificationToProvider = async (providerEmail, bookingData) => 
     // Clean email address (remove mailto: prefix if present)
     const cleanEmail = providerEmail.replace('mailto:', '');
     
-    const { ticketNumber, title, userName, userEmail, userPhone, selectedDate, participants, totalPrice, location } = bookingData;
+    const { ticketNumber, title, userName, userEmail, userPhone, selectedDate, participants, totalPrice } = bookingData;
     
     const mailOptions = {
       from: '"WanderCall" <teamwandercall@gmail.com>',
@@ -232,7 +230,6 @@ const sendBookingNotificationToProvider = async (providerEmail, bookingData) => 
             <p><strong>Date:</strong> ${new Date(selectedDate).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
             <p><strong>Participants:</strong> ${participants} ${participants === 1 ? 'Person' : 'People'}</p>
             <p><strong>Total Amount:</strong> ₹${totalPrice}</p>
-            <p><strong>Location:</strong> ${location}</p>
           </div>
           
           <div style="background: #e0f2fe; padding: 20px; border-radius: 8px; margin: 20px 0;">
@@ -267,7 +264,7 @@ const sendCancellationNotificationToProvider = async (providerEmail, cancellatio
     // Clean email address (remove mailto: prefix if present)
     const cleanEmail = providerEmail.replace('mailto:', '');
     
-    const { ticketNumber, title, userName, userEmail, userPhone, selectedDate, participants, totalPrice, location } = cancellationData;
+    const { ticketNumber, title, userName, userEmail, userPhone, selectedDate, participants, totalPrice } = cancellationData;
     
     const mailOptions = {
       from: '"WanderCall" <teamwandercall@gmail.com>',
@@ -284,7 +281,6 @@ const sendCancellationNotificationToProvider = async (providerEmail, cancellatio
             <p><strong>Date:</strong> ${new Date(selectedDate).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
             <p><strong>Participants:</strong> ${participants} ${participants === 1 ? 'Person' : 'People'}</p>
             <p><strong>Amount Refunded:</strong> ₹${totalPrice}</p>
-            <p><strong>Location:</strong> ${location}</p>
           </div>
           
           <div style="background: #f3f4f6; padding: 20px; border-radius: 8px; margin: 20px 0;">

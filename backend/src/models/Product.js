@@ -71,6 +71,10 @@ const productSchema = new mongoose.Schema({
   email: {
     type: String,
     required: false
+  },
+  phone: {
+    type: String,
+    required: false
   }
 }, {
   timestamps: true
