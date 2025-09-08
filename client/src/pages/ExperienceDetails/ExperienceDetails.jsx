@@ -135,7 +135,7 @@ const ExperienceDetails = () => {
     })(),
     groupSize: "2-15 people", // Static for now
     language: "English, Hindi", // Static for now
-    images: [product.img1, product.img2, product.img3, product.img4].filter(Boolean),
+    images: [product.img1, product.img2, product.img3, product.img4, product.img5, product.img6].filter(Boolean),
     badges: ['Best Seller', 'Trending'], // Static for now
     description: product.description,
     fullDescription: product.description,
@@ -599,7 +599,7 @@ const ExperienceDetails = () => {
                           </Typography>
                         </Box>
                         <Typography variant="body2" color="text.secondary">
-                          per person • Save ${experience.originalPrice - experience.price}!
+                          per person • Save ₹{experience.originalPrice - experience.price}!
                         </Typography>
                       </Box>
 

@@ -147,6 +147,7 @@ const Ticket = () => {
       location: `${ticket.productId?.location?.city || 'City'}, ${ticket.productId?.location?.state || 'State'}`,
       fullAddress: ticket.productId?.location?.address || `${ticket.productId?.location?.city || 'City'}, ${ticket.productId?.location?.state || 'State'}`,
       pincode: ticket.productId?.location?.pincode || '000000',
+      providerPhone: ticket.productId?.phone || 'N/A',
       totalPrice: ticket.totalPrice,
       basePrice: basePrice > 0 ? basePrice : ticket.totalPrice,
       gst: ticket.gst || 0,
@@ -537,7 +538,7 @@ const Ticket = () => {
                             lineHeight: 1.2
                           }}
                         >
-                          {ticket.productId?.location?.city}
+                          {ticket.productId?.location?.address}
                         </Typography>
                         <Typography 
                           variant="caption" 
@@ -546,7 +547,18 @@ const Ticket = () => {
                             fontSize: { xs: '0.7rem', sm: '0.75rem' }
                           }}
                         >
-                          {ticket.productId?.location?.state}
+                          {ticket.productId?.location?.city}, {ticket.productId?.location?.state} - {ticket.productId?.location?.pincode}
+                        </Typography>
+                        <Typography 
+                          variant="caption" 
+                          sx={{ 
+                            color: 'text.secondary',
+                            fontSize: { xs: '0.7rem', sm: '0.75rem' },
+                            display: 'block',
+                            mt: 0.5
+                          }}
+                        >
+                          📞 {ticket.productId?.phone || 'Contact info not available'}
                         </Typography>
                       </Box>
                     </Stack>

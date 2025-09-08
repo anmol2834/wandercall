@@ -8,7 +8,7 @@ const verifyToken = require('../middleware/auth');
 router.get('/my-bookings', verifyToken, async (req, res) => {
   try {
     const tickets = await Ticket.find({ userId: req.user.id })
-      .populate('productId', 'title img1 img2 img3 img4 location')
+      .populate('productId', 'title img1 img2 img3 img4 location phone email')
       .populate('userId', 'name email phone')
       .sort({ createdAt: -1 });
     
@@ -17,7 +17,7 @@ router.get('/my-bookings', verifyToken, async (req, res) => {
       tickets.map(async (ticket) => {
         if (ticket.status === 'used') {
           const bookingIntent = await BookingIntent.findOne({ orderId: ticket.orderId })
-            .populate('productId', 'title img1 img2 img3 img4 location');
+            .populate('productId', 'title img1 img2 img3 img4 location phone email');
           return {
             ...ticket.toObject(),
             bookingIntent: bookingIntent || null
@@ -40,7 +40,7 @@ router.get('/:ticketId', verifyToken, async (req, res) => {
       _id: req.params.ticketId, 
       userId: req.user.id 
     })
-    .populate('productId', 'title img1 location')
+    .populate('productId', 'title img1 location phone email')
     .populate('userId', 'name email phone');
     
     if (!ticket) {
@@ -60,7 +60,7 @@ router.get('/by-order/:orderId', verifyToken, async (req, res) => {
       orderId: req.params.orderId, 
       userId: req.user.id 
     })
-    .populate('productId', 'title img1 location')
+    .populate('productId', 'title img1 location phone email')
     .populate('userId', 'name email phone');
     
     if (ticket) {
@@ -117,7 +117,7 @@ router.patch('/:ticketId/status', verifyToken, async (req, res) => {
       updateData,
       { new: true }
     )
-    .populate('productId', 'title img1 location')
+    .populate('productId', 'title img1 location phone email')
     .populate('userId', 'name email phone');
     
     if (!ticket) {

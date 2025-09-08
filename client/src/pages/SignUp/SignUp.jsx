@@ -236,6 +236,7 @@ const SignUp = () => {
                     <IconButton
                       onClick={() => setShowPassword(!showPassword)}
                       edge="end"
+                      sx={{ color: '#666' }}
                     >
                       {showPassword ? <VisibilityOff /> : <Visibility />}
                     </IconButton>
@@ -258,6 +259,7 @@ const SignUp = () => {
                     <IconButton
                       onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                       edge="end"
+                      sx={{ color: '#666' }}
                     >
                       {showConfirmPassword ? <VisibilityOff /> : <Visibility />}
                     </IconButton>

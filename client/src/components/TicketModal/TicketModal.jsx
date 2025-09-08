@@ -39,6 +39,7 @@ const TicketModal = ({ open, onClose, ticketData }) => {
     location,
     fullAddress,
     pincode,
+    providerPhone,
     totalPrice,
     basePrice,
     gst,
@@ -294,6 +295,13 @@ const TicketModal = ({ open, onClose, ticketData }) => {
                       icon={<LocationOn />}
                       label="Venue Address"
                       value={`${fullAddress}, ${pincode}`}
+                      isMobile={isMobile}
+                      fullWidth
+                    />
+                    <DetailItem
+                      icon={<Phone />}
+                      label="Contact Phone"
+                      value={providerPhone || 'N/A'}
                       isMobile={isMobile}
                       fullWidth
                     />

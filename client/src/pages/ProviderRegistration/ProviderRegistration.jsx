@@ -1,17 +1,18 @@
 import {
   Box, Container, Typography, Button, Card, CardContent, Grid, TextField,
   Stepper, Step, StepLabel, Select, MenuItem, FormControl, InputLabel,
-  Checkbox, FormControlLabel, InputAdornment, IconButton, LinearProgress, Link, Divider
+  Checkbox, FormControlLabel, InputAdornment, IconButton, LinearProgress, Link, Divider,
+  useTheme, useMediaQuery, Chip, Paper
 } from '@mui/material';
 import {
   Business, Person, Email, Phone, Category, Visibility, VisibilityOff,
-  CheckCircle, Login, ArrowBack, ArrowForward, Send, Security, Verified, RocketLaunch
+  CheckCircle, Login, ArrowBack, ArrowForward, Send, Security, Verified, RocketLaunch,
+  LocationOn, Description, AccountCircle, Work, ContactMail
 } from '@mui/icons-material';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useTheme } from '@mui/material/styles';
-import './ProviderRegistration.css';
+import wandercallLogo from '../../assets/wandercall-logo2.svg';
 
 const ProviderRegistration = () => {
   const navigate = useNavigate();
@@ -19,8 +20,28 @@ const ProviderRegistration = () => {
   const [activeStep, setActiveStep] = useState(0);
   const [showPassword, setShowPassword] = useState(false);
   const [resendTimer, setResendTimer] = useState(0);
+  const [showEmailVerification, setShowEmailVerification] = useState(false);
+  const [verificationSent, setVerificationSent] = useState(false);
   const [formData, setFormData] = useState({
+    // Personal Information
+    fullName: '',
+    email: '',
+    phone: '',
+    password: '',
+    confirmPassword: '',
+    
+    // Business Information
     businessName: '',
+    businessType: '',
+    description: '',
+    
+    // Contact Information
+    address: '',
+    city: '',
+    state: '',
+    pincode: '',
+    
+    // Legacy fields for compatibility
     contactPerson: '',
     businessEmail: '',
     phoneNumber: '',
@@ -28,11 +49,15 @@ const ProviderRegistration = () => {
     serviceType: '',
     serviceDescription: '',
     verificationCode: '',
-    password: '',
     agreeTerms: false
   });
 
-  const steps = ['Business Info', 'Service Details', 'Verification', 'Confirmation'];
+  const steps = [
+    { label: 'Personal', icon: <AccountCircle /> },
+    { label: 'Business', icon: <Work /> },
+    { label: 'Contact', icon: <ContactMail /> },
+    { label: 'Verification', icon: <Security /> }
+  ];
   
   const serviceTypes = [
     'FPV Drone Experience',
@@ -54,8 +79,23 @@ const ProviderRegistration = () => {
     'Flexible pricing and scheduling'
   ];
 
+  const validateCurrentStep = () => {
+    switch (activeStep) {
+      case 0:
+        return formData.fullName && formData.email && formData.phone && 
+               formData.password && formData.confirmPassword && 
+               formData.password === formData.confirmPassword;
+      case 1:
+        return formData.businessName && formData.businessType && formData.description;
+      case 2:
+        return formData.address && formData.city && formData.state && formData.pincode;
+      default:
+        return true;
+    }
+  };
+
   const handleNext = () => {
-    if (activeStep < steps.length - 1) {
+    if (validateCurrentStep() && activeStep < steps.length - 1) {
       setActiveStep(prev => prev + 1);
     }
   };
@@ -66,7 +106,19 @@ const ProviderRegistration = () => {
     }
   };
 
-  const handleInputChange = (field, value) => {
+  const handleInputChange = (field) => (event) => {
+    const value = event.target.value;
+    
+    // Special handling for phone number
+    if (field === 'phone' || field === 'phoneNumber') {
+      const phoneValue = value.replace(/\D/g, '').slice(0, 10);
+      setFormData(prev => ({ ...prev, [field]: phoneValue }));
+    } else {
+      setFormData(prev => ({ ...prev, [field]: value }));
+    }
+  };
+  
+  const handleSelectChange = (field, value) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
@@ -93,442 +145,287 @@ const ProviderRegistration = () => {
   };
 
   const passwordStrength = getPasswordStrength(formData.password);
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+
+  // Enhanced text field styles
+  const textFieldStyles = {
+    '& .MuiOutlinedInput-root': {
+      borderRadius: 3,
+      backgroundColor: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.05)' : 'rgba(255, 255, 255, 0.9)',
+      backdropFilter: 'blur(10px)',
+      border: `1px solid ${theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)'}`,
+      transition: 'all 0.3s ease',
+      width: isMobile ? '100%' : 'auto',
+      '&:hover': {
+        backgroundColor: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.08)' : 'rgba(255, 255, 255, 1)',
+        borderColor: theme.palette.primary.main,
+        boxShadow: `0 0 0 2px ${theme.palette.primary.main}20`,
+      },
+      '&.Mui-focused': {
+        backgroundColor: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.1)' : 'rgba(255, 255, 255, 1)',
+        borderColor: theme.palette.primary.main,
+        boxShadow: `0 0 0 3px ${theme.palette.primary.main}30`,
+      }
+    },
+    '& .MuiInputLabel-root': {
+      fontWeight: 500,
+      '&.Mui-focused': {
+        color: theme.palette.primary.main,
+      }
+    },
+    '& .MuiInputBase-input': {
+      fontWeight: 500,
+    }
+  };
 
   const renderStepContent = () => {
     switch (activeStep) {
       case 0:
         return (
-          <Grid container spacing={{ xs: 3, md: 4 }}>
+          <Grid container spacing={3}>
             <Grid item xs={12}>
-              <motion.div
-                whileHover={{ y: -2 }}
-                whileFocus={{ y: -4 }}
-              >
-                <TextField
-                  fullWidth
-                  label="Business Name"
-                  value={formData.businessName}
-                  onChange={(e) => handleInputChange('businessName', e.target.value)}
-                  variant="outlined"
-                  size="small"
-                  InputProps={{
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <Business sx={{ color: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.5)' : 'rgba(0, 0, 0, 0.5)', fontSize: { xs: 18, md: 20 } }} />
-                      </InputAdornment>
-                    )
-                  }}
-                  sx={{
-                    '& .MuiOutlinedInput-root': {
-                      backgroundColor: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.05)' : '#ffffff',
-                      borderRadius: 2,
-                      '& fieldset': {
-                        borderColor: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.2)' : 'rgba(0, 0, 0, 0.23)',
-                        borderWidth: 2
-                      },
-                      '&:hover fieldset': {
-                        borderColor: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.4)' : 'rgba(0, 0, 0, 0.87)'
-                      },
-                      '&.Mui-focused fieldset': {
-                        borderColor: '#667eea',
-                        borderWidth: 2,
-                        boxShadow: '0 0 0 3px rgba(102, 126, 234, 0.1)'
-                      }
-                    },
-                    '& .MuiInputBase-input': {
-                      color: theme.palette.mode === 'dark' ? 'white' : 'black',
-                      fontSize: { xs: '0.9rem', md: '1rem' },
-                      padding: { xs: '8px 14px', md: '12px 14px' }
-                    },
-                    '& .MuiInputLabel-root': {
-                      color: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.7)' : 'rgba(0, 0, 0, 0.6)',
-                      fontSize: { xs: '0.85rem', md: '1rem' },
-                      '&.Mui-focused': {
-                        color: '#667eea'
-                      }
-                    },
-                    '&:focus-within .MuiInputAdornment-root .MuiSvgIcon-root': {
-                      color: '#667eea'
-                    }
-                  }}
-                />
-              </motion.div>
+              <TextField
+                fullWidth
+                label="Full Name"
+                name="fullName"
+                autoComplete="name"
+                value={formData.fullName}
+                onChange={handleInputChange('fullName')}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <Person sx={{ color: 'primary.main' }} />
+                    </InputAdornment>
+                  ),
+                }}
+                sx={textFieldStyles}
+              />
             </Grid>
-            <Grid item xs={12}>
-              <motion.div
-                whileHover={{ y: -2 }}
-                whileFocus={{ y: -4 }}
-              >
-                <TextField
-                  fullWidth
-                  label="Contact Person"
-                  value={formData.contactPerson}
-                  onChange={(e) => handleInputChange('contactPerson', e.target.value)}
-                  variant="outlined"
-                  size="small"
-                  InputProps={{
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <Person sx={{ color: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.5)' : 'rgba(0, 0, 0, 0.5)', fontSize: { xs: 18, md: 20 } }} />
-                      </InputAdornment>
-                    )
-                  }}
-                  sx={{
-                    '& .MuiOutlinedInput-root': {
-                      backgroundColor: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.05)' : '#ffffff',
-                      borderRadius: 2,
-                      '& fieldset': {
-                        borderColor: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.2)' : 'rgba(0, 0, 0, 0.23)',
-                        borderWidth: 2
-                      },
-                      '&:hover fieldset': {
-                        borderColor: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.4)' : 'rgba(0, 0, 0, 0.87)'
-                      },
-                      '&.Mui-focused fieldset': {
-                        borderColor: '#667eea',
-                        borderWidth: 2,
-                        boxShadow: '0 0 0 3px rgba(102, 126, 234, 0.1)'
-                      }
-                    },
-                    '& .MuiInputBase-input': {
-                      color: theme.palette.mode === 'dark' ? 'white' : 'black',
-                      fontSize: { xs: '0.9rem', md: '1rem' },
-                      padding: { xs: '8px 14px', md: '12px 14px' }
-                    },
-                    '& .MuiInputLabel-root': {
-                      color: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.7)' : 'rgba(0, 0, 0, 0.6)',
-                      fontSize: { xs: '0.85rem', md: '1rem' },
-                      '&.Mui-focused': {
-                        color: '#667eea'
-                      }
-                    },
-                    '&:focus-within .MuiInputAdornment-root .MuiSvgIcon-root': {
-                      color: '#667eea'
-                    }
-                  }}
-                />
-              </motion.div>
+            
+            <Grid item xs={12} sm={6}>
+              <TextField
+                fullWidth
+                label="Email Address"
+                name="email"
+                type="email"
+                autoComplete="email"
+                value={formData.email}
+                onChange={handleInputChange('email')}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <Email sx={{ color: 'primary.main' }} />
+                    </InputAdornment>
+                  ),
+                }}
+                sx={textFieldStyles}
+              />
             </Grid>
+            
+            <Grid item xs={12} sm={6}>
+              <TextField
+                fullWidth
+                label="Phone Number"
+                name="phone"
+                autoComplete="tel"
+                value={formData.phone}
+                onChange={handleInputChange('phone')}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                        <Phone sx={{ color: 'primary.main' }} />
+                        <Typography variant="body2" sx={{ color: 'text.secondary' }}>+91</Typography>
+                      </Box>
+                    </InputAdornment>
+                  ),
+                }}
+                sx={textFieldStyles}
+              />
+            </Grid>
+            
+            <Grid item xs={12} sm={6}>
+              <TextField
+                fullWidth
+                label="Password"
+                name="password"
+                type={showPassword ? 'text' : 'password'}
+                autoComplete="new-password"
+                value={formData.password}
+                onChange={handleInputChange('password')}
+                InputProps={{
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <IconButton onClick={() => setShowPassword(!showPassword)} edge="end">
+                        {showPassword ? <VisibilityOff /> : <Visibility />}
+                      </IconButton>
+                    </InputAdornment>
+                  ),
+                }}
+                sx={textFieldStyles}
+              />
+            </Grid>
+            
+            <Grid item xs={12} sm={6}>
+              <TextField
+                fullWidth
+                label="Confirm Password"
+                name="confirmPassword"
+                type="password"
+                autoComplete="new-password"
+                value={formData.confirmPassword}
+                onChange={handleInputChange('confirmPassword')}
+                sx={textFieldStyles}
+              />
+            </Grid>
+            
+            {/* Email Verification Button */}
             <Grid item xs={12}>
-              <motion.div
-                whileHover={{ y: -2 }}
-                whileFocus={{ y: -4 }}
+              <Button
+                variant="outlined"
+                fullWidth
+                onClick={() => setShowEmailVerification(true)}
+                disabled={!formData.email}
+                sx={{
+                  py: 1.5,
+                  borderColor: 'primary.main',
+                  color: 'primary.main',
+                  '&:hover': {
+                    backgroundColor: 'primary.main',
+                    color: 'white'
+                  }
+                }}
               >
-                <TextField
-                  fullWidth
-                  label="Business Email"
-                  type="email"
-                  value={formData.businessEmail}
-                  onChange={(e) => handleInputChange('businessEmail', e.target.value)}
-                  variant="outlined"
-                  size="small"
-                  InputProps={{
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <Email sx={{ color: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.5)' : 'rgba(0, 0, 0, 0.5)', fontSize: { xs: 18, md: 20 } }} />
-                      </InputAdornment>
-                    )
-                  }}
-                  sx={{
-                    '& .MuiOutlinedInput-root': {
-                      backgroundColor: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.05)' : '#ffffff',
-                      borderRadius: 2,
-                      '& fieldset': {
-                        borderColor: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.2)' : 'rgba(0, 0, 0, 0.23)',
-                        borderWidth: 2
-                      },
-                      '&:hover fieldset': {
-                        borderColor: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.4)' : 'rgba(0, 0, 0, 0.87)'
-                      },
-                      '&.Mui-focused fieldset': {
-                        borderColor: '#667eea',
-                        borderWidth: 2,
-                        boxShadow: '0 0 0 3px rgba(102, 126, 234, 0.1)'
-                      }
-                    },
-                    '& .MuiInputBase-input': {
-                      color: theme.palette.mode === 'dark' ? 'white' : 'black',
-                      fontSize: { xs: '0.9rem', md: '1rem' },
-                      padding: { xs: '8px 14px', md: '12px 14px' }
-                    },
-                    '& .MuiInputLabel-root': {
-                      color: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.7)' : 'rgba(0, 0, 0, 0.6)',
-                      fontSize: { xs: '0.85rem', md: '1rem' },
-                      '&.Mui-focused': {
-                        color: '#667eea'
-                      }
-                    },
-                    '&:focus-within .MuiInputAdornment-root .MuiSvgIcon-root': {
-                      color: '#667eea'
-                    }
-                  }}
-                />
-              </motion.div>
+                Verify Email Address
+              </Button>
             </Grid>
           </Grid>
         );
 
       case 1:
         return (
-          <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.3 }}
-          >
-            <Grid container spacing={3}>
-              <Grid item xs={12}>
-                <Box sx={{ display: 'flex', gap: 1 }}>
-                  <FormControl size="small" sx={{ minWidth: 100 }}>
-                    <Select
-                      value={formData.countryCode}
-                      onChange={(e) => handleInputChange('countryCode', e.target.value)}
-                    >
-                      <MenuItem value="+91">+91</MenuItem>
-                      <MenuItem value="+1">+1</MenuItem>
-                      <MenuItem value="+44">+44</MenuItem>
-                    </Select>
-                  </FormControl>
-                  <TextField
-                    fullWidth
-                    label="Phone Number"
-                    value={formData.phoneNumber}
-                    onChange={(e) => handleInputChange('phoneNumber', e.target.value)}
-                    variant="outlined"
-                    size="small"
-                    InputProps={{
-                      startAdornment: (
-                        <InputAdornment position="start">
-                          <Phone sx={{ color: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.5)' : 'rgba(0, 0, 0, 0.5)' }} />
-                        </InputAdornment>
-                      )
-                    }}
-                    sx={{
-                      '& .MuiOutlinedInput-root': {
-                        backgroundColor: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.05)' : '#ffffff',
-                        borderRadius: 2,
-                        '& fieldset': {
-                          borderColor: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.2)' : 'rgba(0, 0, 0, 0.23)',
-                          borderWidth: 2
-                        },
-                        '&:hover fieldset': {
-                          borderColor: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.4)' : 'rgba(0, 0, 0, 0.87)'
-                        },
-                        '&.Mui-focused fieldset': {
-                          borderColor: '#667eea',
-                          borderWidth: 2
-                        }
-                      },
-                      '& .MuiInputBase-input': {
-                        color: theme.palette.mode === 'dark' ? 'white' : 'black'
-                      },
-                      '& .MuiInputLabel-root': {
-                        color: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.7)' : 'rgba(0, 0, 0, 0.6)',
-                        '&.Mui-focused': {
-                          color: '#667eea'
-                        }
-                      }
-                    }}
-                  />
-                </Box>
-              </Grid>
-              <Grid item xs={12}>
-                <FormControl fullWidth size="small">
-                  <InputLabel>Service Type</InputLabel>
-                  <Select
-                    value={formData.serviceType}
-                    onChange={(e) => handleInputChange('serviceType', e.target.value)}
-                    startAdornment={
-                      <InputAdornment position="start">
-                        <Category color="primary" />
-                      </InputAdornment>
-                    }
-                  >
-                    {serviceTypes.map((type) => (
-                      <MenuItem key={type} value={type}>{type}</MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-              </Grid>
-              <Grid item xs={12}>
-                <TextField
-                  fullWidth
-                  label="Service Description"
-                  multiline
-                  rows={4}
-                  value={formData.serviceDescription}
-                  onChange={(e) => handleInputChange('serviceDescription', e.target.value)}
-                  variant="outlined"
-                  size="small"
-                  sx={{
-                    '& .MuiOutlinedInput-root': {
-                      backgroundColor: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.05)' : '#ffffff',
-                      borderRadius: 2,
-                      '& fieldset': {
-                        borderColor: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.2)' : 'rgba(0, 0, 0, 0.23)',
-                        borderWidth: 2
-                      },
-                      '&:hover fieldset': {
-                        borderColor: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.4)' : 'rgba(0, 0, 0, 0.87)'
-                      },
-                      '&.Mui-focused fieldset': {
-                        borderColor: '#667eea',
-                        borderWidth: 2
-                      }
-                    },
-                    '& .MuiInputBase-input': {
-                      color: theme.palette.mode === 'dark' ? 'white' : 'black'
-                    },
-                    '& .MuiInputLabel-root': {
-                      color: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.7)' : 'rgba(0, 0, 0, 0.6)',
-                      '&.Mui-focused': {
-                        color: '#667eea'
-                      }
-                    }
-                  }}
-                />
-              </Grid>
+          <Grid container spacing={3}>
+            <Grid item xs={12}>
+              <TextField
+                fullWidth
+                label="Business Name"
+                name="businessName"
+                autoComplete="organization"
+                value={formData.businessName}
+                onChange={handleInputChange('businessName')}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <Business sx={{ color: 'primary.main' }} />
+                    </InputAdornment>
+                  ),
+                }}
+                sx={textFieldStyles}
+              />
             </Grid>
-          </motion.div>
+            
+            <Grid item xs={12}>
+              <FormControl fullWidth sx={textFieldStyles}>
+                <InputLabel>Business Type</InputLabel>
+                <Select
+                  value={formData.businessType}
+                  onChange={(e) => handleSelectChange('businessType', e.target.value)}
+                  startAdornment={
+                    <InputAdornment position="start">
+                      <Category sx={{ color: 'primary.main' }} />
+                    </InputAdornment>
+                  }
+                >
+                  {serviceTypes.map((type) => (
+                    <MenuItem key={type} value={type}>{type}</MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Grid>
+            
+            <Grid item xs={12}>
+              <TextField
+                fullWidth
+                label="Business Description"
+                multiline
+                rows={4}
+                name="description"
+                value={formData.description}
+                onChange={handleInputChange('description')}
+                placeholder="Tell us about your business and the experiences you offer..."
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start" sx={{ alignSelf: 'flex-start', mt: 1 }}>
+                      <Description sx={{ color: 'primary.main' }} />
+                    </InputAdornment>
+                  ),
+                }}
+                sx={textFieldStyles}
+              />
+            </Grid>
+          </Grid>
         );
 
       case 2:
         return (
-          <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.3 }}
-          >
-            <Box sx={{ mb: 3 }}>
-              <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-                We've sent a verification code to {formData.businessEmail}
-              </Typography>
-            </Box>
-            <Grid container spacing={3}>
-              <Grid item xs={12}>
-                <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
-                  <TextField
-                    label="Verification Code"
-                    value={formData.verificationCode}
-                    onChange={(e) => handleInputChange('verificationCode', e.target.value)}
-                    variant="outlined"
-                    size="small"
-                    inputProps={{ maxLength: 6 }}
-                    InputProps={{
-                      startAdornment: (
-                        <InputAdornment position="start">
-                          <Security sx={{ color: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.5)' : 'rgba(0, 0, 0, 0.5)' }} />
-                        </InputAdornment>
-                      )
-                    }}
-                    sx={{
-                      '& .MuiOutlinedInput-root': {
-                        backgroundColor: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.05)' : '#ffffff',
-                        borderRadius: 2,
-                        '& fieldset': {
-                          borderColor: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.2)' : 'rgba(0, 0, 0, 0.23)',
-                          borderWidth: 2
-                        },
-                        '&:hover fieldset': {
-                          borderColor: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.4)' : 'rgba(0, 0, 0, 0.87)'
-                        },
-                        '&.Mui-focused fieldset': {
-                          borderColor: '#667eea',
-                          borderWidth: 2
-                        }
-                      },
-                      '& .MuiInputBase-input': {
-                        color: theme.palette.mode === 'dark' ? 'white' : 'black'
-                      },
-                      '& .MuiInputLabel-root': {
-                        color: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.7)' : 'rgba(0, 0, 0, 0.6)',
-                        '&.Mui-focused': {
-                          color: '#667eea'
-                        }
-                      }
-                    }}
-                  />
-                  <Button
-                    variant="outlined"
-                    size="small"
-                    onClick={handleResendCode}
-                    disabled={resendTimer > 0}
-                  >
-                    {resendTimer > 0 ? `Resend (${resendTimer}s)` : 'Resend'}
-                  </Button>
-                </Box>
-              </Grid>
-              <Grid item xs={12}>
-                <TextField
-                  fullWidth
-                  label="Create Password"
-                  type={showPassword ? 'text' : 'password'}
-                  value={formData.password}
-                  onChange={(e) => handleInputChange('password', e.target.value)}
-                  variant="outlined"
-                  size="small"
-                  InputProps={{
-                    endAdornment: (
-                      <InputAdornment position="end">
-                        <IconButton
-                          onClick={() => setShowPassword(!showPassword)}
-                          edge="end"
-                          sx={{ color: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.5)' : 'rgba(0, 0, 0, 0.5)' }}
-                        >
-                          {showPassword ? <VisibilityOff /> : <Visibility />}
-                        </IconButton>
-                      </InputAdornment>
-                    )
-                  }}
-                  sx={{
-                    '& .MuiOutlinedInput-root': {
-                      backgroundColor: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.05)' : '#ffffff',
-                      borderRadius: 2,
-                      '& fieldset': {
-                        borderColor: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.2)' : 'rgba(0, 0, 0, 0.23)',
-                        borderWidth: 2
-                      },
-                      '&:hover fieldset': {
-                        borderColor: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.4)' : 'rgba(0, 0, 0, 0.87)'
-                      },
-                      '&.Mui-focused fieldset': {
-                        borderColor: '#667eea',
-                        borderWidth: 2
-                      }
-                    },
-                    '& .MuiInputBase-input': {
-                      color: theme.palette.mode === 'dark' ? 'white' : 'black'
-                    },
-                    '& .MuiInputLabel-root': {
-                      color: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.7)' : 'rgba(0, 0, 0, 0.6)',
-                      '&.Mui-focused': {
-                        color: '#667eea'
-                      }
-                    }
-                  }}
-                />
-                {formData.password && (
-                  <Box sx={{ mt: 1 }}>
-                    <LinearProgress
-                      variant="determinate"
-                      value={passwordStrength}
-                      sx={{
-                        height: 4,
-                        borderRadius: 2,
-                        '& .MuiLinearProgress-bar': {
-                          backgroundColor: passwordStrength < 50 ? '#f44336' : passwordStrength < 75 ? '#ff9800' : '#4caf50'
-                        }
-                      }}
-                    />
-                    <Typography variant="caption" color="text.secondary">
-                      Password strength: {passwordStrength < 50 ? 'Weak' : passwordStrength < 75 ? 'Medium' : 'Strong'}
-                    </Typography>
-                  </Box>
-                )}
-              </Grid>
+          <Grid container spacing={3}>
+            <Grid item xs={12}>
+              <TextField
+                fullWidth
+                label="Business Address"
+                name="address"
+                autoComplete="street-address"
+                value={formData.address}
+                onChange={handleInputChange('address')}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <LocationOn sx={{ color: 'primary.main' }} />
+                    </InputAdornment>
+                  ),
+                }}
+                sx={textFieldStyles}
+              />
             </Grid>
-          </motion.div>
+            
+            <Grid item xs={12} sm={6}>
+              <TextField
+                fullWidth
+                label="City"
+                name="city"
+                autoComplete="address-level2"
+                value={formData.city}
+                onChange={handleInputChange('city')}
+                sx={textFieldStyles}
+              />
+            </Grid>
+            
+            <Grid item xs={12} sm={6}>
+              <TextField
+                fullWidth
+                label="State"
+                name="state"
+                autoComplete="address-level1"
+                value={formData.state}
+                onChange={handleInputChange('state')}
+                sx={textFieldStyles}
+              />
+            </Grid>
+            
+            <Grid item xs={12} sm={6}>
+              <TextField
+                fullWidth
+                label="Pincode"
+                name="pincode"
+                autoComplete="postal-code"
+                value={formData.pincode}
+                onChange={handleInputChange('pincode')}
+                sx={textFieldStyles}
+              />
+            </Grid>
+          </Grid>
         );
-
+        
       case 3:
         return (
           <motion.div
@@ -550,15 +447,15 @@ const ProviderRegistration = () => {
               <CardContent sx={{ p: { xs: 2, sm: 3 } }}>
                 <Typography variant="subtitle2" gutterBottom sx={{ color: theme.palette.mode === 'dark' ? 'white' : 'black' }}>Business Info</Typography>
                 <Typography variant="body2" sx={{ color: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.8)' : 'rgba(0, 0, 0, 0.8)' }}>Business Name: {formData.businessName}</Typography>
-                <Typography variant="body2" sx={{ color: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.8)' : 'rgba(0, 0, 0, 0.8)' }}>Contact Person: {formData.contactPerson}</Typography>
-                <Typography variant="body2" sx={{ color: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.8)' : 'rgba(0, 0, 0, 0.8)' }}>Email: {formData.businessEmail}</Typography>
+                <Typography variant="body2" sx={{ color: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.8)' : 'rgba(0, 0, 0, 0.8)' }}>Contact Person: {formData.fullName}</Typography>
+                <Typography variant="body2" sx={{ color: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.8)' : 'rgba(0, 0, 0, 0.8)' }}>Email: {formData.email}</Typography>
                 
                 <Divider sx={{ my: 2, borderColor: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.12)' : 'rgba(0, 0, 0, 0.12)' }} />
                 
                 <Typography variant="subtitle2" gutterBottom sx={{ color: theme.palette.mode === 'dark' ? 'white' : 'black' }}>Service Details</Typography>
-                <Typography variant="body2" sx={{ color: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.8)' : 'rgba(0, 0, 0, 0.8)' }}>Phone: {formData.countryCode} {formData.phoneNumber}</Typography>
-                <Typography variant="body2" sx={{ color: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.8)' : 'rgba(0, 0, 0, 0.8)' }}>Service Type: {formData.serviceType}</Typography>
-                <Typography variant="body2" sx={{ color: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.8)' : 'rgba(0, 0, 0, 0.8)' }}>Description: {formData.serviceDescription}</Typography>
+                <Typography variant="body2" sx={{ color: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.8)' : 'rgba(0, 0, 0, 0.8)' }}>Phone: +91 {formData.phone}</Typography>
+                <Typography variant="body2" sx={{ color: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.8)' : 'rgba(0, 0, 0, 0.8)' }}>Business Type: {formData.businessType}</Typography>
+                <Typography variant="body2" sx={{ color: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.8)' : 'rgba(0, 0, 0, 0.8)' }}>Description: {formData.description}</Typography>
               </CardContent>
             </Card>
             
@@ -567,7 +464,7 @@ const ProviderRegistration = () => {
               control={
                 <Checkbox
                   checked={formData.agreeTerms}
-                  onChange={(e) => handleInputChange('agreeTerms', e.target.checked)}
+                  onChange={(e) => handleSelectChange('agreeTerms', e.target.checked)}
                 />
               }
               label={
@@ -590,8 +487,8 @@ const ProviderRegistration = () => {
       position: 'relative',
       overflow: 'hidden',
       background: theme.palette.mode === 'dark'
-        ? 'linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 25%, #16213e 50%, #0f3460 75%, #1e3c72 100%)'
-        : '#ffffff',
+        ? 'linear-gradient(135deg, #0f0f23 0%, #1a1a2e 25%, #16213e 50%, #0f3460 75%, #1e3c72 100%)'
+        : 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 25%, #f1f5f9 50%, #e0e7ff 75%, #f3f4f6 100%)',
       '&::before': {
         content: '""',
         position: 'absolute',
@@ -612,8 +509,35 @@ const ProviderRegistration = () => {
         '50%': { transform: 'scale(1.1) rotate(2deg)' }
       }
     }}>
+      {/* Header */}
+      <Box sx={{ position: 'relative', zIndex: 2, p: 3, textAlign: 'center' }}>
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+        >
+          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', mb: 2 }}>
+            <Box
+              component="img"
+              src={wandercallLogo}
+              alt="WanderCall"
+              sx={{
+                height: 50,
+                filter: theme.palette.mode === 'dark' ? 'invert(1)' : 'invert(0)'
+              }}
+            />
+          </Box>
+          <Typography variant="h5" sx={{ fontWeight: 600, mb: 1 }}>
+            Become a Provider
+          </Typography>
+          <Typography variant="body1" color="text.secondary">
+            Join our community and start offering amazing experiences
+          </Typography>
+        </motion.div>
+      </Box>
+      
       {/* Back to Home Button */}
-      <Box sx={{ position: 'relative', zIndex: 2, p: 2 }}>
+      <Box sx={{ position: 'absolute', top: 20, left: 20, zIndex: 3 }}>
         <IconButton 
           onClick={() => navigate('/')}
           sx={{ 
@@ -664,10 +588,16 @@ const ProviderRegistration = () => {
                   background: 'linear-gradient(90deg, #667eea 0%, #764ba2 50%, #f093fb 100%)'
                 }
               }}>
-                <CardContent sx={{ p: 4 }}>
+                <CardContent sx={{ p: isMobile ? '30px 10px' : 4 }}>
                   {/* Modern Stepper */}
                   <Box sx={{ mb: { xs: 4, md: 6 } }}>
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'relative' }}>
+                    <Box sx={{ 
+                      display: 'flex', 
+                      justifyContent: 'space-between', 
+                      alignItems: 'center', 
+                      position: 'relative',
+                      px: { xs: 2, md: 0 }
+                    }}>
                       {/* Progress Line */}
                       <Box sx={{
                         position: 'absolute',
@@ -692,7 +622,7 @@ const ProviderRegistration = () => {
                         />
                       </Box>
                       
-                      {[Business, Category, Security, CheckCircle].map((Icon, index) => (
+                      {steps.map((step, index) => (
                         <motion.div
                           key={index}
                           whileHover={{ scale: 1.1 }}
@@ -715,7 +645,7 @@ const ProviderRegistration = () => {
                             color: activeStep >= index ? 'white' : theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.5)' : 'rgba(0, 0, 0, 0.5)',
                             transition: 'all 0.3s ease'
                           }}>
-                            <Icon sx={{ fontSize: { xs: 16, md: 20 } }} />
+                            {step.icon}
                           </Box>
                           <Typography 
                             variant="caption" 
@@ -730,7 +660,7 @@ const ProviderRegistration = () => {
                               fontSize: { xs: '0.65rem', md: '0.75rem' }
                             }}
                           >
-                            {steps[index]}
+                            {step.label}
                           </Typography>
                         </motion.div>
                       ))}
@@ -847,22 +777,22 @@ const ProviderRegistration = () => {
                     >
                       <Button
                         onClick={handleNext}
-                        disabled={activeStep === 3 && !formData.agreeTerms}
-                        endIcon={
-                          <motion.div
-                            animate={{ x: [0, 3, 0] }}
-                            transition={{ duration: 1.5, repeat: Infinity }}
-                          >
-                            {activeStep === 3 ? <Send /> : <ArrowForward />}
-                          </motion.div>
-                        }
-                        variant="contained"
+                        disabled={!validateCurrentStep() || (activeStep === steps.length - 1 && !formData.agreeTerms)}
+                        endIcon={activeStep === steps.length - 1 ? <Send /> : <ArrowForward />}
                         sx={{
                           minHeight: 48,
                           minWidth: 120,
                           px: 3,
                           background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
                           boxShadow: '0 8px 25px rgba(102, 126, 234, 0.4)',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          '& .MuiButton-endIcon': {
+                            marginLeft: 1,
+                            display: 'flex',
+                            alignItems: 'center'
+                          },
                           '&:hover': {
                             background: 'linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%)',
                             boxShadow: '0 12px 35px rgba(102, 126, 234, 0.6)',
@@ -873,8 +803,9 @@ const ProviderRegistration = () => {
                             color: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.3)' : 'rgba(0, 0, 0, 0.26)'
                           }
                         }}
+                        variant="contained"
                       >
-                        {activeStep === 3 ? 'Complete Registration' : 'Continue'}
+                        {activeStep === steps.length - 1 ? 'Complete Registration' : 'Continue'}
                       </Button>
                     </motion.div>
                   </Box>
@@ -921,7 +852,7 @@ const ProviderRegistration = () => {
                   </motion.div>
                   
                   <Typography 
-                    variant={{ xs: 'h6', md: 'h5' }}
+                    variant="h5"
                     fontWeight={600} 
                     gutterBottom
                     sx={{ 
@@ -1023,6 +954,81 @@ const ProviderRegistration = () => {
           </Grid>
         </Grid>
       </Container>
+      
+      {/* Email Verification Modal */}
+      <AnimatePresence>
+        {showEmailVerification && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            style={{
+              position: 'fixed',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              backgroundColor: 'rgba(0, 0, 0, 0.5)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              zIndex: 2000
+            }}
+            onClick={() => setShowEmailVerification(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.8, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.8, opacity: 0 }}
+              onClick={(e) => e.stopPropagation()}
+              style={{
+                backgroundColor: theme.palette.mode === 'dark' ? '#1a1a2e' : 'white',
+                borderRadius: 16,
+                padding: 32,
+                maxWidth: 400,
+                width: '90%',
+                textAlign: 'center'
+              }}
+            >
+              <motion.div
+                animate={{ rotate: 360 }}
+                transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
+                style={{ marginBottom: 16 }}
+              >
+                <Email sx={{ fontSize: 48, color: theme.palette.primary.main }} />
+              </motion.div>
+              
+              <Typography variant="h5" sx={{ fontWeight: 600, mb: 2 }}>
+                Verify Your Email
+              </Typography>
+              
+              <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
+                We'll send a verification code to {formData.email}
+              </Typography>
+              
+              <Box sx={{ display: 'flex', gap: 2 }}>
+                <Button
+                  variant="outlined"
+                  onClick={() => setShowEmailVerification(false)}
+                  sx={{ flex: 1 }}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  variant="contained"
+                  onClick={() => {
+                    setVerificationSent(true);
+                    setShowEmailVerification(false);
+                  }}
+                  sx={{ flex: 1 }}
+                >
+                  Send Code
+                </Button>
+              </Box>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </Box>
   );
 };

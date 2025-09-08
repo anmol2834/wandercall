@@ -21,7 +21,7 @@ const createTicketFromPayment = async (orderId, paymentId = null) => {
       { status: 'PROCESSING' },
       { new: true }
     ).populate('userId', 'name email phone')
-     .populate('productId', 'title location');
+     .populate('productId', 'title location phone email');
 
     if (!bookingIntent) {
       const existingTicket = await Ticket.findOne({ orderId });

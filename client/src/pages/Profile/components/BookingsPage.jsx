@@ -131,6 +131,7 @@ const BookingsPage = () => {
       location: `${productLocation.city || booking.city || 'City'}, ${productLocation.state || booking.state || 'State'}`,
       fullAddress: productLocation.address || `${booking.city || 'City'}, ${booking.state || 'State'}`,
       pincode: productLocation.pincode || '000000',
+      providerPhone: booking.productId?.phone || 'N/A',
       totalPrice: booking.totalPrice || 0,
       basePrice: basePrice > 0 ? basePrice : booking.totalPrice || 0,
       gst: booking.gst || 0,

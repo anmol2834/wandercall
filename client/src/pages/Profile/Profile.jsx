@@ -189,17 +189,18 @@ const Profile = () => {
 
   const MenuContent = () => (
     <Box className="profile-menu-content" sx={{ height: '100vh', display: 'flex', flexDirection: 'column' }}>
-      <Box className="profile-menu-header" sx={{ p: 2, borderBottom: 1, borderColor: 'divider', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative' }}>
+      <Box className="profile-menu-header" sx={{ p: 3, borderBottom: 1, borderColor: 'divider', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative' }}>
         <Box 
           component="img"
           src={wandercallLogo1}
           alt="WanderCall"
           sx={{
-            height: { xs: 28, sm: 32 },
+            height: { xs: 32, sm: 36 },
             width: 'auto',
             filter: theme.palette.mode === 'dark' ? 'invert(1)' : 'invert(0)',
-            transform: 'scale(2.6)',
-            transformOrigin: 'center'
+            transform: 'scale(2.8)',
+            transformOrigin: 'center',
+            mx: 'auto'
           }}
         />
         {isMobile && (

@@ -252,6 +252,7 @@ const TicketPDF = ({ ticketData }) => {
     location,
     fullAddress,
     pincode,
+    providerPhone,
     totalPrice,
     basePrice,
     gst,
@@ -343,16 +344,16 @@ const TicketPDF = ({ ticketData }) => {
                   <Text style={styles.detailLabel}>Venue Address</Text>
                 </View>
                 <View style={styles.detailValueContainer}>
-                  <Text style={styles.detailValue}>{fullAddress}</Text>
+                  <Text style={styles.detailValue}>{fullAddress}, {location}, {pincode}</Text>
                 </View>
               </View>
               
               <View style={styles.detailRow}>
                 <View style={styles.detailLabelContainer}>
-                  <Text style={styles.detailLabel}>Pincode</Text>
+                  <Text style={styles.detailLabel}>Contact Phone</Text>
                 </View>
                 <View style={styles.detailValueContainer}>
-                  <Text style={styles.detailValue}>{pincode}</Text>
+                  <Text style={styles.detailValue}>{providerPhone || 'N/A'}</Text>
                 </View>
               </View>
               
