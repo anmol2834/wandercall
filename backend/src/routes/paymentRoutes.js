@@ -6,6 +6,7 @@ const verifyToken = require('../middleware/auth');
 const axios = require('axios');
 const Ticket = require('../models/Ticket');
 const { generateOrderId, createTicketFromPayment } = require('../services/ticketService');
+const { bookingLimiter, paymentVerificationLimiter } = require('../middleware/rateLimiter');
 
 // Test endpoint
 router.get('/test', (req, res) => {
@@ -13,7 +14,7 @@ router.get('/test', (req, res) => {
 });
 
 // Create payment session
-router.post('/create-payment-session', verifyToken, async (req, res) => {
+router.post('/create-payment-session', verifyToken, bookingLimiter, async (req, res) => {
   try {
     // Check required environment variables
     if (!process.env.CF_CLIENT_ID || !process.env.CF_CLIENT_SECRET) {
@@ -108,7 +109,7 @@ router.post('/create-payment-session', verifyToken, async (req, res) => {
 });
 
 // Verify payment and trigger ticket creation if successful
-router.post('/verify-payment', verifyToken, async (req, res) => {
+router.post('/verify-payment', verifyToken, paymentVerificationLimiter, async (req, res) => {
   try {
     const { order_id } = req.body;
     

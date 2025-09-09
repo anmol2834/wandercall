@@ -72,6 +72,10 @@ app.use('/api/webhooks/cashfree-webhook', express.raw({ type: 'application/json'
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
+// Rate limiting middleware
+const { generalApiLimiter } = require('./middleware/rateLimiter');
+app.use('/api', generalApiLimiter);
+
 // Routes
 app.use('/api/auth', require('./routes/authRoutes'));
 app.use('/api/waitlist', require('./routes/waitlistRoutes'));

@@ -1,13 +1,14 @@
 const express = require('express');
 const { getProfile, updateProfile, updatePassword, sendEmailOTP, updatePasswordWithEmail, syncWaitlistRewards } = require('../controllers/userController');
 const auth = require('../middleware/auth');
+const { profileUpdateLimiter, otpLimiter, passwordResetLimiter } = require('../middleware/rateLimiter');
 const router = express.Router();
 
 router.get('/profile', auth, getProfile);
-router.put('/profile', auth, updateProfile);
-router.post('/send-email-otp', auth, sendEmailOTP);
-router.put('/update-password', auth, updatePassword);
-router.put('/update-password-email', auth, updatePasswordWithEmail);
+router.put('/profile', auth, profileUpdateLimiter, updateProfile);
+router.post('/send-email-otp', auth, otpLimiter, sendEmailOTP);
+router.put('/update-password', auth, passwordResetLimiter, updatePassword);
+router.put('/update-password-email', auth, passwordResetLimiter, updatePasswordWithEmail);
 router.post('/sync-waitlist-rewards', auth, syncWaitlistRewards);
 router.get('/waitlist-rewards', auth, async (req, res) => {
   try {

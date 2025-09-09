@@ -24,9 +24,9 @@ export const AuthProvider = ({ children }) => {
       try {
         setUser(JSON.parse(storedUser));
         setIsAuthenticated(true);
-        // Set loading to false immediately to show wireframe instead of spinner
+        
         setLoading(false);
-        fetchUserProfile(); // Refresh from server
+        fetchUserProfile(); 
       } catch (error) {
         localStorage.removeItem('token');
         localStorage.removeItem('user');
@@ -57,7 +57,7 @@ export const AuthProvider = ({ children }) => {
       setUser(null);
       setIsAuthenticated(false);
     } finally {
-      // Remove loading state completely - no spinner
+      
       setLoading(false);
     }
   };
@@ -67,7 +67,7 @@ export const AuthProvider = ({ children }) => {
     localStorage.setItem('user', JSON.stringify(userData));
     setUser(userData);
     setIsAuthenticated(true);
-    // Fetch fresh profile data including addresses
+    
     setTimeout(() => fetchUserProfile(), 100);
   };
 
