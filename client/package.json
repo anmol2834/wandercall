@@ -27,7 +27,6 @@
     "react-redux": "^9.2.0",
     "react-router-dom": "6.26.2",
     "set-cookie-parser": "^2.7.1",
-    "swiper": "^11.0.5",
     "vite": "^7.1.4"
   },
   "devDependencies": {

@@ -12,6 +12,7 @@ import { getPageSEO } from '../../utils/seoData';
 import Slideshow from '../../components/Slideshow/Slideshow';
 import ExperienceCard from '../../components/ExperienceCard/ExperienceCard';
 import CardSkeleton from '../../components/CardSkeleton/CardSkeleton';
+
 import HowItWorks from '../../components/HowItWorks/HowItWorks';
 import Navbar from '../../components/Navbar/Navbar';
 import Footer from '../../components/Footer/Footer';

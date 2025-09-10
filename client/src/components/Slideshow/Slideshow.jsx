@@ -13,7 +13,7 @@ const slides = [
   {
     imageH: "https://res.cloudinary.com/drfndqoql/image/upload/v1756748481/fpv_drone_H_vjzfyw.png",
     imageV: "https://res.cloudinary.com/drfndqoql/image/upload/v1756748504/fpv_drone_V_xskhhb.png",
-    title: 'FPV Drone Adventures',
+    title: 'FPV Drone Adventure',
     subtitle: 'Experience breathtaking aerial photography and videography like never before',
   },
   {
@@ -261,9 +261,79 @@ const Slideshow = () => {
       
       <Box className="hero-content">
         <div>
-          <Typography variant="h1" className="hero-title">
-            {slides[currentSlide].title}
-          </Typography>
+          <Box
+            sx={{
+              perspective: '1000px',
+              '& *': {
+                color: '#ffffff !important',
+                WebkitTextFillColor: '#ffffff !important'
+              }
+            }}
+          >
+            <Typography 
+              variant="h1" 
+              className="hero-title"
+              component="div"
+              sx={{
+                color: '#ffffff !important',
+                textShadow: '2px 2px 8px rgba(0, 0, 0, 0.9)',
+                letterSpacing: '-0.02em',
+                fontWeight: 800,
+                lineHeight: 1.2,
+                WebkitTextFillColor: '#ffffff !important',
+                wordWrap: 'break-word',
+                overflowWrap: 'break-word',
+                hyphens: 'auto'
+              }}
+            >
+              {slides[currentSlide].title.split(' ').map((word, wordIndex) => (
+                <motion.span
+                  key={`${currentSlide}-word-${wordIndex}`}
+                  style={{
+                    display: 'inline-block',
+                    marginRight: '0.3em'
+                  }}
+                >
+                  {word.split('').map((letter, letterIndex) => (
+                    <motion.span
+                      key={`${currentSlide}-${wordIndex}-${letterIndex}`}
+                      initial={{ 
+                        opacity: 0,
+                        rotateY: -25,
+                        y: 20,
+                        scale: 0.9
+                      }}
+                      animate={{ 
+                        opacity: 1,
+                        rotateY: 0,
+                        y: 0,
+                        scale: 1
+                      }}
+                      transition={{
+                        duration: 0.5,
+                        delay: (wordIndex * 2 + letterIndex) * 0.02,
+                        ease: [0.4, 0, 0.2, 1],
+                        type: "tween"
+                      }}
+                      whileHover={{
+                        scale: 1.03,
+                        y: -1,
+                        transition: { duration: 0.1 }
+                      }}
+                      style={{ 
+                        display: 'inline-block',
+                        transformOrigin: 'center bottom',
+                        color: '#ffffff',
+                        WebkitTextFillColor: '#ffffff'
+                      }}
+                    >
+                      {letter}
+                    </motion.span>
+                  ))}
+                </motion.span>
+              ))}
+            </Typography>
+          </Box>
         </div>
         
         <div>
