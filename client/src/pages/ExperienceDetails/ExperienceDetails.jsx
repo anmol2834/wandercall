@@ -39,16 +39,19 @@ const ExperienceDetails = () => {
   useEffect(() => {
     if (id) {
       dispatch(fetchProductById(id));
-      if (user) {
-        checkWishlistStatus();
-      }
     }
-  }, [dispatch, id, user]);
+  }, [dispatch, id]);
+
+  useEffect(() => {
+    if (user && product) {
+      checkWishlistStatus();
+    }
+  }, [user, product]);
 
   const checkWishlistStatus = async () => {
-    if (!user || !id) return;
+    if (!user || !product?._id) return;
     try {
-      const response = await wishlistAPI.checkWishlistStatus(id);
+      const response = await wishlistAPI.checkWishlistStatus(product._id);
       setIsWishlisted(response.data.isWishlisted);
     } catch (error) {
       console.error('Error checking wishlist status:', error);
@@ -78,28 +81,62 @@ const ExperienceDetails = () => {
               <Box sx={{ mb: 3, display: 'flex', gap: 1 }}>
                 {[1,2,3].map(i => (
                   <motion.div key={i} animate={{ opacity: [0.3, 0.7, 0.3] }} transition={{ duration: 1.5, repeat: Infinity, delay: i * 0.2 }}>
-                    <Box sx={{ width: 80, height: 24, bgcolor: 'rgba(255,255,255,0.1)', borderRadius: 3 }} />
+                    <Box sx={{ 
+                      width: 80, 
+                      height: 24, 
+                      bgcolor: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)', 
+                      borderRadius: 3 
+                    }} />
                   </motion.div>
                 ))}
               </Box>
               <motion.div animate={{ opacity: [0.3, 0.7, 0.3] }} transition={{ duration: 1.5, repeat: Infinity }}>
-                <Box sx={{ width: '70%', height: 40, bgcolor: 'rgba(255,255,255,0.1)', borderRadius: 2, mb: 2 }} />
+                <Box sx={{ 
+                  width: '70%', 
+                  height: 40, 
+                  bgcolor: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)', 
+                  borderRadius: 2, 
+                  mb: 2 
+                }} />
               </motion.div>
               <motion.div animate={{ opacity: [0.3, 0.7, 0.3] }} transition={{ duration: 1.5, repeat: Infinity, delay: 0.3 }}>
-                <Box sx={{ width: { xs: '100%', md: '100%' }, height: { xs: 250, md: 450 }, bgcolor: 'rgba(255,255,255,0.1)', borderRadius: 3, mb: 3 }} />
+                <Box sx={{ 
+                  width: { xs: '100%', md: '100%' }, 
+                  height: { xs: 250, md: 450 }, 
+                  bgcolor: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)', 
+                  borderRadius: 3, 
+                  mb: 3 
+                }} />
               </motion.div>
               {[1,2].map(i => (
                 <motion.div key={i} animate={{ opacity: [0.3, 0.7, 0.3] }} transition={{ duration: 1.5, repeat: Infinity, delay: i * 0.4 }}>
-                  <Box sx={{ width: '100%', height: 120, bgcolor: 'rgba(255,255,255,0.1)', borderRadius: 2, mb: 2 }} />
+                  <Box sx={{ 
+                    width: '100%', 
+                    height: 120, 
+                    bgcolor: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)', 
+                    borderRadius: 2, 
+                    mb: 2 
+                  }} />
                 </motion.div>
               ))}
             </Grid>
             <Grid item xs={12} md={4}>
               <motion.div animate={{ opacity: [0.3, 0.7, 0.3] }} transition={{ duration: 1.5, repeat: Infinity, delay: 0.6 }}>
-                <Box sx={{ width: '100%', height: 300, bgcolor: 'rgba(255,255,255,0.1)', borderRadius: 2, mb: 2 }} />
+                <Box sx={{ 
+                  width: '100%', 
+                  height: 300, 
+                  bgcolor: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)', 
+                  borderRadius: 2, 
+                  mb: 2 
+                }} />
               </motion.div>
               <motion.div animate={{ opacity: [0.3, 0.7, 0.3] }} transition={{ duration: 1.5, repeat: Infinity, delay: 0.8 }}>
-                <Box sx={{ width: '100%', height: 200, bgcolor: 'rgba(255,255,255,0.1)', borderRadius: 2 }} />
+                <Box sx={{ 
+                  width: '100%', 
+                  height: 200, 
+                  bgcolor: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)', 
+                  borderRadius: 2 
+                }} />
               </motion.div>
             </Grid>
           </Grid>
@@ -179,13 +216,19 @@ const ExperienceDetails = () => {
       return;
     }
     
+    if (!id || !product?._id) {
+      console.error('Product ID not available');
+      return;
+    }
+    
     setWishlistLoading(true);
     try {
+      const productId = product._id;
       if (isWishlisted) {
-        await wishlistAPI.removeFromWishlist(id);
+        await wishlistAPI.removeFromWishlist(productId);
         setIsWishlisted(false);
       } else {
-        await wishlistAPI.addToWishlist(id);
+        await wishlistAPI.addToWishlist(productId);
         setIsWishlisted(true);
       }
     } catch (error) {
@@ -295,7 +338,11 @@ const ExperienceDetails = () => {
       </Box>
 
       {/* Main Content */}
-      <Container maxWidth="lg" sx={{ py: 3, px: { xs: 2, sm: 3, md: 4 } }}>
+      <Container maxWidth="lg" sx={{ 
+        py: 3, 
+        px: { xs: 2, sm: 3, md: 4 },
+        pb: { xs: 12, md: 3 } // Extra bottom padding on mobile for fixed bottom bar
+      }}>
         {/* Title Section */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -396,9 +443,13 @@ const ExperienceDetails = () => {
               >
                 <Card sx={{ 
                   overflow: 'hidden',
-                  background: 'rgba(255, 255, 255, 0.05)',
-                  backdropFilter: 'blur(10px)',
-                  border: '1px solid rgba(255, 255, 255, 0.1)'
+                  background: theme.palette.mode === 'dark' 
+                    ? 'rgba(255, 255, 255, 0.05)' 
+                    : '#ffffff',
+                  backdropFilter: theme.palette.mode === 'dark' ? 'blur(10px)' : 'none',
+                  border: theme.palette.mode === 'dark' 
+                    ? '1px solid rgba(255, 255, 255, 0.1)' 
+                    : '1px solid rgba(0, 0, 0, 0.12)'
                 }}>
                   <Box sx={{ position: 'relative', height: { xs: 250, md: 450 } }}>
                     <AnimatePresence mode="wait">
@@ -505,9 +556,13 @@ const ExperienceDetails = () => {
                 whileHover={{ y: -2 }}
               >
                 <Card sx={{
-                  background: 'rgba(255, 255, 255, 0.05)',
-                  backdropFilter: 'blur(10px)',
-                  border: '1px solid rgba(255, 255, 255, 0.1)'
+                  background: theme.palette.mode === 'dark' 
+                    ? 'rgba(255, 255, 255, 0.05)' 
+                    : '#ffffff',
+                  backdropFilter: theme.palette.mode === 'dark' ? 'blur(10px)' : 'none',
+                  border: theme.palette.mode === 'dark' 
+                    ? '1px solid rgba(255, 255, 255, 0.1)' 
+                    : '1px solid rgba(0, 0, 0, 0.12)'
                 }}>
                   <CardContent>
                     <Typography variant="h6" fontWeight={600} mb={2}>
@@ -537,9 +592,13 @@ const ExperienceDetails = () => {
                 whileHover={{ y: -2 }}
               >
                 <Card sx={{
-                  background: 'rgba(255, 255, 255, 0.05)',
-                  backdropFilter: 'blur(10px)',
-                  border: '1px solid rgba(255, 255, 255, 0.1)'
+                  background: theme.palette.mode === 'dark' 
+                    ? 'rgba(255, 255, 255, 0.05)' 
+                    : '#ffffff',
+                  backdropFilter: theme.palette.mode === 'dark' ? 'blur(10px)' : 'none',
+                  border: theme.palette.mode === 'dark' 
+                    ? '1px solid rgba(255, 255, 255, 0.1)' 
+                    : '1px solid rgba(0, 0, 0, 0.12)'
                 }}>
                   <CardContent>
                     <Typography variant="h6" fontWeight={600} mb={2}>
@@ -559,7 +618,7 @@ const ExperienceDetails = () => {
                                 whileHover={{ rotate: 360 }}
                                 transition={{ duration: 0.3 }}
                               >
-                                <CheckCircle color="success" sx={{ fontSize: 16 }} />
+                                <CheckCircle color="success" sx={{ fontSize: 16, color: theme.palette.mode === 'light' ? '#4f46e5' : 'currentColor' }} />
                               </motion.div>
                               <Typography variant="body2">{highlight}</Typography>
                             </Box>
@@ -580,9 +639,13 @@ const ExperienceDetails = () => {
                   whileHover={{ y: -2 }}
                 >
                   <Card sx={{ 
-                    background: 'rgba(255, 255, 255, 0.05)',
-                    backdropFilter: 'blur(10px)',
-                    border: '1px solid rgba(99, 102, 241, 0.3)'
+                    background: theme.palette.mode === 'dark' 
+                      ? 'rgba(255, 255, 255, 0.05)' 
+                      : '#ffffff',
+                    backdropFilter: theme.palette.mode === 'dark' ? 'blur(10px)' : 'none',
+                    border: theme.palette.mode === 'dark' 
+                      ? '1px solid rgba(99, 102, 241, 0.3)' 
+                      : '1px solid rgba(99, 102, 241, 0.2)'
                   }}>
                     <CardContent>
                       <Typography variant="h6" fontWeight={600} mb={2} textAlign="center">
@@ -783,9 +846,13 @@ const ExperienceDetails = () => {
                   <Card sx={{ 
                     position: 'sticky', 
                     top: 100,
-                    background: 'rgba(255, 255, 255, 0.05)',
-                    backdropFilter: 'blur(10px)',
-                    border: '1px solid rgba(99, 102, 241, 0.3)'
+                    background: theme.palette.mode === 'dark' 
+                      ? 'rgba(255, 255, 255, 0.05)' 
+                      : '#ffffff',
+                    backdropFilter: theme.palette.mode === 'dark' ? 'blur(10px)' : 'none',
+                    border: theme.palette.mode === 'dark' 
+                      ? '1px solid rgba(99, 102, 241, 0.3)' 
+                      : '1px solid rgba(99, 102, 241, 0.2)'
                   }}>
                     <CardContent>
                       <Typography variant="h6" fontWeight={600} mb={2} textAlign="center">
@@ -901,9 +968,13 @@ const ExperienceDetails = () => {
                 whileHover={{ scale: 1.02, y: -2 }}
               >
                 <Card sx={{
-                  background: 'rgba(255, 255, 255, 0.05)',
-                  backdropFilter: 'blur(10px)',
-                  border: '1px solid rgba(255, 255, 255, 0.1)'
+                  background: theme.palette.mode === 'dark' 
+                    ? 'rgba(255, 255, 255, 0.05)' 
+                    : '#ffffff',
+                  backdropFilter: theme.palette.mode === 'dark' ? 'blur(10px)' : 'none',
+                  border: theme.palette.mode === 'dark' 
+                    ? '1px solid rgba(255, 255, 255, 0.1)' 
+                    : '1px solid rgba(0, 0, 0, 0.12)'
                 }}>
                 <CardContent>
                   <Typography variant="h6" fontWeight={600} mb={2}>
@@ -1005,12 +1076,13 @@ const ExperienceDetails = () => {
                 <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
                   <Button
                     variant="outlined"
-                    startIcon={isWishlisted ? <Favorite /> : <FavoriteBorder />}
+                    startIcon={wishlistLoading ? <CircularProgress size={16} sx={{ color: theme.palette.mode === 'light' ? 'black' : 'white' }} /> : (isWishlisted ? <Favorite /> : <FavoriteBorder />)}
                     onClick={handleWishlistToggle}
                     color={isWishlisted ? "primary" : "inherit"}
                     size="small"
+                    disabled={wishlistLoading}
                   >
-                    Save
+                    {wishlistLoading ? 'Saving...' : 'Save'}
                   </Button>
                 </motion.div>
                 <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>

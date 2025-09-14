@@ -23,21 +23,34 @@ const Profile = lazy(() => import('./pages/Profile/Profile'));
 const ExperienceDetails = lazy(() => import('./pages/ExperienceDetails/ExperienceDetails'));
 const Ticket = lazy(() => import('./pages/Ticket/Ticket'));
 const ProviderRegistration = lazy(() => import('./pages/ProviderRegistration/ProviderRegistration'));
+const ProviderTerms = lazy(() => import('./pages/ProviderTerms/ProviderTerms'));
 const Waitlist = lazy(() => import('./pages/Waitlist/Waitlist'));
 const Booking = lazy(() => import('./pages/Booking/Booking'));
 
 // Loading component with spinner
-const PageLoader = () => (
-  <Box sx={{ 
-    display: 'flex', 
-    justifyContent: 'center', 
-    alignItems: 'center', 
-    minHeight: '100vh',
-    background: 'linear-gradient(135deg, #0f0f23 0%, #1a1a2e 25%, #16213e 50%, #0f3460 75%, #1e3c72 100%)'
-  }}>
-    <CircularProgress size={60} thickness={4} sx={{ color: '#6366f1' }} />
-  </Box>
-);
+const PageLoader = () => {
+  const { mode } = useSelector((state) => state.theme);
+  
+  return (
+    <Box sx={{ 
+      display: 'flex', 
+      justifyContent: 'center', 
+      alignItems: 'center', 
+      minHeight: '100vh',
+      background: mode === 'dark' 
+        ? 'linear-gradient(135deg, #0f0f23 0%, #1a1a2e 25%, #16213e 50%, #0f3460 75%, #1e3c72 100%)'
+        : 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)'
+    }}>
+      <CircularProgress 
+        size={60} 
+        thickness={4} 
+        sx={{ 
+          color: mode === 'dark' ? '#6366f1' : '#4f46e5'
+        }} 
+      />
+    </Box>
+  );
+};
 
 function App() {
   const { mode } = useSelector((state) => state.theme);
@@ -81,6 +94,7 @@ function App() {
               <Route path="/booking/:id" element={<Booking />} />
               <Route path="/ticket/:id" element={<Ticket />} />
               <Route path="/become-provider" element={<ProviderRegistration />} />
+              <Route path="/provider-terms" element={<ProviderTerms />} />
               <Route path="/waitlist" element={<Waitlist />} />
             </Routes>
           </Suspense>

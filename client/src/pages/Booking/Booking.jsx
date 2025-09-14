@@ -526,9 +526,13 @@ const Booking = () => {
                 {activeStep === 0 && (
                   <Card sx={{
                     mb: 3,
-                    background: 'rgba(255, 255, 255, 0.05)',
-                    backdropFilter: 'blur(10px)',
-                    border: '1px solid rgba(255, 255, 255, 0.1)'
+                    background: theme.palette.mode === 'dark' 
+                      ? 'rgba(255, 255, 255, 0.05)' 
+                      : '#ffffff',
+                    backdropFilter: theme.palette.mode === 'dark' ? 'blur(10px)' : 'none',
+                    border: theme.palette.mode === 'dark' 
+                      ? '1px solid rgba(255, 255, 255, 0.1)' 
+                      : '1px solid rgba(0, 0, 0, 0.12)'
                   }}>
                     <CardContent sx={{ p: 3 }}>
                       <Typography variant="h5" fontWeight={700} mb={3}>
@@ -794,9 +798,13 @@ const Booking = () => {
                 {activeStep === 1 && (
                   <Card sx={{
                     mb: 3,
-                    background: 'rgba(255, 255, 255, 0.05)',
-                    backdropFilter: 'blur(10px)',
-                    border: '1px solid rgba(255, 255, 255, 0.1)'
+                    background: theme.palette.mode === 'dark' 
+                      ? 'rgba(255, 255, 255, 0.05)' 
+                      : '#ffffff',
+                    backdropFilter: theme.palette.mode === 'dark' ? 'blur(10px)' : 'none',
+                    border: theme.palette.mode === 'dark' 
+                      ? '1px solid rgba(255, 255, 255, 0.1)' 
+                      : '1px solid rgba(0, 0, 0, 0.12)'
                   }}>
                     <CardContent sx={{ p: 3 }}>
                       <Typography variant="h5" fontWeight={700} mb={3}>
@@ -931,9 +939,13 @@ const Booking = () => {
                 {activeStep === 2 && (
                   <Card sx={{
                     mb: 3,
-                    background: 'rgba(255, 255, 255, 0.05)',
-                    backdropFilter: 'blur(10px)',
-                    border: '1px solid rgba(255, 255, 255, 0.1)'
+                    background: theme.palette.mode === 'dark' 
+                      ? 'rgba(255, 255, 255, 0.05)' 
+                      : '#ffffff',
+                    backdropFilter: theme.palette.mode === 'dark' ? 'blur(10px)' : 'none',
+                    border: theme.palette.mode === 'dark' 
+                      ? '1px solid rgba(255, 255, 255, 0.1)' 
+                      : '1px solid rgba(0, 0, 0, 0.12)'
                   }}>
                     <CardContent sx={{ p: 3 }}>
                       <Typography variant="h5" fontWeight={700} mb={3}>
@@ -1131,9 +1143,13 @@ const Booking = () => {
               <Card sx={{
                 position: 'sticky',
                 top: 120,
-                background: 'rgba(255, 255, 255, 0.05)',
-                backdropFilter: 'blur(20px)',
-                border: '1px solid rgba(99, 102, 241, 0.3)'
+                background: theme.palette.mode === 'dark' 
+                  ? 'rgba(255, 255, 255, 0.05)' 
+                  : '#ffffff',
+                backdropFilter: theme.palette.mode === 'dark' ? 'blur(20px)' : 'none',
+                border: theme.palette.mode === 'dark' 
+                  ? '1px solid rgba(99, 102, 241, 0.3)' 
+                  : '1px solid rgba(99, 102, 241, 0.2)'
               }}>
                 <CardContent sx={{ p: 3 }}>
                   <Typography variant="h6" fontWeight={700} mb={3}>

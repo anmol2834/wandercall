@@ -469,7 +469,7 @@ const ProviderRegistration = () => {
               }
               label={
                 <Typography variant="body2">
-                  I agree to the <Link href="#" underline="hover">Terms and Conditions</Link>
+                  I agree to the <Link href="/provider-terms" target="_blank" underline="hover">Provider Terms and Conditions</Link>
                 </Typography>
               }
             />
@@ -805,7 +805,7 @@ const ProviderRegistration = () => {
                         }}
                         variant="contained"
                       >
-                        {activeStep === steps.length - 1 ? 'Complete Registration' : 'Continue'}
+                        {activeStep === steps.length - 1 ? 'Complete' : 'Continue'}
                       </Button>
                     </motion.div>
                   </Box>

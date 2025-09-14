@@ -1,7 +1,16 @@
 import { createSlice } from '@reduxjs/toolkit';
 
+// Get theme from localStorage or default to 'dark'
+const getInitialTheme = () => {
+  if (typeof window !== 'undefined') {
+    const savedTheme = localStorage.getItem('wandercall-theme');
+    return savedTheme || 'dark';
+  }
+  return 'dark';
+};
+
 const initialState = {
-  mode: 'dark', // Default dark mode
+  mode: getInitialTheme(),
 };
 
 export const themeSlice = createSlice({
@@ -10,9 +19,17 @@ export const themeSlice = createSlice({
   reducers: {
     toggleTheme: (state) => {
       state.mode = state.mode === 'dark' ? 'light' : 'dark';
+      // Save to localStorage
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('wandercall-theme', state.mode);
+      }
     },
     setTheme: (state, action) => {
       state.mode = action.payload;
+      // Save to localStorage
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('wandercall-theme', action.payload);
+      }
     },
   },
 });
