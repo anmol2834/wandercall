@@ -488,8 +488,8 @@ const ProviderRegistration = () => {
       overflow: 'hidden',
       background: theme.palette.mode === 'dark'
         ? 'linear-gradient(135deg, #0f0f23 0%, #1a1a2e 25%, #16213e 50%, #0f3460 75%, #1e3c72 100%)'
-        : 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 25%, #f1f5f9 50%, #e0e7ff 75%, #f3f4f6 100%)',
-      '&::before': {
+        : 'white',
+      '&::before': theme.palette.mode === 'dark' ? {
         content: '""',
         position: 'absolute',
         top: 0,
@@ -503,7 +503,7 @@ const ProviderRegistration = () => {
         ].join(', '),
         animation: 'backgroundShift 20s ease-in-out infinite',
         pointerEvents: 'none'
-      },
+      } : {},
       '@keyframes backgroundShift': {
         '0%, 100%': { transform: 'scale(1) rotate(0deg)' },
         '50%': { transform: 'scale(1.1) rotate(2deg)' }
