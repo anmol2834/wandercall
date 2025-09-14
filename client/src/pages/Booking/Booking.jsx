@@ -7,7 +7,8 @@ import {
 import {
   ArrowBack, CalendarToday, Person, Email, Phone, LocalOffer,
   CreditCard, AccountBalanceWallet, QrCode, CheckCircle, LocationOn,
-  AccessTime, Group, Star, EventAvailable, EventBusy, Payment
+  AccessTime, Group, Star, EventAvailable, EventBusy, Payment,
+  CenterFocusStrong
 } from '@mui/icons-material';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate, useLocation, useParams } from 'react-router-dom';
@@ -535,16 +536,12 @@ const Booking = () => {
                       : '1px solid rgba(0, 0, 0, 0.12)'
                   }}>
                     <CardContent sx={{ p: 3 }}>
-                      <Typography variant="h5" fontWeight={700} mb={3}>
+                      <Typography variant="h5" fontWeight={700} mb={3} sx={{ fontSize: { xs: '1.25rem', md: '1.5rem' }, textAlign: 'center' }}>
                         Select Date & Participants
                       </Typography>
 
                       <Grid container spacing={3}>
                         <Grid item xs={12}>
-                          <Typography variant="h6" fontWeight={600} mb={2}>
-                            Select Your Date
-                          </Typography>
-
                           {/* Modern Calendar */}
                           <motion.div
                             initial={{ opacity: 0, y: 20 }}
