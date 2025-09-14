@@ -529,6 +529,89 @@ const ProviderTerms = () => {
           </motion.div>
         ))}
 
+        {/* Additional Terms Section */}
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.8 }}
+        >
+          <Paper sx={{
+            p: { xs: 2, md: 3 },
+            mb: { xs: 2, md: 3 },
+            background: isDark 
+              ? 'rgba(20, 20, 20, 0.8)'
+              : 'rgba(248, 250, 252, 0.9)',
+            backdropFilter: 'blur(10px)',
+            border: isDark 
+              ? '1px solid rgba(255, 255, 255, 0.1)'
+              : '1px solid rgba(0, 0, 0, 0.1)',
+            borderRadius: 2
+          }}>
+            <Typography variant="h6" sx={{ 
+              fontSize: '0.95rem', 
+              color: '#666', 
+              mb: 2,
+              fontWeight: 500
+            }}>
+              Additional Terms
+            </Typography>
+            <Typography variant="body2" sx={{ 
+              fontSize: '0.85rem', 
+              color: '#666', 
+              lineHeight: 1.5,
+              mb: 2
+            }}>
+              Wandercall reserves the exclusive right to modify, update, or amend these Terms and Conditions at any time, with or without prior notice. Such changes may take effect immediately upon publication on the platform or from a date specified by Wandercall. Your continued use of the platform after the effective date will constitute acceptance of the revised Terms and Conditions.
+            </Typography>
+            <Typography variant="body2" sx={{ 
+              fontSize: '0.85rem', 
+              color: '#666', 
+              lineHeight: 1.5,
+              mb: 1
+            }}>
+              By signing up as an Experience Provider, you confirm that:
+            </Typography>
+            <Box component="ul" sx={{ pl: 2, mt: 1 }}>
+              <Typography component="li" variant="body2" sx={{ 
+                fontSize: '0.85rem', 
+                color: '#666', 
+                mb: 0.5 
+              }}>
+                You have read and understood these Terms and Conditions.
+              </Typography>
+              <Typography component="li" variant="body2" sx={{ 
+                fontSize: '0.85rem', 
+                color: '#666', 
+                mb: 0.5 
+              }}>
+                You are legally eligible to host experiences.
+              </Typography>
+              <Typography component="li" variant="body2" sx={{ 
+                fontSize: '0.85rem', 
+                color: '#666', 
+                mb: 0.5 
+              }}>
+                You accept full responsibility for the experiences you provide and your conduct.
+              </Typography>
+              <Typography component="li" variant="body2" sx={{ 
+                fontSize: '0.85rem', 
+                color: '#666', 
+                mb: 0.5 
+              }}>
+                You acknowledge Wandercall's role as a facilitator and agree to abide by these policies.
+              </Typography>
+            </Box>
+            <Typography variant="body2" sx={{ 
+              fontSize: '0.85rem', 
+              color: '#666', 
+              lineHeight: 1.5,
+              mt: 2
+            }}>
+              Together, we create safe, authentic, and memorable experiences on Wandercall.
+            </Typography>
+          </Paper>
+        </motion.div>
+
         {/* Commitment Section */}
         <motion.div
           initial={{ opacity: 0, y: 50, scale: 0.9 }}

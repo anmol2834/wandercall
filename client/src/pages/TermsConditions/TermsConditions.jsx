@@ -787,6 +787,42 @@ const TermsConditions = () => {
         </motion.div>
       </Container>
 
+      {/* Additional Terms Section */}
+      <Container maxWidth="lg" sx={{ py: 2, px: { xs: 2, md: 3 } }}>
+        <Accordion sx={{ backgroundColor: theme.palette.background.paper, boxShadow: 1 }}>
+          <AccordionSummary expandIcon={<ExpandMore />}>
+            <Typography variant="body2" sx={{ fontSize: '0.85rem', color: '#666' }}>
+              Additional Terms
+            </Typography>
+          </AccordionSummary>
+          <AccordionDetails>
+            <Typography variant="body2" sx={{ fontSize: '0.85rem', color: '#666', lineHeight: 1.5 }}>
+              Wandercall reserves the exclusive right to modify, update, or amend these Terms and Conditions at any time, with or without prior notice. Such changes may take effect immediately upon publication on the platform or from a date specified by Wandercall. Your continued use of the platform after the effective date will constitute acceptance of the revised Terms and Conditions.
+            </Typography>
+            <Typography variant="body2" sx={{ fontSize: '0.85rem', color: '#666', lineHeight: 1.5, mt: 2 }}>
+              By signing up as an Experience Provider, you confirm that:
+            </Typography>
+            <Box component="ul" sx={{ pl: 2, mt: 1 }}>
+              <Typography component="li" variant="body2" sx={{ fontSize: '0.85rem', color: '#666', mb: 0.5 }}>
+                You have read and understood these Terms and Conditions.
+              </Typography>
+              <Typography component="li" variant="body2" sx={{ fontSize: '0.85rem', color: '#666', mb: 0.5 }}>
+                You are legally eligible to host experiences.
+              </Typography>
+              <Typography component="li" variant="body2" sx={{ fontSize: '0.85rem', color: '#666', mb: 0.5 }}>
+                You accept full responsibility for the experiences you provide and your conduct.
+              </Typography>
+              <Typography component="li" variant="body2" sx={{ fontSize: '0.85rem', color: '#666', mb: 0.5 }}>
+                You acknowledge Wandercall's role as a facilitator and agree to abide by these policies.
+              </Typography>
+            </Box>
+            <Typography variant="body2" sx={{ fontSize: '0.85rem', color: '#666', lineHeight: 1.5, mt: 2 }}>
+              Together, we create safe, authentic, and memorable experiences on Wandercall.
+            </Typography>
+          </AccordionDetails>
+        </Accordion>
+      </Container>
+
       {/* Footer */}
       <Container maxWidth="lg" className="terms-footer-section" sx={{ py: 4, px: { xs: 2, md: 3 } }}>
         <Divider className="terms-divider" sx={{ mb: 4 }} />
