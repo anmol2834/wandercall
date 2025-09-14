@@ -26,8 +26,18 @@ const ProviderRegistration = lazy(() => import('./pages/ProviderRegistration/Pro
 const Waitlist = lazy(() => import('./pages/Waitlist/Waitlist'));
 const Booking = lazy(() => import('./pages/Booking/Booking'));
 
-// Minimal loading component - no spinner
-const PageLoader = () => null;
+// Loading component with spinner
+const PageLoader = () => (
+  <Box sx={{ 
+    display: 'flex', 
+    justifyContent: 'center', 
+    alignItems: 'center', 
+    minHeight: '100vh',
+    background: 'linear-gradient(135deg, #0f0f23 0%, #1a1a2e 25%, #16213e 50%, #0f3460 75%, #1e3c72 100%)'
+  }}>
+    <CircularProgress size={60} thickness={4} sx={{ color: '#6366f1' }} />
+  </Box>
+);
 
 function App() {
   const { mode } = useSelector((state) => state.theme);
@@ -44,7 +54,7 @@ function App() {
         <RewardsProvider>
           <Router>
             <ScrollToTop />
-          <Suspense fallback={null}>
+          <Suspense fallback={<PageLoader />}>
             <Routes>
               <Route path="/" element={<Home />} />
               <Route path="/signin" element={

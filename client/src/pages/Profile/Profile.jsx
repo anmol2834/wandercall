@@ -42,6 +42,8 @@ const Profile = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [showBackToTop, setShowBackToTop] = useState(false);
   const [activeSection, setActiveSection] = useState('profile');
+  const [profileLoading, setProfileLoading] = useState(true);
+  const [initialLoad, setInitialLoad] = useState(true);
   const [userAvatar, setUserAvatar] = useState(() => {
     const saved = localStorage.getItem('selectedAvatar');
     return saved ? parseInt(saved) : user?.selectedAvatar || 0;
@@ -77,26 +79,35 @@ const Profile = () => {
   }, [location.pathname]);
 
   useEffect(() => {
-    if (user) {
-      if (user.id) {
-        dispatch(fetchUserRewards(user.id));
+    // Set initial load to false after component mounts
+    const timer = setTimeout(() => {
+      setInitialLoad(false);
+    }, 100);
+    
+    return () => clearTimeout(timer);
+  }, []);
+
+  useEffect(() => {
+    if (!loading && !initialLoad) {
+      if (user) {
+        if (user.id) {
+          dispatch(fetchUserRewards(user.id));
+        }
+        if (user.addresses) {
+          setAddresses(user.addresses);
+        }
+        // Set avatar from localStorage or user data
+        const saved = localStorage.getItem('selectedAvatar');
+        if (saved) {
+          setUserAvatar(parseInt(saved));
+        } else if (user.selectedAvatar !== undefined) {
+          setUserAvatar(user.selectedAvatar);
+          localStorage.setItem('selectedAvatar', user.selectedAvatar.toString());
+        }
       }
-      if (user.addresses) {
-        setAddresses(user.addresses);
-      } else if (user.id) {
-        // If addresses not loaded, fetch fresh user profile
-        fetchUserProfile();
-      }
-      // Set avatar from localStorage or user data
-      const saved = localStorage.getItem('selectedAvatar');
-      if (saved) {
-        setUserAvatar(parseInt(saved));
-      } else if (user.selectedAvatar !== undefined) {
-        setUserAvatar(user.selectedAvatar);
-        localStorage.setItem('selectedAvatar', user.selectedAvatar.toString());
-      }
+      setProfileLoading(false);
     }
-  }, [user, dispatch, fetchUserProfile]);
+  }, [user, loading, initialLoad, dispatch]);
 
   // Get XP from RewardsContext
   const displayXP = xpBalance || '0';
@@ -183,7 +194,7 @@ const Profile = () => {
     }
   };
 
-  if (loading) {
+  if (loading || profileLoading || initialLoad) {
     return <ProfileWireframe />;
   }
 
