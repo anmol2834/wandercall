@@ -91,6 +91,7 @@ app.use('/api/payments', require('./routes/paymentRoutes'));
 app.use('/api/transactions', require('./routes/transactionRoutes'));
 app.use('/api/cancellation', require('./routes/cancellationRoutes'));
 app.use('/api/refund', require('./routes/refundRoutes'));
+app.use('/api/refund-ticket', require('./routes/refundTicketRoutes'));
 app.use('/api/webhooks', require('./routes/webhookRoutes'));
 
 

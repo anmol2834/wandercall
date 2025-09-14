@@ -29,6 +29,7 @@ const userSchema = new mongoose.Schema({
     }],
     validate: [arrayLimit, 'Maximum 2 addresses allowed']
   },
+  upiId: { type: String, required: false },
   isWaitlistMember: { type: Boolean, default: false }
 }, { timestamps: true });
 

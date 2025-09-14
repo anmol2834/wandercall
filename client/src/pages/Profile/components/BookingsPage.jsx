@@ -5,7 +5,7 @@ import {
 } from '@mui/material';
 import {
   Explore, LocationOn, Star, 
-  CheckCircle, Cancel, Schedule, CalendarToday, Download, Visibility, RateReview, CancelOutlined
+  CheckCircle, Cancel, Schedule, CalendarToday, Download, Visibility, RateReview, CancelOutlined, AccountBalance
 } from '@mui/icons-material';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTheme } from '@mui/material/styles';
@@ -16,7 +16,9 @@ import TicketDownloader from '../../../components/PDFTicket/TicketDownloader';
 import TicketModal from '../../../components/TicketModal/TicketModal';
 import CustomAlert from '../../../components/Alert/CustomAlert';
 import ConfirmDialog from '../../../components/Alert/ConfirmDialog';
+import RefundModal from '../../../components/RefundModal/RefundModal';
 import { cancellationAPI } from '../../../services/cancellationAPI';
+import { refundTicketAPI } from '../../../services/refundTicketAPI';
 
 const BookingsPage = () => {
   const theme = useTheme();
@@ -28,6 +30,9 @@ const BookingsPage = () => {
   const [cancellationEligibility, setCancellationEligibility] = useState({});
   const [alertConfig, setAlertConfig] = useState({ open: false, type: 'info', title: '', message: '' });
   const [confirmConfig, setConfirmConfig] = useState({ open: false, ticketId: null });
+  const [refundModalOpen, setRefundModalOpen] = useState(false);
+  const [selectedRefundTicket, setSelectedRefundTicket] = useState(null);
+  const [refundLoading, setRefundLoading] = useState(false);
   const { bookings, loading, error } = useSelector(state => state.tickets);
 
   useEffect(() => {
@@ -50,6 +55,58 @@ const BookingsPage = () => {
   const handleCloseTicketModal = () => {
     setTicketModalOpen(false);
     setSelectedTicket(null);
+  };
+
+  const handleRefundRequest = (booking) => {
+    setSelectedRefundTicket({
+      _id: booking._id,
+      ticketNumber: booking.ticketNumber,
+      productTitle: booking.productId?.title || booking.title,
+      totalPrice: booking.totalPrice
+    });
+    setRefundModalOpen(true);
+  };
+
+  const handleRefundConfirm = async (upiId) => {
+    try {
+      setRefundLoading(true);
+      const result = await refundTicketAPI.createRefundTicket(selectedRefundTicket._id, upiId);
+      
+      if (result.success) {
+        // Immediately close modal and show success
+        setRefundModalOpen(false);
+        setSelectedRefundTicket(null);
+        setRefundLoading(false);
+        
+        // Show success message immediately
+        setAlertConfig({
+          open: true,
+          type: 'success',
+          title: 'Refund Request Submitted',
+          message: 'Your refund request has been submitted successfully. Manual refund will be processed within 5-7 business days.'
+        });
+        
+        // Refresh bookings list immediately (data already deleted from backend)
+        dispatch(fetchMyBookings());
+      } else {
+        setRefundLoading(false);
+        setAlertConfig({
+          open: true,
+          type: 'error',
+          title: 'Refund Request Failed',
+          message: result.message || 'Failed to submit refund request'
+        });
+      }
+    } catch (error) {
+      console.error('Error submitting refund request:', error);
+      setRefundLoading(false);
+      setAlertConfig({
+        open: true,
+        type: 'error',
+        title: 'Error',
+        message: 'Failed to submit refund request. Please try again.'
+      });
+    }
   };
 
   const handleCancelBooking = async (ticketId) => {
@@ -499,30 +556,49 @@ const BookingsPage = () => {
                               </Button>
 
                               {booking.status === 'active' && cancellationEligibility[booking._id]?.canCancel && (
-                                <Button 
-                                  variant="outlined" 
-                                  size="small"
-                                  color="error"
-                                  startIcon={cancellingTickets.has(booking._id) ? 
-                                    <CircularProgress size={14} /> : <CancelOutlined />}
-                                  onClick={() => {
-                                    setConfirmConfig({
-                                      open: true,
-                                      ticketId: booking._id
-                                    });
-                                  }}
-                                  disabled={cancellingTickets.has(booking._id)}
-                                  sx={{ 
-                                    borderRadius: 2,
-                                    fontSize: { xs: '0.75rem', sm: '0.8rem' },
-                                    px: { xs: 2, sm: 1.5 },
-                                    py: { xs: 1, sm: 0.8 },
-                                    minWidth: { xs: 'auto', sm: 80 },
-                                    flex: { xs: 1, sm: 'none' }
-                                  }}
-                                >
-                                  {cancellingTickets.has(booking._id) ? 'Cancelling...' : 'Cancel'}
-                                </Button>
+                                <>
+                                  <Button 
+                                    variant="outlined" 
+                                    size="small"
+                                    color="warning"
+                                    startIcon={<CancelOutlined />}
+                                    onClick={() => handleRefundRequest(booking)}
+                                    sx={{ 
+                                      borderRadius: 2,
+                                      fontSize: { xs: '0.75rem', sm: '0.8rem' },
+                                      px: { xs: 2, sm: 1.5 },
+                                      py: { xs: 1, sm: 0.8 },
+                                      minWidth: { xs: 'auto', sm: 80 },
+                                      flex: { xs: 1, sm: 'none' }
+                                    }}
+                                  >
+                                    Cancel
+                                  </Button>
+                                  {/* <Button 
+                                    variant="outlined" 
+                                    size="small"
+                                    color="error"
+                                    startIcon={cancellingTickets.has(booking._id) ? 
+                                      <CircularProgress size={14} /> : <CancelOutlined />}
+                                    onClick={() => {
+                                      setConfirmConfig({
+                                        open: true,
+                                        ticketId: booking._id
+                                      });
+                                    }}
+                                    disabled={cancellingTickets.has(booking._id)}
+                                    sx={{ 
+                                      borderRadius: 2,
+                                      fontSize: { xs: '0.75rem', sm: '0.8rem' },
+                                      px: { xs: 2, sm: 1.5 },
+                                      py: { xs: 1, sm: 0.8 },
+                                      minWidth: { xs: 'auto', sm: 80 },
+                                      flex: { xs: 1, sm: 'none' }
+                                    }}
+                                  >
+                                    {cancellingTickets.has(booking._id) ? 'Cancelling...' : 'Cancel'}
+                                  </Button> */}
+                                </>
                               )}
                             </>
                           )}
@@ -575,6 +651,18 @@ const BookingsPage = () => {
         type={alertConfig.type}
         title={alertConfig.title}
         message={alertConfig.message}
+      />
+
+      {/* Refund Modal */}
+      <RefundModal
+        open={refundModalOpen}
+        onClose={() => {
+          setRefundModalOpen(false);
+          setSelectedRefundTicket(null);
+        }}
+        onConfirm={handleRefundConfirm}
+        ticketData={selectedRefundTicket}
+        loading={refundLoading}
       />
 
       {/* Confirmation Dialog */}

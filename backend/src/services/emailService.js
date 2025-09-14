@@ -309,10 +309,148 @@ const sendCancellationNotificationToProvider = async (providerEmail, cancellatio
   }
 };
 
+// Generic send email function
+const sendEmail = async ({ to, subject, template, data }) => {
+  try {
+    let htmlContent = '';
+    
+    if (template === 'refund-ticket') {
+      htmlContent = generateRefundTicketHTML(data);
+    } else if (template === 'booking-cancelled-provider') {
+      htmlContent = generateCancellationHTML(data);
+    } else {
+      throw new Error('Unknown email template');
+    }
+    
+    const mailOptions = {
+      from: '"WanderCall" <teamwandercall@gmail.com>',
+      to: to,
+      subject: subject,
+      html: htmlContent
+    };
+
+    return await transporter.sendMail(mailOptions);
+  } catch (error) {
+    console.error('Error sending email:', error);
+    throw error;
+  }
+};
+
+// Generate refund ticket email HTML
+const generateRefundTicketHTML = (data) => {
+  const { ticketNumber, orderId, userName, userEmail, upiId, productTitle, totalAmount, bookingDate, selectedDate, participants } = data;
+  
+  return `
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Refund Ticket Created</title>
+    </head>
+    <body style="margin: 0; padding: 0; font-family: Arial, sans-serif; background-color: #f4f4f4;">
+        <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f4f4f4; padding: 20px;">
+            <tr>
+                <td align="center">
+                    <table width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+                        <tr>
+                            <td style="background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); padding: 30px; text-align: center;">
+                                <h1 style="color: #ffffff; margin: 0; font-size: 24px; font-weight: bold;">🎫 Refund Ticket Created</h1>
+                                <p style="color: #ffffff; margin: 10px 0 0 0; opacity: 0.9;">Manual refund request received</p>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 30px;">
+                                <h2 style="color: #333333; margin: 0 0 20px 0; font-size: 20px;">Refund Request Details</h2>
+                                <table width="100%" cellpadding="8" cellspacing="0" style="border: 1px solid #e5e7eb; border-radius: 6px; margin-bottom: 20px;">
+                                    <tr style="background-color: #f9fafb;">
+                                        <td style="font-weight: bold; color: #374151; border-bottom: 1px solid #e5e7eb;">Ticket Number:</td>
+                                        <td style="color: #6b7280; border-bottom: 1px solid #e5e7eb;">${ticketNumber}</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="font-weight: bold; color: #374151; border-bottom: 1px solid #e5e7eb;">Order ID:</td>
+                                        <td style="color: #6b7280; border-bottom: 1px solid #e5e7eb;">${orderId}</td>
+                                    </tr>
+                                    <tr style="background-color: #f9fafb;">
+                                        <td style="font-weight: bold; color: #374151; border-bottom: 1px solid #e5e7eb;">Customer Name:</td>
+                                        <td style="color: #6b7280; border-bottom: 1px solid #e5e7eb;">${userName}</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="font-weight: bold; color: #374151; border-bottom: 1px solid #e5e7eb;">Customer Email:</td>
+                                        <td style="color: #6b7280; border-bottom: 1px solid #e5e7eb;">${userEmail}</td>
+                                    </tr>
+                                    <tr style="background-color: #f9fafb;">
+                                        <td style="font-weight: bold; color: #374151; border-bottom: 1px solid #e5e7eb;">UPI ID:</td>
+                                        <td style="color: #dc2626; font-weight: bold; border-bottom: 1px solid #e5e7eb;">${upiId}</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="font-weight: bold; color: #374151; border-bottom: 1px solid #e5e7eb;">Experience:</td>
+                                        <td style="color: #6b7280; border-bottom: 1px solid #e5e7eb;">${productTitle}</td>
+                                    </tr>
+                                    <tr style="background-color: #f9fafb;">
+                                        <td style="font-weight: bold; color: #374151; border-bottom: 1px solid #e5e7eb;">Refund Amount:</td>
+                                        <td style="color: #059669; font-weight: bold; font-size: 18px; border-bottom: 1px solid #e5e7eb;">₹${totalAmount}</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="font-weight: bold; color: #374151; border-bottom: 1px solid #e5e7eb;">Participants:</td>
+                                        <td style="color: #6b7280;">${participants}</td>
+                                    </tr>
+                                </table>
+                                <div style="background-color: #fef3c7; border: 1px solid #f59e0b; border-radius: 6px; padding: 15px; margin: 20px 0;">
+                                    <p style="margin: 0; color: #92400e; font-weight: bold;">⚠️ Action Required:</p>
+                                    <p style="margin: 5px 0 0 0; color: #92400e;">Please process the manual refund to the provided UPI ID within 5-7 business days.</p>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="background-color: #f9fafb; padding: 20px; text-align: center; border-top: 1px solid #e5e7eb;">
+                                <p style="margin: 0; color: #6b7280; font-size: 14px;">This is an automated notification from WanderCall</p>
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+        </table>
+    </body>
+    </html>
+  `;
+};
+
+// Generate cancellation email HTML for provider
+const generateCancellationHTML = (data) => {
+  const { ticketNumber, productTitle, selectedDate, participants, totalAmount } = data;
+  
+  return `
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+      <h2 style="color: #dc2626;">❌ Booking Cancelled</h2>
+      
+      <div style="background: #fef2f2; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #dc2626;">
+        <h3 style="color: #1f2937; margin-top: 0;">Cancelled Booking Details</h3>
+        <p><strong>Experience:</strong> ${productTitle}</p>
+        <p><strong>Ticket Number:</strong> #${ticketNumber}</p>
+        <p><strong>Date:</strong> ${new Date(selectedDate).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
+        <p><strong>Participants:</strong> ${participants} ${participants === 1 ? 'Person' : 'People'}</p>
+        <p><strong>Amount:</strong> ₹${totalAmount}</p>
+      </div>
+      
+      <div style="background: #fef3c7; padding: 15px; border-radius: 8px; margin: 20px 0;">
+        <p style="margin: 0; color: #92400e;"><strong>Note:</strong> This booking has been cancelled and a manual refund request has been submitted.</p>
+      </div>
+      
+      <hr style="margin: 30px 0; border: none; border-top: 1px solid #e5e7eb;">
+      <p style="color: #6b7280; font-size: 14px; text-align: center;">
+        This is an automated notification from WanderCall<br>
+        <a href="mailto:teamwandercall@gmail.com" style="color: #6366f1;">teamwandercall@gmail.com</a>
+      </p>
+    </div>
+  `;
+};
+
 module.exports = {
   sendOTPEmail,
   sendWelcomeEmail,
   sendPasswordResetOTP,
   sendBookingNotificationToProvider,
-  sendCancellationNotificationToProvider
+  sendCancellationNotificationToProvider,
+  sendEmail
 };
