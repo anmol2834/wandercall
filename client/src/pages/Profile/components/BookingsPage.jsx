@@ -164,6 +164,13 @@ const BookingsPage = () => {
     }
   };
 
+  const isWithin48Hours = (bookingDate) => {
+    const now = new Date();
+    const booking = new Date(bookingDate);
+    const diffInHours = (now - booking) / (1000 * 60 * 60);
+    return diffInHours <= 48;
+  };
+
   useEffect(() => {
     if (bookings && bookings.length > 0) {
       bookings.forEach(booking => {
@@ -555,13 +562,13 @@ const BookingsPage = () => {
                                 View
                               </Button>
 
-                              {booking.status === 'active' && cancellationEligibility[booking._id]?.canCancel && (
+                              {booking.status === 'active' && cancellationEligibility[booking._id]?.canCancel && isWithin48Hours(booking.createdAt) && (
                                 <>
                                   <Button 
                                     variant="outlined" 
                                     size="small"
                                     color="warning"
-                                    startIcon={<CancelOutlined />}
+                                    startIcon={<AccountBalance />}
                                     onClick={() => handleRefundRequest(booking)}
                                     sx={{ 
                                       borderRadius: 2,
@@ -572,7 +579,7 @@ const BookingsPage = () => {
                                       flex: { xs: 1, sm: 'none' }
                                     }}
                                   >
-                                    Cancel
+                                    Refund
                                   </Button>
                                   {/* <Button 
                                     variant="outlined" 
