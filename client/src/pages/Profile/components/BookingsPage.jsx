@@ -562,7 +562,7 @@ const BookingsPage = () => {
                                 View
                               </Button>
 
-                              {booking.status === 'active' && cancellationEligibility[booking._id]?.canCancel && isWithin48Hours(booking.createdAt) && (
+                              {booking.status === 'active' && isWithin48Hours(booking.createdAt) && (
                                 <>
                                   <Button 
                                     variant="outlined" 

@@ -350,6 +350,8 @@ const Booking = () => {
     const days = [];
     const today = new Date();
     today.setHours(0, 0, 0, 0);
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
 
     for (let i = 0; i < 42; i++) {
       const date = new Date(startDate);
@@ -357,7 +359,7 @@ const Booking = () => {
 
       const dateStr = date.toISOString().split('T')[0];
       const isCurrentMonth = date.getMonth() === month;
-      const isPast = date < today;
+      const isPast = date < tomorrow;
       const isAvailable = availableDates[dateStr] !== undefined ? availableDates[dateStr] : true;
       const isSelected = selectedDate && selectedDate.toDateString() === date.toDateString();
 

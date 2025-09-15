@@ -1,32 +1,24 @@
 import { IconButton, CircularProgress } from '@mui/material';
 import { FavoriteBorder, Favorite, Star, LocationOn } from '@mui/icons-material';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { wishlistAPI } from '../../services/api';
+import { useSelector } from 'react-redux';
+import { wishlistService } from '../../services/wishlistService';
 import { useAuth } from '../../contexts/AuthContext';
 import './ExperienceCard.css';
 
 const ExperienceCard = ({ experience }) => {
-  const [isWishlisted, setIsWishlisted] = useState(false);
   const [wishlistLoading, setWishlistLoading] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
   const { user } = useAuth();
   const navigate = useNavigate();
+  
+  // Get wishlist status from global state
+  const isWishlisted = useSelector(state => 
+    state.wishlist.status[experience._id] || false
+  );
 
-  useEffect(() => {
-    if (user && experience._id) {
-      checkWishlistStatus();
-    }
-  }, [user, experience._id]);
 
-  const checkWishlistStatus = async () => {
-    try {
-      const response = await wishlistAPI.checkWishlistStatus(experience._id);
-      setIsWishlisted(response.data.isWishlisted);
-    } catch (error) {
-      console.error('Error checking wishlist status:', error);
-    }
-  };
 
   const handleCardClick = () => {
     navigate(`/experience/${experience._id}`);
@@ -41,13 +33,12 @@ const ExperienceCard = ({ experience }) => {
     }
     
     setWishlistLoading(true);
+    
     try {
       if (isWishlisted) {
-        await wishlistAPI.removeFromWishlist(experience._id);
-        setIsWishlisted(false);
+        await wishlistService.removeFromWishlist(experience._id);
       } else {
-        await wishlistAPI.addToWishlist(experience._id);
-        setIsWishlisted(true);
+        await wishlistService.addToWishlist(experience._id, experience);
       }
     } catch (error) {
       console.error('Error toggling wishlist:', error);

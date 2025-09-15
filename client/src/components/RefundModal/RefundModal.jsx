@@ -137,7 +137,7 @@ const RefundModal = ({ open, onClose, onConfirm, ticketData, loading }) => {
               : (error || 'Enter the UPI ID where you want to receive the refund')
             }
             InputProps={{
-              readOnly: hasStoredUpiId,
+              readOnly: Boolean(hasStoredUpiId),
               startAdornment: (
                 <Box sx={{ mr: 1, color: isDark ? 'rgba(255, 255, 255, 0.7)' : 'rgba(0, 0, 0, 0.5)' }}>
                   @

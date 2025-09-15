@@ -1,10 +1,17 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { productAPI } from '../../services/api';
 
-// Async thunks
+// Async thunks with caching
 export const fetchProducts = createAsyncThunk(
   'products/fetchProducts',
-  async (_, { rejectWithValue }) => {
+  async (_, { getState, rejectWithValue }) => {
+    const { products } = getState().products;
+    
+    // Return cached data if available and not stale
+    if (products.length > 0) {
+      return products;
+    }
+    
     try {
       const response = await productAPI.getAllProducts();
       return response.data.products;
@@ -16,7 +23,24 @@ export const fetchProducts = createAsyncThunk(
 
 export const fetchProductById = createAsyncThunk(
   'products/fetchProductById',
-  async (productId, { rejectWithValue }) => {
+  async (productId, { getState, rejectWithValue }) => {
+    if (!productId || productId === 'undefined') {
+      return rejectWithValue('Invalid product ID');
+    }
+    
+    const { products, selectedProduct } = getState().products;
+    
+    // Check if product is already in products array
+    const cachedProduct = products.find(p => p._id === productId);
+    if (cachedProduct) {
+      return cachedProduct;
+    }
+    
+    // Check if it's the currently selected product
+    if (selectedProduct && selectedProduct._id === productId) {
+      return selectedProduct;
+    }
+    
     try {
       const response = await productAPI.getProductById(productId);
       return response.data.product;
@@ -47,7 +71,9 @@ const productsSlice = createSlice({
     loading: false,
     error: null,
     searchLoading: false,
-    productLoading: false
+    productLoading: false,
+    lastFetched: null,
+    cacheExpiry: 5 * 60 * 1000 // 5 minutes
   },
   reducers: {
     clearSelectedProduct: (state) => {
@@ -70,6 +96,7 @@ const productsSlice = createSlice({
       .addCase(fetchProducts.fulfilled, (state, action) => {
         state.loading = false;
         state.products = action.payload;
+        state.lastFetched = Date.now();
       })
       .addCase(fetchProducts.rejected, (state, action) => {
         state.loading = false;
@@ -83,6 +110,15 @@ const productsSlice = createSlice({
       .addCase(fetchProductById.fulfilled, (state, action) => {
         state.productLoading = false;
         state.selectedProduct = action.payload;
+        
+        // Update product in products array if it exists
+        const existingIndex = state.products.findIndex(p => p._id === action.payload._id);
+        if (existingIndex !== -1) {
+          state.products[existingIndex] = action.payload;
+        } else {
+          // Add to products array if not exists
+          state.products.push(action.payload);
+        }
       })
       .addCase(fetchProductById.rejected, (state, action) => {
         state.productLoading = false;

@@ -12,7 +12,9 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchProductById } from '../../redux/slices/productsSlice';
-import { wishlistAPI } from '../../services/api';
+import { fetchReviews, clearReviews } from '../../redux/slices/reviewsSlice';
+import { wishlistService } from '../../services/wishlistService';
+import ManualReviewForm from '../../components/ManualReviewForm/ManualReviewForm';
 import { useAuth } from '../../contexts/AuthContext';
 import { CircularProgress } from '@mui/material';
 import wandercallLogo2 from '../../assets/wandercall-logo2.svg';
@@ -23,12 +25,16 @@ const ExperienceDetails = () => {
   const { id } = useParams();
   const dispatch = useDispatch();
   const { selectedProduct: product, productLoading, error } = useSelector(state => state.products);
+  const { reviews: dbReviews, loading: reviewsLoading } = useSelector(state => state.reviews);
   const { user } = useAuth();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const [showBackToTop, setShowBackToTop] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const [isWishlisted, setIsWishlisted] = useState(false);
+  // Get wishlist status from global state
+  const isWishlisted = useSelector(state => 
+    state.wishlist.status[id] || false
+  );
   const [wishlistLoading, setWishlistLoading] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
   const [expandedDescription, setExpandedDescription] = useState(false);
@@ -39,7 +45,11 @@ const ExperienceDetails = () => {
   useEffect(() => {
     if (id) {
       dispatch(fetchProductById(id));
+      dispatch(fetchReviews(id));
     }
+    return () => {
+      dispatch(clearReviews());
+    };
   }, [dispatch, id]);
 
   useEffect(() => {
@@ -51,12 +61,13 @@ const ExperienceDetails = () => {
   const checkWishlistStatus = async () => {
     if (!user || !product?._id) return;
     try {
-      const response = await wishlistAPI.checkWishlistStatus(product._id);
-      setIsWishlisted(response.data.isWishlisted);
+      await wishlistService.initializeWishlist();
     } catch (error) {
       console.error('Error checking wishlist status:', error);
     }
   };
+
+
 
   useEffect(() => {
     const handleScroll = () => setShowBackToTop(window.scrollY > 300);
@@ -64,7 +75,7 @@ const ExperienceDetails = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Loading and error states
+  // Loading state
   if (productLoading) {
     return (
       <Box sx={{ 
@@ -97,45 +108,6 @@ const ExperienceDetails = () => {
                   bgcolor: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)', 
                   borderRadius: 2, 
                   mb: 2 
-                }} />
-              </motion.div>
-              <motion.div animate={{ opacity: [0.3, 0.7, 0.3] }} transition={{ duration: 1.5, repeat: Infinity, delay: 0.3 }}>
-                <Box sx={{ 
-                  width: { xs: '100%', md: '100%' }, 
-                  height: { xs: 250, md: 450 }, 
-                  bgcolor: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)', 
-                  borderRadius: 3, 
-                  mb: 3 
-                }} />
-              </motion.div>
-              {[1,2].map(i => (
-                <motion.div key={i} animate={{ opacity: [0.3, 0.7, 0.3] }} transition={{ duration: 1.5, repeat: Infinity, delay: i * 0.4 }}>
-                  <Box sx={{ 
-                    width: '100%', 
-                    height: 120, 
-                    bgcolor: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)', 
-                    borderRadius: 2, 
-                    mb: 2 
-                  }} />
-                </motion.div>
-              ))}
-            </Grid>
-            <Grid item xs={12} md={4}>
-              <motion.div animate={{ opacity: [0.3, 0.7, 0.3] }} transition={{ duration: 1.5, repeat: Infinity, delay: 0.6 }}>
-                <Box sx={{ 
-                  width: '100%', 
-                  height: 300, 
-                  bgcolor: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)', 
-                  borderRadius: 2, 
-                  mb: 2 
-                }} />
-              </motion.div>
-              <motion.div animate={{ opacity: [0.3, 0.7, 0.3] }} transition={{ duration: 1.5, repeat: Infinity, delay: 0.8 }}>
-                <Box sx={{ 
-                  width: '100%', 
-                  height: 200, 
-                  bgcolor: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)', 
-                  borderRadius: 2 
                 }} />
               </motion.div>
             </Grid>
@@ -178,32 +150,14 @@ const ExperienceDetails = () => {
     fullDescription: product.description,
     timings: { start: product.openTime, end: product.closeTime, days: "Daily" },
     highlights: product.whatsIncluded,
-    reviews: [
-      {
-        id: 1,
-        name: "Sarah Johnson",
-        avatar: "SJ",
-        rating: 5,
-        date: "2 days ago",
-        comment: "Absolutely incredible experience! The sunset views were breathtaking and the guides were fantastic."
-      },
-      {
-        id: 2,
-        name: "Mike Chen", 
-        avatar: "MC",
-        rating: 5,
-        date: "1 week ago",
-        comment: "Perfect experience for families. Kids loved the camel riding and the food was delicious."
-      },
-      {
-        id: 3,
-        name: "Emma Wilson",
-        avatar: "EW", 
-        rating: 4,
-        date: "2 weeks ago",
-        comment: "Amazing desert safari! The dune bashing was thrilling and the cultural experience was authentic."
-      }
-    ]
+    reviews: dbReviews.map(review => ({
+      id: review._id,
+      name: review.name,
+      avatar: review.name.split(' ').map(n => n[0]).join('').toUpperCase(),
+      rating: review.rating,
+      date: new Date(review.createdAt).toLocaleDateString(),
+      comment: review.comment
+    }))
   };
 
   const scrollToTop = () => window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -222,14 +176,12 @@ const ExperienceDetails = () => {
     }
     
     setWishlistLoading(true);
+    
     try {
-      const productId = product._id;
       if (isWishlisted) {
-        await wishlistAPI.removeFromWishlist(productId);
-        setIsWishlisted(false);
+        await wishlistService.removeFromWishlist(product._id);
       } else {
-        await wishlistAPI.addToWishlist(productId);
-        setIsWishlisted(true);
+        await wishlistService.addToWishlist(product._id, product);
       }
     } catch (error) {
       console.error('Error toggling wishlist:', error);
@@ -705,6 +657,14 @@ const ExperienceDetails = () => {
               )}
 
               {/* Guest Reviews */}
+              {(['anmolsinha4321@gmail.com', 'rishi.sinha0101@gmail.com', 'sp9094065@gmail.com'].includes(user?.email)) && (
+                <Card>
+                  <CardContent>
+                    <ManualReviewForm productId={id} />
+                  </CardContent>
+                </Card>
+              )}
+              
               <Card>
                 <CardContent>
                   <Box sx={{ 

@@ -6,6 +6,7 @@ import getTheme from './utils/theme';
 import { preventZoom } from './utils/preventZoom';
 import { AuthProvider } from './contexts/AuthContext';
 import { RewardsProvider } from './contexts/RewardsContext';
+import { useWishlistInit } from './hooks/useWishlistInit';
 import ScrollToTop from './components/ScrollToTop/ScrollToTop';
 import ProtectedRoute from './components/ProtectedRoute/ProtectedRoute';
 import { Suspense, lazy } from 'react';
@@ -52,6 +53,12 @@ const PageLoader = () => {
   );
 };
 
+// Component to initialize wishlist inside AuthProvider
+const WishlistInitializer = () => {
+  useWishlistInit();
+  return null;
+};
+
 function App() {
   const { mode } = useSelector((state) => state.theme);
   const theme = getTheme(mode);
@@ -64,6 +71,7 @@ function App() {
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <AuthProvider>
+        <WishlistInitializer />
         <RewardsProvider>
           <Router>
             <ScrollToTop />

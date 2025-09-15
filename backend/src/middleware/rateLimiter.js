@@ -92,10 +92,10 @@ const profileUpdateLimiter = rateLimit({
   }
 });
 
-// General API rate limiter - 100 requests per minute per user token
+// General API rate limiter - 1000 requests per minute per user token (Amazon-like)
 const generalApiLimiter = rateLimit({
   windowMs: 60 * 1000, // 1 minute
-  max: 100,
+  max: 1000, // Increased for better user experience
   message: (req, res) => createRateLimitResponse(
     'API rate limit exceeded. Please slow down your requests.',
     Math.ceil(res.getHeader('X-RateLimit-Reset') - Date.now() / 1000)
@@ -103,6 +103,11 @@ const generalApiLimiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
   keyGenerator: tokenKeyGenerator,
+  skip: (req) => {
+    // Skip rate limiting for read-only operations
+    const readOnlyPaths = ['/api/products', '/api/wishlist/check', '/api/reviews'];
+    return readOnlyPaths.some(path => req.path.startsWith(path)) && req.method === 'GET';
+  },
   handler: (req, res) => {
     const retryAfter = Math.ceil(res.getHeader('X-RateLimit-Reset') - Date.now() / 1000);
     res.status(429).json(createRateLimitResponse(
@@ -152,10 +157,10 @@ const registrationLimiter = rateLimit({
   }
 });
 
-// Booking rate limiter - 20 bookings per hour per user
+// Booking rate limiter - 50 bookings per hour per user (increased)
 const bookingLimiter = rateLimit({
   windowMs: 60 * 60 * 1000, // 1 hour
-  max: 20,
+  max: 50,
   message: (req, res) => createRateLimitResponse(
     'Too many booking attempts. Please try again in an hour.',
     Math.ceil(res.getHeader('X-RateLimit-Reset') - Date.now() / 1000)
@@ -212,11 +217,32 @@ const strictLimiter = rateLimit({
   }
 });
 
+// Lenient rate limiter for read operations (browsing)
+const readOnlyLimiter = rateLimit({
+  windowMs: 60 * 1000, // 1 minute
+  max: 2000, // Very high limit for browsing
+  message: (req, res) => createRateLimitResponse(
+    'Too many requests. Please slow down.',
+    Math.ceil(res.getHeader('X-RateLimit-Reset') - Date.now() / 1000)
+  ),
+  standardHeaders: true,
+  legacyHeaders: false,
+  keyGenerator: tokenKeyGenerator,
+  handler: (req, res) => {
+    const retryAfter = Math.ceil(res.getHeader('X-RateLimit-Reset') - Date.now() / 1000);
+    res.status(429).json(createRateLimitResponse(
+      'Too many requests. Please wait a moment before continuing.',
+      retryAfter
+    ));
+  }
+});
+
 module.exports = {
   loginLimiter,
   otpLimiter,
   profileUpdateLimiter,
   generalApiLimiter,
+  readOnlyLimiter,
   passwordResetLimiter,
   registrationLimiter,
   bookingLimiter,

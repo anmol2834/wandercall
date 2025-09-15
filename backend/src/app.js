@@ -73,7 +73,14 @@ app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 // Rate limiting middleware
-const { generalApiLimiter } = require('./middleware/rateLimiter');
+const { generalApiLimiter, readOnlyLimiter } = require('./middleware/rateLimiter');
+
+// Use lenient rate limiter for read operations
+app.use('/api/products', readOnlyLimiter);
+app.use('/api/wishlist/check', readOnlyLimiter);
+app.use('/api/reviews', readOnlyLimiter);
+
+// Use general rate limiter for other operations
 app.use('/api', generalApiLimiter);
 
 // Routes
@@ -93,6 +100,7 @@ app.use('/api/cancellation', require('./routes/cancellationRoutes'));
 app.use('/api/refund', require('./routes/refundRoutes'));
 app.use('/api/refund-ticket', require('./routes/refundTicketRoutes'));
 app.use('/api/webhooks', require('./routes/webhookRoutes'));
+app.use('/api/reviews', require('./routes/reviewRoutes'));
 
 
 

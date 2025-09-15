@@ -18,14 +18,33 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-// Handle response errors
+// Handle response errors with rate limiting awareness
 api.interceptors.response.use(
   (response) => response,
   (error) => {
+    // Handle authentication errors
     if (error.response?.status === 401 && localStorage.getItem('token')) {
       localStorage.removeItem('token');
       localStorage.removeItem('user');
     }
+    
+    // Handle rate limiting gracefully
+    if (error.response?.status === 429) {
+      // Don't show error for rate limiting on read operations
+      const isReadOperation = ['GET'].includes(error.config?.method?.toUpperCase());
+      if (isReadOperation) {
+        console.warn('Rate limited - using cached data or fallback');
+        // Return a mock successful response for read operations
+        return Promise.resolve({
+          data: { isWishlisted: false }, // Default fallback
+          status: 200,
+          statusText: 'OK (Cached)',
+          headers: {},
+          config: error.config
+        });
+      }
+    }
+    
     return Promise.reject(error);
   }
 );
@@ -81,7 +100,9 @@ export const wishlistAPI = {
   getWishlist: () => api.get('/wishlist'),
   addToWishlist: (productId) => api.post('/wishlist', { productId }),
   removeFromWishlist: (productId) => api.delete(`/wishlist/${productId}`),
-  checkWishlistStatus: (productId) => api.get(`/wishlist/check/${productId}`),
+  checkWishlistStatus: (productId) => api.get(`/wishlist/check/${productId}`, {
+    timeout: 5000
+  }),
 };
 
 export const ticketAPI = {

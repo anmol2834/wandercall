@@ -9,7 +9,8 @@ import {
 } from '@mui/icons-material';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTheme } from '@mui/material/styles';
-import { wishlistAPI } from '../../../services/api';
+import { useSelector } from 'react-redux';
+import { wishlistService } from '../../../services/wishlistService';
 import { useAuth } from '../../../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 
@@ -17,21 +18,22 @@ const WishlistPage = () => {
   const theme = useTheme();
   const { user } = useAuth();
   const navigate = useNavigate();
-  const [wishlistItems, setWishlistItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [removingItems, setRemovingItems] = useState(new Set());
+  
+  // Get wishlist items from Redux store
+  const wishlistItems = useSelector(state => state.wishlist.items);
 
   useEffect(() => {
     if (user) {
-      fetchWishlist();
+      initializeWishlist();
     }
   }, [user]);
 
-  const fetchWishlist = async () => {
+  const initializeWishlist = async () => {
     try {
       setLoading(true);
-      const response = await wishlistAPI.getWishlist();
-      setWishlistItems(response.data.data || []);
+      await wishlistService.initializeWishlist();
     } catch (error) {
       console.error('Error fetching wishlist:', error);
     } finally {
@@ -42,8 +44,7 @@ const WishlistPage = () => {
   const removeItem = async (productId) => {
     setRemovingItems(prev => new Set([...prev, productId]));
     try {
-      await wishlistAPI.removeFromWishlist(productId);
-      setWishlistItems(prev => prev.filter(item => item.product._id !== productId));
+      await wishlistService.removeFromWishlist(productId);
     } catch (error) {
       console.error('Error removing from wishlist:', error);
     } finally {
