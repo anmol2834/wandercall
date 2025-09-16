@@ -153,7 +153,7 @@ const EditProfileModal = ({ open, onClose, user, onUpdate }) => {
   };
 
   const renderBasicInfo = () => (
-    <Box sx={{ p: 3 }}>
+    <Box sx={{ p: isMobile ? 2 : 3 }}>
       <Typography variant={isMobile ? 'subtitle1' : 'h6'} sx={{ mb: 3, display: 'flex', alignItems: 'center', gap: 1, fontSize: isMobile ? '1rem' : '1.1rem' }}>
         <Person color="primary" />
         Basic Information
@@ -193,7 +193,7 @@ const EditProfileModal = ({ open, onClose, user, onUpdate }) => {
   );
 
   const renderPhoneUpdate = () => (
-    <Box sx={{ p: 3 }}>
+    <Box sx={{ p: isMobile ? 2 : 3 }}>
       <Typography variant={isMobile ? 'subtitle1' : 'h6'} sx={{ mb: 3, display: 'flex', alignItems: 'center', gap: 1, fontSize: isMobile ? '1rem' : '1.1rem' }}>
         <Phone color="primary" />
         Phone Number
@@ -235,7 +235,7 @@ const EditProfileModal = ({ open, onClose, user, onUpdate }) => {
   );
 
   const renderPasswordUpdate = () => (
-    <Box sx={{ p: 3 }}>
+    <Box sx={{ p: isMobile ? 2 : 3 }}>
       <Typography variant={isMobile ? 'subtitle1' : 'h6'} sx={{ mb: 3, display: 'flex', alignItems: 'center', gap: 1, fontSize: isMobile ? '1rem' : '1.1rem' }}>
         <Security color="primary" />
         Update Password
@@ -395,8 +395,9 @@ const EditProfileModal = ({ open, onClose, user, onUpdate }) => {
       PaperProps={{
         sx: {
           borderRadius: 3,
-          width: isMobile ? '95vw' : '450px',
-          maxWidth: isMobile ? '95vw' : '450px',
+          width: isMobile ? '98vw' : '450px',
+          maxWidth: isMobile ? '98vw' : '450px',
+          margin: isMobile ? '20px' : '32px',
           background: theme.palette.mode === 'dark' 
             ? 'linear-gradient(135deg, rgba(30,30,30,0.95) 0%, rgba(20,20,20,0.9) 100%)'
             : '#ffffff',
@@ -464,7 +465,7 @@ const EditProfileModal = ({ open, onClose, user, onUpdate }) => {
       </DialogContent>
 
       {activeTab === 0 && (
-        <DialogActions sx={{ p: 3, justifyContent: 'space-between' }}>
+        <DialogActions sx={{ p: isMobile ? 2 : 3, justifyContent: 'space-between' }}>
           <Button onClick={onClose} variant="outlined">
             Cancel
           </Button>

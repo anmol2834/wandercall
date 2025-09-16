@@ -7,7 +7,7 @@ import {
 import {
   Business, Person, Email, Phone, Category, Visibility, VisibilityOff,
   CheckCircle, Login, ArrowBack, ArrowForward, Send, Security, Verified, RocketLaunch,
-  LocationOn, Description, AccountCircle, Work, ContactMail
+  LocationOn, Description, AccountCircle, Work, ContactMail, Schedule
 } from '@mui/icons-material';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState } from 'react';
@@ -19,9 +19,17 @@ const ProviderRegistration = () => {
   const theme = useTheme();
   const [activeStep, setActiveStep] = useState(0);
   const [showPassword, setShowPassword] = useState(false);
-  const [resendTimer, setResendTimer] = useState(0);
   const [showEmailVerification, setShowEmailVerification] = useState(false);
   const [verificationSent, setVerificationSent] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState('');
+  const [submitSuccess, setSubmitSuccess] = useState(false);
+  const [emailVerified, setEmailVerified] = useState(false);
+  const [verificationLoading, setVerificationLoading] = useState(false);
+  const [verificationError, setVerificationError] = useState('');
+  const [verificationSuccess, setVerificationSuccess] = useState('');
+  const [verificationCode, setVerificationCode] = useState('');
+  const [resendTimer, setResendTimer] = useState(0);
   const [formData, setFormData] = useState({
     // Personal Information
     fullName: '',
@@ -34,12 +42,14 @@ const ProviderRegistration = () => {
     businessName: '',
     businessType: '',
     description: '',
+    availableDays: [],
     
     // Contact Information
     address: '',
     city: '',
     state: '',
     pincode: '',
+    mapLink: '',
     
     // Legacy fields for compatibility
     contactPerson: '',
@@ -60,13 +70,22 @@ const ProviderRegistration = () => {
   ];
   
   const serviceTypes = [
-    'FPV Drone Experience',
-    'Story Sessions', 
-    'Movie Nights',
-    'Late Night Party',
-    'Gamer Bash',
-    'Wisdom Hours',
-    'Cultural & Local Vibes',
+    'Entertainment & Fun',
+    'Adventure & Thrill', 
+    'Stories & Expression',
+    'Knowledge & Wisdom',
+    'Music & Vibes',
+    'Social & Community',
+    'Creativity & Arts',
+    'Travel & Culture',
+    'Digital & Virtual Experiences',
+    'Food & Drinks',
+    "Wellness & Mindfulness",
+    'Mystery & Curiosity',
+    'Competitions & Challenges',
+    'Romance & Intimacy',
+    'History & Heritage',
+    'Explorations & Journeys',
     'Other'
   ];
 
@@ -75,7 +94,6 @@ const ProviderRegistration = () => {
     'Marketing and promotion support', 
     'Secure payment processing',
     'Real-time analytics and insights',
-    '24/7 customer support',
     'Flexible pricing and scheduling'
   ];
 
@@ -84,19 +102,129 @@ const ProviderRegistration = () => {
       case 0:
         return formData.fullName && formData.email && formData.phone && 
                formData.password && formData.confirmPassword && 
-               formData.password === formData.confirmPassword;
+               formData.password === formData.confirmPassword && emailVerified;
       case 1:
-        return formData.businessName && formData.businessType && formData.description;
+        return formData.businessName && formData.businessType && formData.description && formData.availableDays.length > 0;
       case 2:
-        return formData.address && formData.city && formData.state && formData.pincode;
+        return formData.address && formData.city && formData.state && formData.pincode && formData.mapLink;
       default:
         return true;
     }
   };
 
-  const handleNext = () => {
-    if (validateCurrentStep() && activeStep < steps.length - 1) {
-      setActiveStep(prev => prev + 1);
+  const handleNext = async () => {
+    if (validateCurrentStep()) {
+      if (activeStep < steps.length - 1) {
+        setActiveStep(prev => prev + 1);
+      } else {
+        // Final step - submit form
+        await handleSubmit();
+      }
+    }
+  };
+
+  const handleEmailVerification = async () => {
+    if (!formData.email) {
+      setVerificationError('Please enter your email address first');
+      return;
+    }
+
+    setVerificationLoading(true);
+    setVerificationError('');
+    setVerificationSuccess('');
+
+    try {
+      const response = await fetch('http://localhost:5000/api/providers/send-verification', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email: formData.email })
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        setVerificationSuccess('Verification code sent to your email! Please check your inbox.');
+        // Start 1-minute timer
+        setResendTimer(60);
+        const timer = setInterval(() => {
+          setResendTimer(prev => {
+            if (prev <= 1) {
+              clearInterval(timer);
+              return 0;
+            }
+            return prev - 1;
+          });
+        }, 1000);
+      } else {
+        setVerificationError(data.message || 'Failed to send verification email');
+      }
+    } catch (error) {
+      console.error('Verification error:', error);
+      setVerificationError('Network error. Please try again.');
+    } finally {
+      setVerificationLoading(false);
+    }
+  };
+
+
+
+  const handleSubmit = async () => {
+    if (!formData.agreeTerms) {
+      setSubmitError('You must accept the terms and conditions to proceed');
+      return;
+    }
+
+    setIsSubmitting(true);
+    setSubmitError('');
+
+    try {
+      const response = await fetch('http://localhost:5000/api/providers/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          fullName: formData.fullName,
+          email: formData.email,
+          phone: formData.phone,
+          password: formData.password,
+          businessName: formData.businessName,
+          businessType: formData.businessType,
+          description: formData.description,
+          availableDays: formData.availableDays,
+          address: formData.address,
+          city: formData.city,
+          state: formData.state,
+          pincode: formData.pincode,
+          mapLink: formData.mapLink,
+          agreeTerms: formData.agreeTerms
+        })
+      });
+
+      let data;
+      try {
+        data = await response.json();
+      } catch (jsonError) {
+        console.error('JSON parsing error:', jsonError);
+        setSubmitError('Server response error. Please try again.');
+        return;
+      }
+
+      if (response.ok && data.success) {
+        setSubmitSuccess(true);
+        setTimeout(() => {
+          navigate('/');
+        }, 3000);
+      } else {
+        setSubmitError(data.message || `Registration failed (${response.status}). Please try again.`);
+      }
+    } catch (error) {
+      console.error('Registration error:', error);
+      setSubmitError('Network error. Please check your connection and try again.');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -115,6 +243,13 @@ const ProviderRegistration = () => {
       setFormData(prev => ({ ...prev, [field]: phoneValue }));
     } else {
       setFormData(prev => ({ ...prev, [field]: value }));
+      
+      // Reset email verification if email is changed
+      if (field === 'email' && emailVerified) {
+        setEmailVerified(false);
+        setVerificationSuccess('');
+        setVerificationError('');
+      }
     }
   };
   
@@ -122,18 +257,20 @@ const ProviderRegistration = () => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
-  const handleResendCode = () => {
-    setResendTimer(60);
-    const timer = setInterval(() => {
-      setResendTimer(prev => {
-        if (prev <= 1) {
-          clearInterval(timer);
-          return 0;
-        }
-        return prev - 1;
-      });
-    }, 1000);
+  const handleDayToggle = (day) => {
+    setFormData(prev => ({
+      ...prev,
+      availableDays: prev.availableDays.includes(day)
+        ? prev.availableDays.filter(d => d !== day)
+        : [...prev.availableDays, day]
+    }));
   };
+
+  const daysOfWeek = [
+    'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'
+  ];
+
+
 
   const getPasswordStrength = (password) => {
     let strength = 0;
@@ -282,22 +419,35 @@ const ProviderRegistration = () => {
             {/* Email Verification Button */}
             <Grid item xs={12}>
               <Button
-                variant="outlined"
+                variant={emailVerified ? "contained" : "outlined"}
                 fullWidth
                 onClick={() => setShowEmailVerification(true)}
-                disabled={!formData.email}
+                disabled={!formData.email || verificationLoading || emailVerified}
                 sx={{
                   py: 1.5,
-                  borderColor: 'primary.main',
-                  color: 'primary.main',
+                  borderColor: emailVerified ? 'success.main' : 'primary.main',
+                  color: emailVerified ? 'white' : 'primary.main',
+                  backgroundColor: emailVerified ? 'success.main' : 'transparent',
                   '&:hover': {
-                    backgroundColor: 'primary.main',
+                    backgroundColor: emailVerified ? 'success.dark' : 'primary.main',
                     color: 'white'
                   }
                 }}
               >
-                Verify Email Address
+                {verificationLoading ? 'Sending...' : (emailVerified ? '✓ Email Verified' : 'Verify Email Address')}
               </Button>
+              
+              {verificationError && (
+                <Typography variant="caption" color="error" sx={{ mt: 1, display: 'block' }}>
+                  {verificationError}
+                </Typography>
+              )}
+              
+              {verificationSuccess && (
+                <Typography variant="caption" color="success.main" sx={{ mt: 1, display: 'block' }}>
+                  {verificationSuccess}
+                </Typography>
+              )}
             </Grid>
           </Grid>
         );
@@ -363,6 +513,55 @@ const ProviderRegistration = () => {
                 sx={textFieldStyles}
               />
             </Grid>
+            
+            <Grid item xs={12}>
+              <Paper sx={{
+                p: 3,
+                borderRadius: 3,
+                background: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.02)',
+                border: `1px solid ${theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)'}`
+              }}>
+                <Typography variant="subtitle1" sx={{ mb: 2, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <Schedule sx={{ color: 'primary.main' }} />
+                  Available Days
+                </Typography>
+                <Box sx={{ 
+                  display: 'grid',
+                  gridTemplateColumns: { xs: 'repeat(2, 1fr)', sm: 'repeat(4, 1fr)', md: 'repeat(7, 1fr)' },
+                  gap: { xs: 1, sm: 1.5 },
+                  mb: 2
+                }}>
+                  {daysOfWeek.map((day) => (
+                    <Chip
+                      key={day}
+                      label={day.slice(0, 3)}
+                      clickable
+                      onClick={() => handleDayToggle(day)}
+                      color={formData.availableDays.includes(day) ? 'primary' : 'default'}
+                      variant={formData.availableDays.includes(day) ? 'filled' : 'outlined'}
+                      sx={{
+                        minWidth: { xs: 'auto', sm: 80 },
+                        height: { xs: 36, sm: 32 },
+                        fontSize: { xs: '0.75rem', sm: '0.875rem' },
+                        fontWeight: 500,
+                        transition: 'all 0.2s ease',
+                        '&:hover': {
+                          backgroundColor: formData.availableDays.includes(day) 
+                            ? theme.palette.primary.dark
+                            : theme.palette.primary.main,
+                          color: theme.palette.mode === 'dark' ? 'white' : 'black',
+                          transform: 'translateY(-2px)',
+                          boxShadow: `0 4px 12px ${theme.palette.primary.main}40`
+                        }
+                      }}
+                    />
+                  ))}
+                </Box>
+                <Typography variant="caption" color="text.secondary">
+                  💡 Select the days when you'll be available to provide services. You can change this later.
+                </Typography>
+              </Paper>
+            </Grid>
           </Grid>
         );
 
@@ -423,6 +622,25 @@ const ProviderRegistration = () => {
                 sx={textFieldStyles}
               />
             </Grid>
+            
+            <Grid item xs={12} sm={6}>
+              <TextField
+                fullWidth
+                label="Map Link"
+                name="mapLink"
+                placeholder="Paste Google Maps link here"
+                value={formData.mapLink}
+                onChange={handleInputChange('mapLink')}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <LocationOn sx={{ color: 'primary.main' }} />
+                    </InputAdornment>
+                  ),
+                }}
+                sx={textFieldStyles}
+              />
+            </Grid>
           </Grid>
         );
         
@@ -455,6 +673,7 @@ const ProviderRegistration = () => {
                 <Typography variant="subtitle2" gutterBottom sx={{ color: theme.palette.mode === 'dark' ? 'white' : 'black' }}>Service Details</Typography>
                 <Typography variant="body2" sx={{ color: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.8)' : 'rgba(0, 0, 0, 0.8)' }}>Phone: +91 {formData.phone}</Typography>
                 <Typography variant="body2" sx={{ color: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.8)' : 'rgba(0, 0, 0, 0.8)' }}>Business Type: {formData.businessType}</Typography>
+                <Typography variant="body2" sx={{ color: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.8)' : 'rgba(0, 0, 0, 0.8)' }}>Available Days: {formData.availableDays.join(', ')}</Typography>
                 <Typography variant="body2" sx={{ color: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.8)' : 'rgba(0, 0, 0, 0.8)' }}>Description: {formData.description}</Typography>
               </CardContent>
             </Card>
@@ -473,6 +692,22 @@ const ProviderRegistration = () => {
                 </Typography>
               }
             />
+            
+            {submitError && (
+              <Box sx={{ mt: 2, p: 2, bgcolor: 'error.light', borderRadius: 2 }}>
+                <Typography variant="body2" color="error.dark">
+                  {submitError}
+                </Typography>
+              </Box>
+            )}
+            
+            {submitSuccess && (
+              <Box sx={{ mt: 2, p: 2, bgcolor: 'success.light', borderRadius: 2 }}>
+                <Typography variant="body2" color="success.dark">
+                  ✅ Registration successful! Redirecting to home page...
+                </Typography>
+              </Box>
+            )}
           </motion.div>
         );
 
@@ -777,7 +1012,7 @@ const ProviderRegistration = () => {
                     >
                       <Button
                         onClick={handleNext}
-                        disabled={!validateCurrentStep() || (activeStep === steps.length - 1 && !formData.agreeTerms)}
+                        disabled={!validateCurrentStep() || (activeStep === steps.length - 1 && !formData.agreeTerms) || isSubmitting}
                         endIcon={activeStep === steps.length - 1 ? <Send /> : <ArrowForward />}
                         sx={{
                           minHeight: 48,
@@ -805,7 +1040,7 @@ const ProviderRegistration = () => {
                         }}
                         variant="contained"
                       >
-                        {activeStep === steps.length - 1 ? 'Complete' : 'Continue'}
+                        {isSubmitting ? 'Submitting...' : (activeStep === steps.length - 1 ? 'Complete' : 'Continue')}
                       </Button>
                     </motion.div>
                   </Box>
@@ -985,8 +1220,8 @@ const ProviderRegistration = () => {
                 backgroundColor: theme.palette.mode === 'dark' ? '#1a1a2e' : 'white',
                 borderRadius: 16,
                 padding: 32,
-                maxWidth: 400,
-                width: '90%',
+                maxWidth: isMobile ? 500 : 400,
+                width: isMobile ? '95%' : '90%',
                 textAlign: 'center'
               }}
             >
@@ -1006,23 +1241,119 @@ const ProviderRegistration = () => {
                 We'll send a verification code to {formData.email}
               </Typography>
               
-              <Box sx={{ display: 'flex', gap: 2 }}>
+              {verificationError && (
+                <Box sx={{ mb: 2, p: 2, bgcolor: 'error.light', borderRadius: 2 }}>
+                  <Typography variant="body2" color="error.dark">
+                    {verificationError}
+                  </Typography>
+                </Box>
+              )}
+              
+              {verificationSuccess && (
+                <Box sx={{ mb: 2, p: 2, bgcolor: 'success.light', borderRadius: 2 }}>
+                  <Typography variant="body2" color="success.dark">
+                    {verificationSuccess}
+                  </Typography>
+                </Box>
+              )}
+              
+              <TextField
+                fullWidth
+                label="Verification Code"
+                placeholder="Enter 6-digit code"
+                value={verificationCode}
+                onChange={(e) => setVerificationCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                inputProps={{
+                  maxLength: 6,
+                  style: { textAlign: 'center', fontSize: '1.2rem', letterSpacing: '0.5rem' }
+                }}
+                sx={{
+                  mb: 3,
+                  '& .MuiOutlinedInput-root': {
+                    borderRadius: 2,
+                    '&:hover': {
+                      borderColor: theme.palette.primary.main,
+                    },
+                    '&.Mui-focused': {
+                      borderColor: theme.palette.primary.main,
+                    }
+                  }
+                }}
+              />
+              
+              <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, gap: 2 }}>
                 <Button
                   variant="outlined"
                   onClick={() => setShowEmailVerification(false)}
-                  sx={{ flex: 1 }}
+                  sx={{ 
+                    flex: 1,
+                    minHeight: 44,
+                    whiteSpace: 'nowrap'
+                  }}
                 >
                   Cancel
                 </Button>
                 <Button
-                  variant="contained"
-                  onClick={() => {
-                    setVerificationSent(true);
-                    setShowEmailVerification(false);
+                  variant="outlined"
+                  onClick={handleEmailVerification}
+                  disabled={verificationLoading || resendTimer > 0}
+                  sx={{ 
+                    flex: 1,
+                    minHeight: 44,
+                    whiteSpace: 'nowrap'
                   }}
-                  sx={{ flex: 1 }}
                 >
-                  Send Code
+                  {verificationLoading ? 'Sending...' : resendTimer > 0 ? `Resend (${resendTimer}s)` : 'Send Code'}
+                </Button>
+                <Button
+                  variant="contained"
+                  onClick={async () => {
+                    if (verificationCode.length !== 6) {
+                      setVerificationError('Please enter a valid 6-digit code');
+                      return;
+                    }
+                    
+                    setVerificationLoading(true);
+                    setVerificationError('');
+                    
+                    try {
+                      const response = await fetch('http://localhost:5000/api/providers/verify-code', {
+                        method: 'POST',
+                        headers: {
+                          'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ 
+                          code: verificationCode, 
+                          email: formData.email 
+                        })
+                      });
+                      
+                      const data = await response.json();
+                      
+                      if (data.success) {
+                        setEmailVerified(true);
+                        setVerificationSuccess('Email verified successfully!');
+                        setShowEmailVerification(false);
+                        setVerificationCode('');
+                        setResendTimer(0);
+                      } else {
+                        setVerificationError(data.message || 'Invalid verification code');
+                      }
+                    } catch (error) {
+                      console.error('Verification error:', error);
+                      setVerificationError('Network error. Please try again.');
+                    } finally {
+                      setVerificationLoading(false);
+                    }
+                  }}
+                  disabled={verificationCode.length !== 6 || verificationLoading}
+                  sx={{ 
+                    flex: 1,
+                    minHeight: 44,
+                    whiteSpace: 'nowrap'
+                  }}
+                >
+                  {verificationLoading ? 'Verifying...' : 'Verify Code'}
                 </Button>
               </Box>
             </motion.div>

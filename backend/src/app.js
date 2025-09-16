@@ -101,6 +101,7 @@ app.use('/api/refund', require('./routes/refundRoutes'));
 app.use('/api/refund-ticket', require('./routes/refundTicketRoutes'));
 app.use('/api/webhooks', require('./routes/webhookRoutes'));
 app.use('/api/reviews', require('./routes/reviewRoutes'));
+app.use('/api/providers', require('./routes/providerRoutes'));
 
 
 

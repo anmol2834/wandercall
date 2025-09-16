@@ -75,6 +75,12 @@ const productSchema = new mongoose.Schema({
   phone: {
     type: String,
     required: false
+  },
+  
+  // Provider reference
+  providerId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Provider'
   }
 }, {
   timestamps: true
