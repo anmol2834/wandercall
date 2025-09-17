@@ -10,8 +10,7 @@
     "start": "node src/app.js",
     "dev": "nodemon src/app.js",
     "build": "echo 'No build step required'",
-    "test": "jest",
-    "smtp-test": "node src/smtp-test.js"
+    "test": "jest"
   },
   "dependencies": {
     "@sendgrid/mail": "^8.1.5",
