@@ -1,12 +1,40 @@
 const nodemailer = require('nodemailer');
 
+// Debug logging for environment variables
+console.log('=== EMAIL SERVICE INITIALIZATION ===');
+console.log('NODE_ENV:', process.env.NODE_ENV);
+console.log('EMAIL_USER:', process.env.EMAIL_USER ? `${process.env.EMAIL_USER.substring(0, 5)}***` : 'NOT SET');
+console.log('APP_PASS:', process.env.APP_PASS ? `${process.env.APP_PASS.substring(0, 4)}***` : 'NOT SET');
+
+// Validate required environment variables
+if (!process.env.EMAIL_USER || !process.env.APP_PASS) {
+  console.error('❌ CRITICAL: Missing email credentials!');
+  console.error('EMAIL_USER:', !!process.env.EMAIL_USER);
+  console.error('APP_PASS:', !!process.env.APP_PASS);
+}
+
 const transporter = nodemailer.createTransport({
-  service: 'gmail',
+  host: "smtp.gmail.com",
+  port: 465,
+  secure: true,
   auth: {
-    user: process.env.EMAIL_USER?.replace('mailto:', ''),
-    pass: process.env.APP_PASS
+    user: process.env.EMAIL_USER,
+    pass: process.env.APP_PASS,
+  },
+  debug: process.env.NODE_ENV === 'development',
+  logger: process.env.NODE_ENV === 'development'
+});
+
+// Test transporter configuration
+transporter.verify((error, success) => {
+  if (error) {
+    console.error('❌ Email transporter verification failed:', error);
+  } else {
+    console.log('✅ Email transporter verified successfully');
   }
 });
+
+console.log('=== EMAIL SERVICE INITIALIZED ===');
 
 const generateOTPEmailHTML = (otp, userName) => {
   return `
@@ -113,6 +141,12 @@ const generateWelcomeEmailHTML = (userName) => {
 };
 
 const sendOTPEmail = async (email, otp, userName) => {
+  console.log('\n=== SENDING OTP EMAIL ===');
+  console.log('To:', email);
+  console.log('OTP:', otp ? `${otp.substring(0, 2)}***` : 'NOT PROVIDED');
+  console.log('User:', userName);
+  console.log('Environment:', process.env.NODE_ENV);
+  
   try {
     const mailOptions = {
       from: `"WanderCall" <teamwandercall@gmail.com>`,
@@ -121,8 +155,27 @@ const sendOTPEmail = async (email, otp, userName) => {
       html: generateOTPEmailHTML(otp, userName)
     };
 
-    return await transporter.sendMail(mailOptions);
+    console.log('Mail options configured:', {
+      from: mailOptions.from,
+      to: mailOptions.to,
+      subject: mailOptions.subject,
+      htmlLength: mailOptions.html.length
+    });
+
+    console.log('Attempting to send email...');
+    const result = await transporter.sendMail(mailOptions);
+    
+    console.log('✅ OTP Email sent successfully!');
+    console.log('Message ID:', result.messageId);
+    console.log('Response:', result.response);
+    
+    return result;
   } catch (error) {
+    console.error('❌ Failed to send OTP email:');
+    console.error('Error message:', error.message);
+    console.error('Error code:', error.code);
+    console.error('Error stack:', error.stack);
+    
     return { success: false, error: error.message };
   }
 };
@@ -182,17 +235,51 @@ const generatePasswordResetEmailHTML = (otp, userName) => {
 };
 
 const sendWelcomeEmail = async (email, userName) => {
-  const mailOptions = {
-    from: `"WanderCall" <${process.env.EMAIL_USER}>`,
-    to: email,
-    subject: 'Welcome to WanderCall! 🎉',
-    html: generateWelcomeEmailHTML(userName)
-  };
+  console.log('\n=== SENDING WELCOME EMAIL ===');
+  console.log('To:', email);
+  console.log('User:', userName);
+  console.log('Environment:', process.env.NODE_ENV);
+  
+  try {
+    const mailOptions = {
+      from: `"WanderCall" <${process.env.EMAIL_USER}>`,
+      to: email,
+      subject: 'Welcome to WanderCall! 🎉',
+      html: generateWelcomeEmailHTML(userName)
+    };
 
-  return transporter.sendMail(mailOptions);
+    console.log('Mail options configured:', {
+      from: mailOptions.from,
+      to: mailOptions.to,
+      subject: mailOptions.subject,
+      htmlLength: mailOptions.html.length
+    });
+
+    console.log('Attempting to send welcome email...');
+    const result = await transporter.sendMail(mailOptions);
+    
+    console.log('✅ Welcome email sent successfully!');
+    console.log('Message ID:', result.messageId);
+    console.log('Response:', result.response);
+    
+    return result;
+  } catch (error) {
+    console.error('❌ Failed to send welcome email:');
+    console.error('Error message:', error.message);
+    console.error('Error code:', error.code);
+    console.error('Error stack:', error.stack);
+    
+    throw error;
+  }
 };
 
 const sendPasswordResetOTP = async (email, otp, userName) => {
+  console.log('\n=== SENDING PASSWORD RESET OTP ===');
+  console.log('To:', email);
+  console.log('OTP:', otp ? `${otp.substring(0, 2)}***` : 'NOT PROVIDED');
+  console.log('User:', userName);
+  console.log('Environment:', process.env.NODE_ENV);
+  
   try {
     const mailOptions = {
       from: `"WanderCall" <teamwandercall@gmail.com>`,
@@ -201,17 +288,46 @@ const sendPasswordResetOTP = async (email, otp, userName) => {
       html: generatePasswordResetEmailHTML(otp, userName)
     };
 
-    return await transporter.sendMail(mailOptions);
+    console.log('Mail options configured:', {
+      from: mailOptions.from,
+      to: mailOptions.to,
+      subject: mailOptions.subject,
+      htmlLength: mailOptions.html.length
+    });
+
+    console.log('Attempting to send password reset email...');
+    const result = await transporter.sendMail(mailOptions);
+    
+    console.log('✅ Password reset email sent successfully!');
+    console.log('Message ID:', result.messageId);
+    console.log('Response:', result.response);
+    
+    return result;
   } catch (error) {
+    console.error('❌ Failed to send password reset email:');
+    console.error('Error message:', error.message);
+    console.error('Error code:', error.code);
+    console.error('Error stack:', error.stack);
+    
     return { success: false, error: error.message };
   }
 };
 
 // Send booking confirmation email to provider
 const sendBookingNotificationToProvider = async (providerEmail, bookingData) => {
+  console.log('\n=== SENDING BOOKING NOTIFICATION TO PROVIDER ===');
+  console.log('Provider Email:', providerEmail);
+  console.log('Booking Data:', {
+    ticketNumber: bookingData.ticketNumber,
+    title: bookingData.title,
+    userName: bookingData.userName
+  });
+  console.log('Environment:', process.env.NODE_ENV);
+  
   try {
     // Clean email address (remove mailto: prefix if present)
     const cleanEmail = providerEmail.replace('mailto:', '');
+    console.log('Cleaned email:', cleanEmail);
     
     const { ticketNumber, title, userName, userEmail, userPhone, selectedDate, participants, totalPrice } = bookingData;
     
@@ -252,17 +368,35 @@ const sendBookingNotificationToProvider = async (providerEmail, bookingData) => 
       `
     };
 
-    await transporter.sendMail(mailOptions);
+    console.log('Attempting to send booking notification...');
+    const result = await transporter.sendMail(mailOptions);
+    
+    console.log('✅ Booking notification sent successfully!');
+    console.log('Message ID:', result.messageId);
+    console.log('Response:', result.response);
   } catch (error) {
-    console.error('Error sending booking notification to provider:', error);
+    console.error('❌ Failed to send booking notification to provider:');
+    console.error('Error message:', error.message);
+    console.error('Error code:', error.code);
+    console.error('Error stack:', error.stack);
   }
 };
 
 // Send cancellation notification to provider
 const sendCancellationNotificationToProvider = async (providerEmail, cancellationData) => {
+  console.log('\n=== SENDING CANCELLATION NOTIFICATION TO PROVIDER ===');
+  console.log('Provider Email:', providerEmail);
+  console.log('Cancellation Data:', {
+    ticketNumber: cancellationData.ticketNumber,
+    title: cancellationData.title,
+    userName: cancellationData.userName
+  });
+  console.log('Environment:', process.env.NODE_ENV);
+  
   try {
     // Clean email address (remove mailto: prefix if present)
     const cleanEmail = providerEmail.replace('mailto:', '');
+    console.log('Cleaned email:', cleanEmail);
     
     const { ticketNumber, title, userName, userEmail, userPhone, selectedDate, participants, totalPrice } = cancellationData;
     
@@ -303,14 +437,28 @@ const sendCancellationNotificationToProvider = async (providerEmail, cancellatio
       `
     };
 
-    await transporter.sendMail(mailOptions);
+    console.log('Attempting to send cancellation notification...');
+    const result = await transporter.sendMail(mailOptions);
+    
+    console.log('✅ Cancellation notification sent successfully!');
+    console.log('Message ID:', result.messageId);
+    console.log('Response:', result.response);
   } catch (error) {
-    console.error('Error sending cancellation notification to provider:', error);
+    console.error('❌ Failed to send cancellation notification to provider:');
+    console.error('Error message:', error.message);
+    console.error('Error code:', error.code);
+    console.error('Error stack:', error.stack);
   }
 };
 
 // Generic send email function
 const sendEmail = async ({ to, subject, template, data }) => {
+  console.log('\n=== SENDING GENERIC EMAIL ===');
+  console.log('To:', to);
+  console.log('Subject:', subject);
+  console.log('Template:', template);
+  console.log('Environment:', process.env.NODE_ENV);
+  
   try {
     let htmlContent = '';
     
@@ -329,9 +477,28 @@ const sendEmail = async ({ to, subject, template, data }) => {
       html: htmlContent
     };
 
-    return await transporter.sendMail(mailOptions);
+    console.log('Mail options configured:', {
+      from: mailOptions.from,
+      to: mailOptions.to,
+      subject: mailOptions.subject,
+      template: template,
+      htmlLength: htmlContent.length
+    });
+
+    console.log('Attempting to send generic email...');
+    const result = await transporter.sendMail(mailOptions);
+    
+    console.log('✅ Generic email sent successfully!');
+    console.log('Message ID:', result.messageId);
+    console.log('Response:', result.response);
+    
+    return result;
   } catch (error) {
-    console.error('Error sending email:', error);
+    console.error('❌ Failed to send generic email:');
+    console.error('Error message:', error.message);
+    console.error('Error code:', error.code);
+    console.error('Error stack:', error.stack);
+    
     throw error;
   }
 };
