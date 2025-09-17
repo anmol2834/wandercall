@@ -63,7 +63,6 @@ exports.updateProfile = async (req, res) => {
     
     res.json({ success: true, user });
   } catch (error) {
-    console.error('Update profile error:', error);
     res.status(500).json({ success: false, message: error.message });
   }
 };

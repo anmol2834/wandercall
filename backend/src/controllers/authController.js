@@ -16,6 +16,21 @@ const generateOTP = () => {
 const otpStorage = new Map();
 const passwordResetOtpStorage = new Map();
 
+// Cleanup expired OTPs every 10 minutes to prevent memory leaks
+setInterval(() => {
+  const now = new Date();
+  for (const [email, data] of otpStorage.entries()) {
+    if (data.otpExpires < now) {
+      otpStorage.delete(email);
+    }
+  }
+  for (const [email, data] of passwordResetOtpStorage.entries()) {
+    if (data.otpExpires < now) {
+      passwordResetOtpStorage.delete(email);
+    }
+  }
+}, 10 * 60 * 1000);
+
 exports.sendOTP = async (req, res) => {
   try {
     const { email, name, agreedToTerms, password } = req.body;
@@ -45,9 +60,7 @@ exports.sendOTP = async (req, res) => {
     });
     
     // Send OTP email asynchronously (don't wait)
-    sendOTPEmail(email, otp, name).catch(emailError => {
-      console.error('Email sending failed but continuing:', emailError);
-    });
+    sendOTPEmail(email, otp, name).catch(() => {});
     
     res.json({ success: true, message: 'OTP sent successfully' });
   } catch (error) {
@@ -96,13 +109,10 @@ exports.verifyOTP = async (req, res) => {
     
     // Link waitlist entry if exists
     const { linkWaitlistToUser } = require('./waitlistController');
-    const linked = await linkWaitlistToUser(user._id, email);
-    console.log('Waitlist linking result:', linked, 'for user:', user._id, 'email:', email);
+    await linkWaitlistToUser(user._id, email);
     
     // Send welcome email asynchronously (don't wait)
-    sendWelcomeEmail(email, otpData.name).catch(emailError => {
-      console.error('Welcome email sending failed but continuing:', emailError);
-    });
+    sendWelcomeEmail(email, otpData.name).catch(() => {});
     
     res.json({ success: true, message: 'Email verified successfully' });
   } catch (error) {
@@ -198,9 +208,7 @@ exports.sendPasswordResetOTP = async (req, res) => {
     });
     
     // Send password reset OTP email asynchronously (don't wait)
-    sendPasswordResetOTP(email, otp, user.name).catch(emailError => {
-      console.error('Password reset email sending failed but continuing:', emailError);
-    });
+    sendPasswordResetOTP(email, otp, user.name).catch(() => {});
     
     res.json({ success: true, message: 'Password reset OTP sent successfully' });
   } catch (error) {

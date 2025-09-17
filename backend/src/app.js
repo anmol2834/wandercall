@@ -161,11 +161,33 @@ const server = app.listen(PORT, '0.0.0.0', () => {
   console.log(`🔑 JWT_EXPIRE: ${process.env.JWT_EXPIRE}`);
 });
 
-// Graceful shutdown
-process.on('SIGTERM', () => {
-  server.close(() => {
-    process.exit(0);
-  });
+// Process monitoring
+process.on('uncaughtException', (err) => {
+  console.error('Uncaught Exception:', err);
+  process.exit(1);
 });
+
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('Unhandled Rejection at:', promise, 'reason:', reason);
+  process.exit(1);
+});
+
+// Graceful shutdown
+const gracefulShutdown = () => {
+  console.log('Received shutdown signal, closing server...');
+  server.close(async () => {
+    try {
+      await mongoose.connection.close();
+      console.log('Database connection closed');
+      process.exit(0);
+    } catch (err) {
+      console.error('Error during shutdown:', err);
+      process.exit(1);
+    }
+  });
+};
+
+process.on('SIGTERM', gracefulShutdown);
+process.on('SIGINT', gracefulShutdown);
 
 module.exports = app;
