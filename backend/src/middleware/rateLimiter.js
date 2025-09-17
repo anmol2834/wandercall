@@ -52,12 +52,12 @@ const loginLimiter = rateLimit({
   }
 });
 
-// OTP rate limiter - 3 requests per 5 minutes per IP
+// OTP rate limiter - More lenient for critical email functionality
 const otpLimiter = rateLimit({
-  windowMs: 5 * 60 * 1000, // 5 minutes
-  max: 3,
+  windowMs: 2 * 60 * 1000, // 2 minutes (reduced window)
+  max: 10, // Increased limit for better UX
   message: (req, res) => createRateLimitResponse(
-    'Too many OTP requests. Please try again in 5 minutes.',
+    'Too many OTP requests. Please try again in 2 minutes.',
     Math.ceil(res.getHeader('X-RateLimit-Reset') - Date.now() / 1000)
   ),
   standardHeaders: true,
@@ -66,7 +66,7 @@ const otpLimiter = rateLimit({
   handler: (req, res) => {
     const retryAfter = Math.ceil(res.getHeader('X-RateLimit-Reset') - Date.now() / 1000);
     res.status(429).json(createRateLimitResponse(
-      'Too many OTP requests from this IP. Please wait 5 minutes before requesting another OTP.',
+      'Too many OTP requests from this IP. Please wait 2 minutes before requesting another OTP.',
       retryAfter
     ));
   }
@@ -104,9 +104,17 @@ const generalApiLimiter = rateLimit({
   legacyHeaders: false,
   keyGenerator: tokenKeyGenerator,
   skip: (req) => {
-    // Skip rate limiting for read-only operations
-    const readOnlyPaths = ['/api/products', '/api/wishlist/check', '/api/reviews'];
-    return readOnlyPaths.some(path => req.path.startsWith(path)) && req.method === 'GET';
+    // Skip rate limiting for critical operations and read-only operations
+    const skipPaths = [
+      '/api/products', 
+      '/api/wishlist/check', 
+      '/api/reviews',
+      '/api/auth/send-otp', // Exclude OTP route from general limiter
+      '/api/auth/verify-otp', // Exclude OTP verification
+      '/api/auth/send-password-reset-otp' // Exclude password reset OTP
+    ];
+    return skipPaths.some(path => req.path === path) || 
+           (skipPaths.some(path => req.path.startsWith(path)) && req.method === 'GET');
   },
   handler: (req, res) => {
     const retryAfter = Math.ceil(res.getHeader('X-RateLimit-Reset') - Date.now() / 1000);

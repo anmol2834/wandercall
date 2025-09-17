@@ -81,11 +81,13 @@ app.use('/api/products', readOnlyLimiter);
 app.use('/api/wishlist/check', readOnlyLimiter);
 app.use('/api/reviews', readOnlyLimiter);
 
-// Use general rate limiter for other operations
+// Mount auth routes BEFORE general API limiter to ensure OTP routes are excluded
+app.use('/api/auth', require('./routes/authRoutes'));
+
+// Use general rate limiter for other operations (OTP routes already excluded in skip function)
 app.use('/api', generalApiLimiter);
 
-// Routes
-app.use('/api/auth', require('./routes/authRoutes'));
+// Other Routes
 app.use('/api/waitlist', require('./routes/waitlistRoutes'));
 app.use('/api/rewards', require('./routes/rewardsRoutes'));
 app.use('/api/addresses', require('./routes/addressRoutes'));
