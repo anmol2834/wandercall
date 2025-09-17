@@ -40,7 +40,8 @@ const corsOptions = {
     'https://www.wandercall.com',
     'https://wandercall.vercel.app',
     'http://wandercall.vercel.app',
-    'http://localhost:5173'
+    'http://localhost:5173',
+    'http://localhost:3000'
   ],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
@@ -53,7 +54,7 @@ app.use(cors(corsOptions));
 // Additional CORS headers for all responses
 app.use((req, res, next) => {
   const origin = req.headers.origin;
-  const allowedOrigins = ['https://wandercall.vercel.app', 'https://www.wandercall.com', 'http://localhost:5173', 'https://wandercall.com', ];
+  const allowedOrigins = ['https://wandercall.vercel.app', 'https://www.wandercall.com', 'http://localhost:5173', 'https://wandercall.com', 'http://localhost:3000'];
 
   if (!origin || allowedOrigins.includes(origin) || origin.includes('vercel.app')) {
     res.header('Access-Control-Allow-Origin', origin || 'https://wandercall.vercel.app');

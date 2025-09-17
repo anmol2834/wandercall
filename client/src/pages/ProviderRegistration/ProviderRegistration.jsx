@@ -1317,7 +1317,7 @@ const ProviderRegistration = () => {
                     setVerificationError('');
                     
                     try {
-                      const response = await fetch(`${import.meta.env.VITE_API_URL || 'https:api.wandercall.com'}/api/providers/verify-code`, {
+                      const response = await fetch(`${import.meta.env.VITE_API_URL || 'https://api.wandercall.com'}/api/providers/verify-code`, {
                         method: 'POST',
                         headers: {
                           'Content-Type': 'application/json',
