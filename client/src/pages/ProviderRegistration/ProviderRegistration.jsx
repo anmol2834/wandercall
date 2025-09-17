@@ -134,7 +134,7 @@ const ProviderRegistration = () => {
     setVerificationSuccess('');
 
     try {
-      const response = await fetch('http://localhost:5000/api/providers/send-verification', {
+      const response = await fetch(`${import.meta.env.VITE_API_URL || 'https:api.wandercall.com'}/api/providers/send-verification`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -180,7 +180,7 @@ const ProviderRegistration = () => {
     setSubmitError('');
 
     try {
-      const response = await fetch('http://localhost:5000/api/providers/register', {
+      const response = await fetch(`${import.meta.env.VITE_API_URL || 'https:api.wandercall.com'}/api/providers/register`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -1317,7 +1317,7 @@ const ProviderRegistration = () => {
                     setVerificationError('');
                     
                     try {
-                      const response = await fetch('http://localhost:5000/api/providers/verify-code', {
+                      const response = await fetch(`${import.meta.env.VITE_API_URL || 'https:api.wandercall.com'}/api/providers/verify-code`, {
                         method: 'POST',
                         headers: {
                           'Content-Type': 'application/json',
