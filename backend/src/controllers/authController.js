@@ -44,12 +44,10 @@ exports.sendOTP = async (req, res) => {
       agreedToTerms: agreedToTerms || true
     });
     
-    // Send OTP email
-    try {
-      await sendOTPEmail(email, otp, name);
-    } catch (emailError) {
-      // Continue without failing - OTP is stored
-    }
+    // Send OTP email asynchronously (don't wait)
+    sendOTPEmail(email, otp, name).catch(emailError => {
+      console.error('Email sending failed but continuing:', emailError);
+    });
     
     res.json({ success: true, message: 'OTP sent successfully' });
   } catch (error) {
@@ -101,8 +99,10 @@ exports.verifyOTP = async (req, res) => {
     const linked = await linkWaitlistToUser(user._id, email);
     console.log('Waitlist linking result:', linked, 'for user:', user._id, 'email:', email);
     
-    // Send welcome email
-    await sendWelcomeEmail(email, otpData.name);
+    // Send welcome email asynchronously (don't wait)
+    sendWelcomeEmail(email, otpData.name).catch(emailError => {
+      console.error('Welcome email sending failed but continuing:', emailError);
+    });
     
     res.json({ success: true, message: 'Email verified successfully' });
   } catch (error) {
@@ -197,12 +197,10 @@ exports.sendPasswordResetOTP = async (req, res) => {
       userId: user._id
     });
     
-    // Send password reset OTP email
-    try {
-      await sendPasswordResetOTP(email, otp, user.name);
-    } catch (emailError) {
-      console.error('Email sending failed:', emailError);
-    }
+    // Send password reset OTP email asynchronously (don't wait)
+    sendPasswordResetOTP(email, otp, user.name).catch(emailError => {
+      console.error('Password reset email sending failed but continuing:', emailError);
+    });
     
     res.json({ success: true, message: 'Password reset OTP sent successfully' });
   } catch (error) {

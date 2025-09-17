@@ -22,7 +22,10 @@ const transporter = nodemailer.createTransport({
     pass: process.env.APP_PASS,
   },
   debug: process.env.NODE_ENV === 'development',
-  logger: process.env.NODE_ENV === 'development'
+  logger: process.env.NODE_ENV === 'development',
+  connectionTimeout: 10000, // 10 seconds
+  greetingTimeout: 5000,    // 5 seconds
+  socketTimeout: 10000      // 10 seconds
 });
 
 // Test transporter configuration
