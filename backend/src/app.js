@@ -5,7 +5,7 @@ const connectDB = require('./config/database');
 const { startRewardExpiryChecker } = require('./utils/rewardExpiry');
 const { startBookingCleanup } = require('./utils/cleanupBookings');
 const { cleanupDatabase } = require('./utils/dbMigration');
-const testSMTP = require("./src/smtp-test");
+const testSMTP = require("./smtp-test");
 
 
 app.get("/debug/smtp", async (req, res) => {
