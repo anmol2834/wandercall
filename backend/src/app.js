@@ -7,17 +7,6 @@ const { startBookingCleanup } = require('./utils/cleanupBookings');
 const { cleanupDatabase } = require('./utils/dbMigration');
 const testSMTP = require("./smtp-test");
 
-
-app.get("/debug/smtp", async (req, res) => {
-  try {
-    await testSMTP("smtp.gmail.com", 465);
-    await testSMTP("smtp.gmail.com", 587);
-    res.send("SMTP test finished. Check logs.");
-  } catch (err) {
-    res.status(500).send("SMTP test failed: " + err.message);
-  }
-});
-
 // Connect to database
 connectDB().then(async () => {
   await cleanupDatabase();
@@ -118,7 +107,15 @@ app.use('/api/webhooks', require('./routes/webhookRoutes'));
 app.use('/api/reviews', require('./routes/reviewRoutes'));
 app.use('/api/providers', require('./routes/providerRoutes'));
 
-
+app.get("/debug/smtp", async (req, res) => {
+  try {
+    await testSMTP("smtp.gmail.com", 465);
+    await testSMTP("smtp.gmail.com", 587);
+    res.send("SMTP test finished. Check logs.");
+  } catch (err) {
+    res.status(500).send("SMTP test failed: " + err.message);
+  }
+});
 
 // Health check
 app.get('/health', (req, res) => {
