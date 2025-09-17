@@ -14,18 +14,22 @@ if (!process.env.EMAIL_USER || !process.env.APP_PASS) {
 }
 
 const transporter = nodemailer.createTransport({
+  service: 'gmail',
   host: "smtp.gmail.com",
-  port: 465,
-  secure: true,
+  port: 587,
+  secure: false,
   auth: {
     user: process.env.EMAIL_USER,
     pass: process.env.APP_PASS,
   },
+  tls: {
+    rejectUnauthorized: false
+  },
   debug: process.env.NODE_ENV === 'development',
   logger: process.env.NODE_ENV === 'development',
-  connectionTimeout: 10000, // 10 seconds
-  greetingTimeout: 5000,    // 5 seconds
-  socketTimeout: 10000      // 10 seconds
+  connectionTimeout: 60000, // 60 seconds
+  greetingTimeout: 30000,   // 30 seconds
+  socketTimeout: 60000      // 60 seconds
 });
 
 // Test transporter configuration
