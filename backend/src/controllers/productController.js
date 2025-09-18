@@ -1,4 +1,5 @@
 const Product = require('../models/Product');
+const Provider = require('../models/Provider');
 const mongoose = require('mongoose');
 
 // Get all products
@@ -71,8 +72,50 @@ const searchProducts = async (req, res) => {
   }
 };
 
+// Get provider availability for a product
+const getProviderAvailability = async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    // Validate ObjectId
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ success: false, message: 'Invalid product ID' });
+    }
+    
+    // Find the product
+    const product = await Product.findById(id);
+    if (!product) {
+      return res.status(404).json({ success: false, message: 'Product not found' });
+    }
+    
+    // Find the provider
+    let availability = [];
+    if (product.providerId) {
+      const provider = await Provider.findById(product.providerId);
+      if (provider && provider.availableDays) {
+        availability = provider.availableDays;
+      }
+    }
+    
+    // If no provider or availability found, return empty array (safe fallback)
+    res.json({ 
+      success: true, 
+      availability,
+      productId: id
+    });
+  } catch (error) {
+    console.error('Get provider availability error:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Failed to fetch provider availability',
+      availability: [] // Safe fallback
+    });
+  }
+};
+
 module.exports = {
   getAllProducts,
   getProductById,
-  searchProducts
+  searchProducts,
+  getProviderAvailability
 };

@@ -62,6 +62,35 @@ export const searchProducts = createAsyncThunk(
   }
 );
 
+export const fetchProviderAvailability = createAsyncThunk(
+  'products/fetchProviderAvailability',
+  async (productId, { getState, rejectWithValue }) => {
+    if (!productId) {
+      return rejectWithValue('Product ID is required');
+    }
+    
+    const { providerAvailability } = getState().products;
+    
+    // Return cached availability if exists
+    if (providerAvailability[productId]) {
+      return { productId, availability: providerAvailability[productId] };
+    }
+    
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_URL || 'https://api.wandercall.com'}/api/products/${productId}/availability`);
+      
+      if (!response.ok) {
+        throw new Error('Failed to fetch availability');
+      }
+      
+      const data = await response.json();
+      return { productId, availability: data.availability || [] };
+    } catch (error) {
+      return rejectWithValue(error.message || 'Failed to fetch provider availability');
+    }
+  }
+);
+
 const productsSlice = createSlice({
   name: 'products',
   initialState: {
@@ -73,7 +102,11 @@ const productsSlice = createSlice({
     searchLoading: false,
     productLoading: false,
     lastFetched: null,
-    cacheExpiry: 5 * 60 * 1000 // 5 minutes
+    cacheExpiry: 5 * 60 * 1000, // 5 minutes
+    // Provider availability state
+    providerAvailability: {}, // { productId: availableDays[] }
+    availabilityLoading: false,
+    availabilityError: null
   },
   reducers: {
     clearSelectedProduct: (state) => {
@@ -84,6 +117,9 @@ const productsSlice = createSlice({
     },
     clearError: (state) => {
       state.error = null;
+    },
+    clearAvailabilityError: (state) => {
+      state.availabilityError = null;
     }
   },
   extraReducers: (builder) => {
@@ -136,9 +172,30 @@ const productsSlice = createSlice({
       .addCase(searchProducts.rejected, (state, action) => {
         state.searchLoading = false;
         state.error = action.payload;
+      })
+      // Fetch provider availability
+      .addCase(fetchProviderAvailability.pending, (state) => {
+        state.availabilityLoading = true;
+        state.availabilityError = null;
+      })
+      .addCase(fetchProviderAvailability.fulfilled, (state, action) => {
+        state.availabilityLoading = false;
+        const { productId, availability } = action.payload;
+        state.providerAvailability[productId] = availability;
+      })
+      .addCase(fetchProviderAvailability.rejected, (state, action) => {
+        state.availabilityLoading = false;
+        state.availabilityError = action.payload;
       });
   }
 });
 
-export const { clearSelectedProduct, clearSearchResults, clearError } = productsSlice.actions;
+export const { clearSelectedProduct, clearSearchResults, clearError, clearAvailabilityError } = productsSlice.actions;
+
+// Selectors
+export const selectProviderAvailability = (state, productId) => 
+  state.products.providerAvailability[productId] || [];
+
+export const selectAvailabilityLoading = (state) => state.products.availabilityLoading;
+export const selectAvailabilityError = (state) => state.products.availabilityError;
 export default productsSlice.reducer;

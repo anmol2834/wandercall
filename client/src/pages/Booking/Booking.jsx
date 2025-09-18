@@ -14,7 +14,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate, useLocation, useParams } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchProductById } from '../../redux/slices/productsSlice';
+import { fetchProductById, fetchProviderAvailability, selectProviderAvailability, selectAvailabilityLoading } from '../../redux/slices/productsSlice';
 import { createPaymentSession, setBookingData } from '../../redux/slices/checkoutSlice';
 import { useAuth } from '../../contexts/AuthContext';
 import { useRewards } from '../../contexts/RewardsContext';
@@ -28,6 +28,9 @@ const Booking = () => {
   const { id } = useParams();
   const dispatch = useDispatch();
   const { selectedProduct: product, productLoading, error } = useSelector(state => state.products);
+  const providerAvailability = useSelector(state => selectProviderAvailability(state, id));
+  const availabilityLoading = useSelector(selectAvailabilityLoading);
+  const availabilityError = useSelector(state => state.products.availabilityError);
   const { loading: checkoutLoading, paymentSession, error: checkoutError } = useSelector(state => state.checkout);
   const { user, updateUser } = useAuth();
   const { hasActiveDiscount, waitlistRewards } = useRewards();
@@ -55,18 +58,18 @@ const Booking = () => {
   });
   const [validationErrors, setValidationErrors] = useState({});
   const [currentMonth, setCurrentMonth] = useState(new Date());
-  const [availableDates] = useState({
-    '2024-12-25': false, '2024-12-26': true, '2024-12-27': true,
-    '2024-12-28': false, '2024-12-29': true, '2024-12-30': true,
-    '2025-01-01': false, '2025-01-02': true, '2025-01-03': true,
-    '2025-01-04': true, '2025-01-05': false, '2025-01-06': true
-  });
 
   useEffect(() => {
     if (id && !product) {
       dispatch(fetchProductById(id));
     }
   }, [dispatch, id, product]);
+
+  useEffect(() => {
+    if (id && product && providerAvailability.length === 0 && !availabilityLoading) {
+      dispatch(fetchProviderAvailability(id));
+    }
+  }, [dispatch, id, product, providerAvailability.length, availabilityLoading]);
 
   useEffect(() => {
     if (hasActiveDiscount) {
@@ -353,6 +356,9 @@ const Booking = () => {
     const tomorrow = new Date(today);
     tomorrow.setDate(tomorrow.getDate() + 1);
 
+    // Day name mapping
+    const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+
     for (let i = 0; i < 42; i++) {
       const date = new Date(startDate);
       date.setDate(startDate.getDate() + i);
@@ -360,7 +366,21 @@ const Booking = () => {
       const dateStr = date.toISOString().split('T')[0];
       const isCurrentMonth = date.getMonth() === month;
       const isPast = date < tomorrow;
-      const isAvailable = availableDates[dateStr] !== undefined ? availableDates[dateStr] : true;
+      
+      // Check if this day is in provider's available days
+      const dayName = dayNames[date.getDay()];
+      // Only allow bookings for current month
+      const currentDate = new Date();
+      const isInCurrentMonth = date.getMonth() === currentDate.getMonth() && date.getFullYear() === currentDate.getFullYear();
+      
+      // If there's an error or no availability data, mark as unavailable for safety
+      const isProviderAvailable = availabilityError 
+        ? false 
+        : (providerAvailability.length === 0 || providerAvailability.includes(dayName));
+      
+      // Only available if: not past + current month + provider available
+      const isDateAvailable = !isPast && isInCurrentMonth && isProviderAvailable;
+      
       const isSelected = selectedDate && selectedDate.toDateString() === date.toDateString();
 
       days.push({
@@ -369,7 +389,7 @@ const Booking = () => {
         day: date.getDate(),
         isCurrentMonth,
         isPast,
-        isAvailable: !isPast && isAvailable,
+        isAvailable: isDateAvailable,
         isSelected
       });
     }
@@ -596,7 +616,9 @@ const Booking = () => {
                                 display: 'grid',
                                 gridTemplateColumns: 'repeat(7, 1fr)',
                                 gap: { xs: 0.3, sm: 1 },
-                                width: '100%'
+                                width: '100%',
+                                opacity: availabilityLoading ? 0.6 : 1,
+                                pointerEvents: availabilityLoading ? 'none' : 'auto'
                               }}>
                                 {generateCalendar().map((day, index) => (
                                   <motion.div
@@ -650,6 +672,21 @@ const Booking = () => {
                                 ))}
                               </Box>
 
+                              {/* Loading indicator */}
+                              {availabilityLoading && (
+                                <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
+                                  <CircularProgress size={20} />
+                                  <Typography variant="caption" sx={{ ml: 1 }}>Loading availability...</Typography>
+                                </Box>
+                              )}
+                              
+                              {/* Error indicator */}
+                              {availabilityError && (
+                                <Alert severity="warning" sx={{ mt: 2 }}>
+                                  Unable to load provider availability. All upcoming dates are marked as unavailable for safety.
+                                </Alert>
+                              )}
+                              
                               {/* Legend */}
                               <Box sx={{ display: 'flex', justifyContent: 'center', gap: 3, mt: 2, flexWrap: 'wrap' }}>
                                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
