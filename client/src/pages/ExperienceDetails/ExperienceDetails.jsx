@@ -13,6 +13,7 @@ import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchProductById } from '../../redux/slices/productsSlice';
 import { fetchReviews, clearReviews } from '../../redux/slices/reviewsSlice';
+import { toggleReviewLike } from '../../redux/slices/reviewLikesSlice';
 import { wishlistService } from '../../services/wishlistService';
 import ManualReviewForm from '../../components/ManualReviewForm/ManualReviewForm';
 import { useAuth } from '../../contexts/AuthContext';
@@ -38,8 +39,7 @@ const ExperienceDetails = () => {
   const [wishlistLoading, setWishlistLoading] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
   const [expandedDescription, setExpandedDescription] = useState(false);
-  const [reviewLikes, setReviewLikes] = useState({});
-  const [reviewDislikes, setReviewDislikes] = useState({});
+  const { likes: reviewLikes, loading: likesLoading } = useSelector(state => state.reviewLikes);
   const [currentReviewIndex, setCurrentReviewIndex] = useState(0);
 
   useEffect(() => {
@@ -156,7 +156,9 @@ const ExperienceDetails = () => {
       avatar: review.name.split(' ').map(n => n[0]).join('').toUpperCase(),
       rating: review.rating,
       date: new Date(review.createdAt).toLocaleDateString(),
-      comment: review.comment
+      comment: review.comment,
+      likes: review.likes || 0,
+      likedBy: review.likedBy || []
     }))
   };
 
@@ -193,18 +195,19 @@ const ExperienceDetails = () => {
   const handleBookNow = () => navigate(`/booking/${id}`, { state: { experience } });
   const handleLocationClick = () => window.open(product.location.mapLink || `https://maps.google.com/?q=${encodeURIComponent(experience.location)}`, '_blank');
 
-  const handleReviewLike = (reviewId) => {
-    setReviewLikes(prev => ({ ...prev, [reviewId]: !prev[reviewId] }));
-    if (reviewDislikes[reviewId]) {
-      setReviewDislikes(prev => ({ ...prev, [reviewId]: false }));
+  const handleReviewLike = async (reviewId) => {
+    if (!user) {
+      navigate('/signin');
+      return;
     }
-  };
-
-  const handleReviewDislike = (reviewId) => {
-    setReviewDislikes(prev => ({ ...prev, [reviewId]: !prev[reviewId] }));
-    if (reviewLikes[reviewId]) {
-      setReviewLikes(prev => ({ ...prev, [reviewId]: false }));
+    
+    const token = localStorage.getItem('token');
+    if (!token) {
+      navigate('/signin');
+      return;
     }
+    
+    dispatch(toggleReviewLike({ reviewId, token }));
   };
 
   return (
@@ -751,33 +754,19 @@ const ExperienceDetails = () => {
                                 size="small"
                                 startIcon={<ThumbUp sx={{ fontSize: 14 }} />}
                                 onClick={() => handleReviewLike(review.id)}
+                                disabled={likesLoading[review.id]}
                                 sx={{
-                                  color: reviewLikes[review.id] ? '#ffffff' : 'inherit',
-                                  backgroundColor: reviewLikes[review.id] ? '#10b981' : 'transparent',
-                                  border: reviewLikes[review.id] ? '1px solid #10b981' : '1px solid rgba(0, 0, 0, 0.12)',
+                                  color: (reviewLikes[review.id] ? reviewLikes[review.id].liked : review.likedBy?.includes(user?._id)) ? '#ffffff' : 'inherit',
+                                  backgroundColor: (reviewLikes[review.id] ? reviewLikes[review.id].liked : review.likedBy?.includes(user?._id)) ? '#10b981' : 'transparent',
+                                  border: (reviewLikes[review.id] ? reviewLikes[review.id].liked : review.likedBy?.includes(user?._id)) ? '1px solid #10b981' : '1px solid rgba(0, 0, 0, 0.12)',
+                                  opacity: likesLoading[review.id] ? 0.6 : 1,
                                   '&:hover': {
-                                    backgroundColor: reviewLikes[review.id] ? '#059669' : 'rgba(16, 185, 129, 0.1)',
-                                    color: reviewLikes[review.id] ? '#ffffff' : '#10b981'
+                                    backgroundColor: (reviewLikes[review.id] ? reviewLikes[review.id].liked : review.likedBy?.includes(user?._id)) ? '#059669' : 'rgba(16, 185, 129, 0.1)',
+                                    color: (reviewLikes[review.id] ? reviewLikes[review.id].liked : review.likedBy?.includes(user?._id)) ? '#ffffff' : '#10b981'
                                   }
                                 }}
                               >
-                                Helpful
-                              </Button>
-                              <Button
-                                size="small"
-                                startIcon={<ThumbDown sx={{ fontSize: 14 }} />}
-                                onClick={() => handleReviewDislike(review.id)}
-                                sx={{
-                                  color: reviewDislikes[review.id] ? '#ffffff' : 'inherit',
-                                  backgroundColor: reviewDislikes[review.id] ? '#ef4444' : 'transparent',
-                                  border: reviewDislikes[review.id] ? '1px solid #ef4444' : '1px solid rgba(0, 0, 0, 0.12)',
-                                  '&:hover': {
-                                    backgroundColor: reviewDislikes[review.id] ? '#dc2626' : 'rgba(239, 68, 68, 0.1)',
-                                    color: reviewDislikes[review.id] ? '#ffffff' : '#ef4444'
-                                  }
-                                }}
-                              >
-                                Not Helpful
+                                {reviewLikes[review.id]?.count ?? review.likes ?? 0}
                               </Button>
                             </Box>
                           </Paper>
@@ -836,7 +825,7 @@ const ExperienceDetails = () => {
                           </Box>
                         </motion.div>
                         <Typography variant="body2" color="text.secondary">
-                          per person • Save ${experience.originalPrice - experience.price}!
+                          per person • Save ₹{experience.originalPrice - experience.price}!
                         </Typography>
                       </Box>
 

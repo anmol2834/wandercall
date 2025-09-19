@@ -6,6 +6,7 @@ import ticketReducer from './slices/ticketSlice';
 import checkoutReducer from './slices/checkoutSlice';
 import reviewsReducer from './slices/reviewsSlice';
 import wishlistReducer from './slices/wishlistSlice';
+import reviewLikesReducer from './slices/reviewLikesSlice';
 
 
 
@@ -18,6 +19,7 @@ export const store = configureStore({
     checkout: checkoutReducer,
     reviews: reviewsReducer,
     wishlist: wishlistReducer,
+    reviewLikes: reviewLikesReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({

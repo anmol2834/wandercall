@@ -5,10 +5,10 @@ import { productAPI } from '../../services/api';
 export const fetchProducts = createAsyncThunk(
   'products/fetchProducts',
   async (_, { getState, rejectWithValue }) => {
-    const { products } = getState().products;
+    const { products, lastFetched, cacheExpiry } = getState().products;
     
     // Return cached data if available and not stale
-    if (products.length > 0) {
+    if (products.length > 0 && lastFetched && (Date.now() - lastFetched < cacheExpiry)) {
       return products;
     }
     
@@ -33,17 +33,17 @@ export const fetchProductById = createAsyncThunk(
     // Check if product is already in products array
     const cachedProduct = products.find(p => p._id === productId);
     if (cachedProduct) {
-      return cachedProduct;
+      return { product: cachedProduct, fromCache: true };
     }
     
     // Check if it's the currently selected product
     if (selectedProduct && selectedProduct._id === productId) {
-      return selectedProduct;
+      return { product: selectedProduct, fromCache: true };
     }
     
     try {
       const response = await productAPI.getProductById(productId);
-      return response.data.product;
+      return { product: response.data.product, fromCache: false };
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || 'Failed to fetch product');
     }
@@ -145,15 +145,20 @@ const productsSlice = createSlice({
       })
       .addCase(fetchProductById.fulfilled, (state, action) => {
         state.productLoading = false;
-        state.selectedProduct = action.payload;
+        const { product, fromCache } = action.payload;
+        state.selectedProduct = product;
         
-        // Update product in products array if it exists
-        const existingIndex = state.products.findIndex(p => p._id === action.payload._id);
-        if (existingIndex !== -1) {
-          state.products[existingIndex] = action.payload;
-        } else {
-          // Add to products array if not exists
-          state.products.push(action.payload);
+        // Only update products array if this product came from API (not from cache)
+        // and if we don't already have a full products list
+        if (!fromCache) {
+          const existingIndex = state.products.findIndex(p => p._id === product._id);
+          if (existingIndex !== -1) {
+            state.products[existingIndex] = product;
+          } else if (state.products.length > 0) {
+            // Only add to products array if we already have products loaded
+            // This prevents replacing the full products list with just one product
+            state.products.push(product);
+          }
         }
       })
       .addCase(fetchProductById.rejected, (state, action) => {

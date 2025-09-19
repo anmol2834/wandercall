@@ -25,7 +25,15 @@ const reviewSchema = new mongoose.Schema({
   createdBy: {
     type: String,
     default: 'anmolsinha4321@gmail.com'
-  }
+  },
+  likes: {
+    type: Number,
+    default: 0
+  },
+  likedBy: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User'
+  }]
 }, {
   timestamps: true
 });

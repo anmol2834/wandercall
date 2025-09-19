@@ -81,7 +81,49 @@ const addReview = async (req, res) => {
   }
 };
 
+// Toggle like on a review
+const toggleReviewLike = async (req, res) => {
+  try {
+    const { reviewId } = req.params;
+    const userId = req.user._id;
+    
+    const review = await Review.findById(reviewId);
+    if (!review) {
+      return res.status(404).json({
+        success: false,
+        message: 'Review not found'
+      });
+    }
+    
+    const hasLiked = review.likedBy.includes(userId);
+    
+    if (hasLiked) {
+      // Unlike
+      review.likedBy.pull(userId);
+      review.likes = Math.max(0, review.likes - 1);
+    } else {
+      // Like
+      review.likedBy.push(userId);
+      review.likes += 1;
+    }
+    
+    await review.save();
+    
+    res.json({
+      success: true,
+      liked: !hasLiked,
+      likes: review.likes
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: 'Failed to toggle like'
+    });
+  }
+};
+
 module.exports = {
   getReviews,
-  addReview
+  addReview,
+  toggleReviewLike
 };
