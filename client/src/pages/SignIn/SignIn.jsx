@@ -6,6 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import SignInSlideshow from '../../components/SignInSlideshow/SignInSlideshow';
 import { authAPI } from '../../services/api';
 import { useAuth } from '../../contexts/AuthContext';
+import { googleAuthService } from '../../services/googleAuth';
 import './SignIn.css';
 
 const SignIn = () => {
@@ -32,6 +33,7 @@ const SignIn = () => {
   const [forgotPasswordSuccess, setForgotPasswordSuccess] = useState('');
   const [otpSent, setOtpSent] = useState(false);
   const [resendTimer, setResendTimer] = useState(0);
+  const [googleLoading, setGoogleLoading] = useState(false);
 
   const handleInputChange = (field) => (event) => {
     setFormData({ ...formData, [field]: event.target.value });
@@ -142,6 +144,30 @@ const SignIn = () => {
     }
   };
 
+  const handleGoogleSignIn = async () => {
+    try {
+      setGoogleLoading(true);
+      const userData = await googleAuthService.signIn();
+      
+      // Send Google user data to backend
+      const response = await authAPI.googleAuth({
+        email: userData.email,
+        name: userData.name || `${userData.given_name} ${userData.family_name}`,
+        googleId: userData.sub || userData.id,
+        picture: userData.picture,
+        accessToken: userData.access_token,
+        credential: userData.credential
+      });
+      
+      login(response.data.user, response.data.token);
+      navigate('/');
+    } catch (error) {
+      setError(error.message || 'Google sign in failed');
+    } finally {
+      setGoogleLoading(false);
+    }
+  };
+
   const resetForgotPasswordForm = () => {
     setForgotPasswordData({
       email: '',
@@ -213,8 +239,13 @@ const SignIn = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.4 }}
           >
-            <Button className="social-btn google-btn" startIcon={<Google />}>
-              Continue with Google
+            <Button 
+              className="social-btn google-btn" 
+              startIcon={<Google />}
+              onClick={handleGoogleSignIn}
+              disabled={googleLoading}
+            >
+              {googleLoading ? 'Connecting...' : 'Continue with Google'}
             </Button>
           </motion.div>
 

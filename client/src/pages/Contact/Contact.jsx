@@ -45,7 +45,6 @@ const Contact = () => {
 
   const handleSubmit = (event) => {
     event.preventDefault();
-    console.log('Contact form submitted:', formData);
   };
 
   const contactMethods = [

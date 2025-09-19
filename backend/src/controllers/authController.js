@@ -288,3 +288,50 @@ exports.resetPassword = async (req, res) => {
     res.status(500).json({ success: false, message: 'Failed to reset password' });
   }
 };
+
+exports.googleAuth = async (req, res) => {
+  try {
+    const { email, name, googleId, picture, accessToken, idToken } = req.body;
+    
+    if (!email || !googleId) {
+      return res.status(400).json({ success: false, message: 'Email and Google ID are required' });
+    }
+    
+    // Check if user exists
+    let user = await User.findOne({ email });
+    
+    if (user) {
+      // Update existing user with Google info
+      user.googleId = googleId;
+      if (picture) user.picture = picture;
+      if (!user.isEmailVerified) user.isEmailVerified = true;
+      await user.save();
+    } else {
+      // Create new user
+      user = new User({
+        name: name || email.split('@')[0],
+        email,
+        googleId,
+        picture,
+        isEmailVerified: true,
+        agreedToTerms: true,
+        password: undefined // No password for Google users
+      });
+      await user.save();
+      
+      // Link waitlist entry if exists
+      const { linkWaitlistToUser } = require('./waitlistController');
+      await linkWaitlistToUser(user._id, email);
+    }
+    
+    const token = generateToken(user._id);
+    
+    res.json({
+      success: true,
+      token,
+      user: { id: user._id, name: user.name, email: user.email, role: user.role, picture: user.picture }
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Google authentication failed' });
+  }
+};

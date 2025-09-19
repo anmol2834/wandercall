@@ -13,6 +13,7 @@ dist-ssr
 *.local
 
 # Ignore env files
+.env
 client/.env
 client/.env.*
 

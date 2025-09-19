@@ -62,11 +62,9 @@ exports.linkWaitlistToUser = async (userId, email) => {
     const updatedUser = await WaitlistService.getUserWithWaitlistData(userId);
     
     if (updatedUser && updatedUser.waitlistRewards && updatedUser.waitlistRewards.length > 0) {
-      console.log('Linked waitlist to user:', userId, email, 'Rewards count:', updatedUser.waitlistRewards.length);
       return { success: true, rewards: updatedUser.waitlistRewards };
     }
     
-    console.log('No waitlist entry found for email:', email);
     return { success: false, rewards: [] };
   } catch (error) {
     console.error('Link waitlist to user error:', error);

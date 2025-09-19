@@ -7,6 +7,7 @@ import SignUpSlideshow from '../../components/SignUpSlideshow/SignUpSlideshow';
 import OTPModal from '../../components/OTPModal/OTPModal';
 import { authAPI } from '../../services/api';
 import { useAuth } from '../../contexts/AuthContext';
+import { googleAuthService } from '../../services/googleAuth';
 import './SignUp.css';
 
 const SignUp = () => {
@@ -26,13 +27,50 @@ const SignUp = () => {
   const [error, setError] = useState('');
   const [showOTPModal, setShowOTPModal] = useState(false);
   const [emailVerified, setEmailVerified] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
 
   const handleInputChange = (field) => (event) => {
     const value = field === 'agreeToTerms' ? event.target.checked : event.target.value;
     setFormData({ ...formData, [field]: value });
   };
 
+  // Get missing fields for validation message
+  const getMissingFields = () => {
+    const missing = [];
+    if (!formData.firstName.trim()) missing.push('First Name');
+    if (!formData.lastName.trim()) missing.push('Last Name');
+    if (!formData.email.trim()) missing.push('Email');
+    if (!formData.password.trim()) missing.push('Password');
+    if (!formData.confirmPassword.trim()) missing.push('Confirm Password');
+    if (!formData.agreeToTerms) missing.push('Terms Agreement');
+    return missing;
+  };
 
+
+
+  const handleGoogleSignUp = async () => {
+    try {
+      setGoogleLoading(true);
+      const userData = await googleAuthService.signIn();
+      
+      // Send Google user data to backend
+      const response = await authAPI.googleAuth({
+        email: userData.email,
+        name: userData.name || `${userData.given_name} ${userData.family_name}`,
+        googleId: userData.sub || userData.id,
+        picture: userData.picture,
+        accessToken: userData.access_token,
+        credential: userData.credential
+      });
+      
+      login(response.data.user, response.data.token);
+      navigate('/');
+    } catch (error) {
+      setError(error.message || 'Google sign up failed');
+    } finally {
+      setGoogleLoading(false);
+    }
+  };
 
   const handleEmailVerified = async () => {
     setEmailVerified(true);
@@ -54,14 +92,16 @@ const SignUp = () => {
     setLoading(true);
     setError('');
     
-    if (formData.password !== formData.confirmPassword) {
-      setError('Passwords do not match');
+    // Check for missing fields
+    const missingFields = getMissingFields();
+    if (missingFields.length > 0) {
+      setError(`Please fill in the following fields: ${missingFields.join(', ')}`);
       setLoading(false);
       return;
     }
     
-    if (!formData.agreeToTerms) {
-      setError('Please agree to the terms and conditions');
+    if (formData.password !== formData.confirmPassword) {
+      setError('Passwords do not match');
       setLoading(false);
       return;
     }
@@ -147,8 +187,13 @@ const SignUp = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.4 }}
           >
-            <Button className="social-btn google-btn" startIcon={<Google />}>
-              Continue with Google
+            <Button 
+              className="social-btn google-btn" 
+              startIcon={<Google />}
+              onClick={handleGoogleSignUp}
+              disabled={googleLoading}
+            >
+              {googleLoading ? 'Connecting...' : 'Continue with Google'}
             </Button>
             
             <Box className="signin-link-container">

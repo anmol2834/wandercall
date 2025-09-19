@@ -168,31 +168,43 @@ const server = app.listen(PORT, '0.0.0.0', () => {
 // Process monitoring
 process.on('uncaughtException', (err) => {
   console.error('Uncaught Exception:', err);
-  process.exit(1);
+  gracefulShutdown();
 });
 
 process.on('unhandledRejection', (reason, promise) => {
   console.error('Unhandled Rejection at:', promise, 'reason:', reason);
-  process.exit(1);
+  // Don't exit on unhandled rejection in development
+  if (process.env.NODE_ENV === 'production') {
+    gracefulShutdown();
+  }
 });
 
 // Graceful shutdown
-const gracefulShutdown = () => {
+const gracefulShutdown = (signal = 'SIGTERM') => {
+  console.log(`\n🔄 Received ${signal}. Starting graceful shutdown...`);
+  
   server.close(async () => {
     try {
       if (mongoose.connection.readyState === 1) {
         await mongoose.connection.close();
-        console.log('Database connection closed');
+        console.log('✅ Database connection closed');
       }
+      console.log('✅ Server shutdown complete');
       process.exit(0);
     } catch (err) {
-      console.error('Error during shutdown:', err);
-      process.exit(1);
+      console.error('❌ Error during shutdown:', err);
+      process.exit(0); // Exit gracefully even on error
     }
   });
+  
+  // Force exit after 10 seconds
+  setTimeout(() => {
+    console.log('⚠️  Forced shutdown after timeout');
+    process.exit(0);
+  }, 10000);
 };
 
-process.on('SIGTERM', gracefulShutdown);
-process.on('SIGINT', gracefulShutdown);
+process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
+process.on('SIGINT', () => gracefulShutdown('SIGINT'));
 
 module.exports = app;

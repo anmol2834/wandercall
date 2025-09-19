@@ -22,8 +22,6 @@ const cleanupExpiredRewards = async () => {
         $set: { isRewardsClaimed: false }
       }
     );
-
-    console.log(`Cleaned up ${result.modifiedCount} expired waitlist rewards`);
     return result;
   } catch (error) {
     console.error('Error cleaning up expired rewards:', error);

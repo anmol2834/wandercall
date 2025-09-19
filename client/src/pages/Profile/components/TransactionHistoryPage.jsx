@@ -28,7 +28,6 @@ const TransactionHistoryPage = () => {
       try {
         setLoading(true);
         const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
-        console.log('Fetching transactions from:', `${apiUrl}/api/transactions/history`);
         
         const response = await fetch(`${apiUrl}/api/transactions/history`, {
           headers: {
