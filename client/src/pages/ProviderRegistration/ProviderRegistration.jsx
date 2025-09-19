@@ -755,7 +755,7 @@ const ProviderRegistration = () => {
             <Box
               component="img"
               src={wandercallLogo}
-              alt="WanderCall"
+              alt="wandercall"
               sx={{
                 height: 50,
                 filter: theme.palette.mode === 'dark' ? 'invert(1)' : 'invert(0)'

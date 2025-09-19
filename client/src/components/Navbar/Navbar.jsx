@@ -119,7 +119,7 @@ const Navbar = () => {
       <Box className="drawer-header" sx={{ p: 2, borderBottom: 1, borderColor: 'divider' }}>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <Typography variant="h6" sx={{ fontWeight: 700, color: 'primary.main' }}>
-            WanderCall
+            wandercall
           </Typography>
           <IconButton onClick={() => setMobileOpen(false)}>
             <Close />

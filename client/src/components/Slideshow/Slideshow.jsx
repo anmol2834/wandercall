@@ -185,7 +185,7 @@ const Slideshow = () => {
         <Box 
           component="img"
           src={wandercallLogo1}
-          alt="WanderCall"
+          alt="wandercall"
           sx={{
             height: { xs: 32, sm: 40 },
             width: 'auto',

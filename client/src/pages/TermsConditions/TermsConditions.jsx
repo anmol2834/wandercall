@@ -88,12 +88,12 @@ const TermsConditions = () => {
       content: (
         <div>
           <Typography variant="body1" paragraph>
-            Welcome to WanderCall, a comprehensive marketplace platform that connects experiencers with unique experiences and service providers. 
+            Welcome to wandercall, a comprehensive marketplace platform that connects experiencers with unique experiences and service providers. 
             By accessing or using our services at <Link href="https://wandercall.com" target="_blank" rel="noopener">https://wandercall.com</Link>, 
             you agree to be bound by these Terms and Conditions.
           </Typography>
           <Typography variant="body1" paragraph>
-            These terms constitute a legally binding agreement between you and WanderCall. If you do not agree to these terms, 
+            These terms constitute a legally binding agreement between you and wandercall. If you do not agree to these terms, 
             please do not use our platform or services.
           </Typography>
           <Typography variant="body2" sx={{ fontStyle: 'italic', mt: 2 }}>
@@ -115,7 +115,7 @@ const TermsConditions = () => {
             <ListItem>
               <ListItemText 
                 primary="Platform" 
-                secondary="Refers to the WanderCall website, mobile applications, and all related services"
+                secondary="Refers to the wandercall website, mobile applications, and all related services"
               />
             </ListItem>
             <ListItem>
@@ -260,7 +260,7 @@ const TermsConditions = () => {
 
           <Typography variant="h6" gutterBottom>Commission Structure</Typography>
           <Typography variant="body1">
-            WanderCall charges a service fee on each completed booking. Fee structures are transparent 
+            wandercall charges a service fee on each completed booking. Fee structures are transparent 
             and communicated during the seller onboarding process.
           </Typography>
         </div>
@@ -307,21 +307,21 @@ const TermsConditions = () => {
         <div>
           <Typography variant="h6" gutterBottom>Risk Acknowledgment</Typography>
           <Typography variant="body1" paragraph>
-            Participation in WanderCall Experiences involves inherent risks. By booking an Experience, you acknowledge 
+            Participation in wandercall Experiences involves inherent risks. By booking an Experience, you acknowledge 
             and voluntarily assume all risks associated with participation, including risk of injury, disability, death, 
             or property damage.
           </Typography>
           
           <Typography variant="h6" gutterBottom sx={{ mt: 3 }}>Limitation of Liability</Typography>
           <Typography variant="body1" paragraph>
-            To the maximum extent permitted by law, WanderCall, its affiliates, employees, and partners shall not be 
+            To the maximum extent permitted by law, wandercall, its affiliates, employees, and partners shall not be 
             liable for any direct, indirect, incidental, special, or consequential damages resulting from your 
             participation in any Experience.
           </Typography>
           
           <Typography variant="h6" gutterBottom sx={{ mt: 3 }}>Indemnification</Typography>
           <Typography variant="body1" paragraph>
-            You agree to indemnify and hold harmless WanderCall from any claims, damages, liabilities, costs, and 
+            You agree to indemnify and hold harmless wandercall from any claims, damages, liabilities, costs, and 
             expenses (including legal fees) arising from your participation in any Experience or violation of these Terms.
           </Typography>
           
@@ -389,7 +389,7 @@ const TermsConditions = () => {
           <List>
             <ListItem>
               <ListItemIcon><CheckCircle color="primary" /></ListItemIcon>
-              <ListItemText primary="Once cancellation is successful, WanderCall will instantly initiate the refund to your source account or chosen method of refund" />
+              <ListItemText primary="Once cancellation is successful, wandercall will instantly initiate the refund to your source account or chosen method of refund" />
             </ListItem>
             <ListItem>
               <ListItemIcon><CheckCircle color="primary" /></ListItemIcon>
@@ -399,7 +399,7 @@ const TermsConditions = () => {
           
           <Typography variant="h6" gutterBottom sx={{ mt: 3 }}>Company-Initiated Cancellations</Typography>
           <Typography variant="body1" paragraph>
-            WanderCall reserves the right to cancel any Experience due to weather conditions, safety concerns, 
+            wandercall reserves the right to cancel any Experience due to weather conditions, safety concerns, 
             insufficient bookings, or other unforeseen circumstances. In such cases, we will provide a full refund 
             or offer to reschedule your booking.
           </Typography>
@@ -422,7 +422,7 @@ const TermsConditions = () => {
         <div>
           <Typography variant="h6" gutterBottom>Resolution Process</Typography>
           <Typography variant="body1" paragraph>
-            In case of disputes between buyers and sellers, WanderCall provides a structured resolution process:
+            In case of disputes between buyers and sellers, wandercall provides a structured resolution process:
           </Typography>
           
           <List>
@@ -435,13 +435,13 @@ const TermsConditions = () => {
             <ListItem>
               <ListItemText 
                 primary="Step 2: Mediation" 
-                secondary="WanderCall mediates to find a mutually acceptable solution"
+                secondary="wandercall mediates to find a mutually acceptable solution"
               />
             </ListItem>
             <ListItem>
               <ListItemText 
                 primary="Step 3: Final Decision" 
-                secondary="If mediation fails, WanderCall makes a final binding decision"
+                secondary="If mediation fails, wandercall makes a final binding decision"
               />
             </ListItem>
           </List>
@@ -461,7 +461,7 @@ const TermsConditions = () => {
       content: (
         <div>
           <Typography variant="body1" paragraph>
-            WanderCall reserves the right to modify these Terms and Conditions at any time. 
+            wandercall reserves the right to modify these Terms and Conditions at any time. 
             We will notify users of significant changes through:
           </Typography>
           
@@ -498,7 +498,7 @@ const TermsConditions = () => {
           </Typography>
           
           <Paper sx={{ p: 3, mt: 2, backgroundColor: theme.palette.background.paper }}>
-            <Typography variant="h6" gutterBottom>WanderCall Support</Typography>
+            <Typography variant="h6" gutterBottom>wandercall Support</Typography>
             <Typography variant="body1">Email: teamwandercall@gmail.com</Typography>
             <Typography variant="body1">Phone: +91 8733942557</Typography>
             <Typography variant="body1">Website: <Link href="https://wandercall.com" target="_blank" rel="noopener">https://wandercall.com</Link></Typography>
@@ -580,7 +580,7 @@ const TermsConditions = () => {
               Terms & <span className="terms-gradient-text">Conditions</span>
             </Typography>
             <p style={{textAlign: "center"}}>
-              Your comprehensive guide to using WanderCall marketplace safely and effectively
+              Your comprehensive guide to using wandercall marketplace safely and effectively
             </p>
             
             {/* Hero Illustration */}
@@ -797,7 +797,7 @@ const TermsConditions = () => {
           </AccordionSummary>
           <AccordionDetails>
             <Typography variant="body2" sx={{ fontSize: '0.85rem', color: '#666', lineHeight: 1.5 }}>
-              Wandercall reserves the exclusive right to modify, update, or amend these Terms and Conditions at any time, with or without prior notice. Such changes may take effect immediately upon publication on the platform or from a date specified by Wandercall. Your continued use of the platform after the effective date will constitute acceptance of the revised Terms and Conditions.
+              wandercall reserves the exclusive right to modify, update, or amend these Terms and Conditions at any time, with or without prior notice. Such changes may take effect immediately upon publication on the platform or from a date specified by wandercall. Your continued use of the platform after the effective date will constitute acceptance of the revised Terms and Conditions.
             </Typography>
             <Typography variant="body2" sx={{ fontSize: '0.85rem', color: '#666', lineHeight: 1.5, mt: 2 }}>
               By signing up as an Experience Provider, you confirm that:
@@ -813,11 +813,11 @@ const TermsConditions = () => {
                 You accept full responsibility for the experiences you provide and your conduct.
               </Typography>
               <Typography component="li" variant="body2" sx={{ fontSize: '0.85rem', color: '#666', mb: 0.5 }}>
-                You acknowledge Wandercall's role as a facilitator and agree to abide by these policies.
+                You acknowledge wandercall's role as a facilitator and agree to abide by these policies.
               </Typography>
             </Box>
             <Typography variant="body2" sx={{ fontSize: '0.85rem', color: '#666', lineHeight: 1.5, mt: 2 }}>
-              Together, we create safe, authentic, and memorable experiences on Wandercall.
+              Together, we create safe, authentic, and memorable experiences on wandercall.
             </Typography>
           </AccordionDetails>
         </Accordion>
@@ -834,7 +834,7 @@ const TermsConditions = () => {
           sx={{ textAlign: 'center' }}
         >
           <Typography variant="body2" className="terms-footer-text" color="text.secondary">
-            © 2024 WanderCall. By continuing to use our platform, you acknowledge that you have read and agree to these Terms & Conditions.
+            © 2024 wandercall. By continuing to use our platform, you acknowledge that you have read and agree to these Terms & Conditions.
           </Typography>
         </motion.div>
       </Container>

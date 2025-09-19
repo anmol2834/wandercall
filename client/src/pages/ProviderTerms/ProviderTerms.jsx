@@ -41,8 +41,8 @@ const ProviderTerms = () => {
       title: 'Partnership in Spirit',
       icon: <Handshake />,
       content: [
-        'You are an independent host, not an employee or legal partner of Wandercall.',
-        'While you control and deliver your experience, Wandercall supports you with tools, promotion, secure payments, and guidance to help you succeed.'
+        'You are an independent host, not an employee or legal partner of wandercall.',
+        'While you control and deliver your experience, wandercall supports you with tools, promotion, secure payments, and guidance to help you succeed.'
       ]
     },
     {
@@ -54,7 +54,7 @@ const ProviderTerms = () => {
         'Be Transparent – Clearly communicate the duration, costs, requirements, and any safety considerations.',
         'Maintain Safety Standards – Take reasonable steps to ensure participant well-being throughout the experience.',
         'Engage with Respect – Treat all participants fairly, without bias or discrimination.',
-        'Continuous Improvement – Be open to feedback and willing to refine your experience with Wandercall\'s support.'
+        'Continuous Improvement – Be open to feedback and willing to refine your experience with wandercall\'s support.'
       ]
     },
     {
@@ -74,13 +74,13 @@ const ProviderTerms = () => {
       content: [
         'Accurate Scheduling: You agree to list only those dates and times for which you are genuinely available to host.',
         'Punctuality: You must begin the experience at the scheduled time and respect the agreed-upon duration, except in cases of genuine emergency.',
-        'Advance Notice: If you are unable to host at a confirmed time, you must notify Wandercall and participants as early as possible, and no later than the platform\'s minimum notice period.',
-        'Responsiveness: You agree to respond promptly to booking requests, participant queries, or Wandercall communications to ensure a smooth participant experience.'
+        'Advance Notice: If you are unable to host at a confirmed time, you must notify wandercall and participants as early as possible, and no later than the platform\'s minimum notice period.',
+        'Responsiveness: You agree to respond promptly to booking requests, participant queries, or wandercall communications to ensure a smooth participant experience.'
       ]
     },
     {
       id: 'support',
-      title: 'Wandercall\'s Role & Support',
+      title: 'wandercall\'s Role & Support',
       icon: <Shield />,
       content: [
         'Providing Visibility – Showcasing your experiences to a wide audience.',
@@ -94,7 +94,7 @@ const ProviderTerms = () => {
       title: 'Liability & Protection',
       icon: <Security />,
       content: [
-        'You acknowledge that Wandercall is a facilitator, not a direct organizer of your activities.',
+        'You acknowledge that wandercall is a facilitator, not a direct organizer of your activities.',
         'Wandercall will not be liable for accidents, losses, or disputes arising from your experience.',
         'You agree to indemnify and hold Wandercall harmless from any third-party claims related to your actions, omissions, or experience delivery.'
       ]

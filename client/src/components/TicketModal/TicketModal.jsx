@@ -149,7 +149,7 @@ const TicketModal = ({ open, onClose, ticketData }) => {
                     <Box
                       component="img"
                       src={wandercallLogo}
-                      alt="WanderCall"
+                      alt="wandercall"
                       sx={{
                         height: { xs: 24, sm: 32 },
                         width: 'auto',
@@ -165,7 +165,7 @@ const TicketModal = ({ open, onClose, ticketData }) => {
                           fontSize: { xs: '1rem', sm: '1.25rem' }
                         }}
                       >
-                        WanderCall
+                        wandercall
                       </Typography>
                       <Typography
                         variant="caption"

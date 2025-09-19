@@ -47,7 +47,7 @@ const HeroSlideshow = () => {
       
       <Toolbar sx={{ position: 'absolute', top: 0, left: 0, right: 0, justifyContent: 'space-between' }}>
         <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
-          WanderCall
+          wandercall
         </Typography>
         
         <Box sx={{ display: 'flex', gap: 3 }}>

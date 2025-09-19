@@ -40,7 +40,7 @@ const AboutUs = () => {
   ];
 
   const milestones = [
-    { year: '2024', title: 'Founded', description: 'WanderCall was born in Surat' },
+    { year: '2024', title: 'Founded', description: 'wandercall was born in Surat' },
     { year: '2025', title: '10K Users', description: 'Reached our first major milestone' },
     { year: '2026', title: 'Willing to Pan-India', description: 'Expanded across all major cities' },
     { year: '2027', title: 'Willing to 50K+ Experiencers', description: 'Half a million happy customers' },
@@ -143,7 +143,7 @@ const AboutUs = () => {
             >
               <Chip label="✨ Trusted by 50K+ Experiencers" className="about-hero-chip" />
               <Typography variant="h1" className="about-hero-title">
-                About <span className="about-gradient-text">WanderCall</span>
+                About <span className="about-gradient-text">wandercall</span>
               </Typography>
               <p style={{ textAlign: 'center', color: "white", maxWidth: 600, margin: '0 auto' }}>
                 Connecting experiencerss with extraordinary experiences across India and beyond
@@ -410,7 +410,7 @@ const AboutUs = () => {
                 Our Story
               </Typography>
               <Typography variant="body1" className="story-text">
-                Founded in 2024, WanderCall began as a dream to make experiences accessible and memorable for everyone. We believe that every experience should be spark joy in your life and creates lasting memories.
+                Founded in 2024, wandercall began as a dream to make experiences accessible and memorable for everyone. We believe that every experience should be spark joy in your life and creates lasting memories.
               </Typography>
               <Typography variant="body1" className="story-text">
                 From humble beginnings in Surat, we've grown to serve thousands of experiencerss across India, offering curated experiences that showcase the beauty, culture, and diversity of our incredible country.

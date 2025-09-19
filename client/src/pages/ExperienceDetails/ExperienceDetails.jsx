@@ -251,7 +251,7 @@ const ExperienceDetails = () => {
               <Box 
                 component="img"
                 src={wandercallLogo2}
-                alt="WanderCall"
+                alt="wandercall"
                 sx={{
                   height: { xs: 36, sm: 42 },
                   width: 'auto',

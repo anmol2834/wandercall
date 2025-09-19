@@ -111,7 +111,7 @@ app.use('/api/providers', require('./routes/providerRoutes'));
 
 // Health check
 app.get('/health', (req, res) => {
-  res.json({ status: 'OK', message: 'WanderCall API is running' });
+  res.json({ status: 'OK', message: 'wandercall API is running' });
 });
 
 // Database test

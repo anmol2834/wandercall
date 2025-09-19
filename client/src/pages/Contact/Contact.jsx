@@ -54,7 +54,7 @@ const Contact = () => {
       title: 'Email Support',
       description: 'Get help via email within 24 hours',
       contact: 'teamwandercall@gmail.com',
-      action: 'mailto:teamwandercall@gmail.com?subject=Support Request&body=Hello WanderCall Team,',
+      action: 'mailto:teamwandercall@gmail.com?subject=Support Request&body=Hello wandercall Team,',
       color: '#6366f1'
     },
     { 
@@ -553,7 +553,7 @@ const Contact = () => {
           style={{ textAlign: 'center' }}
         >
           <Typography variant="body2" color="text.secondary">
-            © 2024 WanderCall. We're here to help you every step of the way.
+            © 2024 wandercall. We're here to help you every step of the way.
           </Typography>
         </motion.div>
       </Container>

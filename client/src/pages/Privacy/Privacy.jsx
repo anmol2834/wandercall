@@ -484,7 +484,7 @@ const Privacy = () => {
                 </Typography>
               </Box>
               <Typography variant="body1" sx={{ fontSize: '1.1rem', lineHeight: 1.7 }}>
-                At WanderCall, we believe privacy is a fundamental right. We're committed to being transparent 
+                At wandercall, we believe privacy is a fundamental right. We're committed to being transparent 
                 about how we collect, use, and protect your personal information with industry-leading security measures.
               </Typography>
             </CardContent>
@@ -631,7 +631,7 @@ const Privacy = () => {
           sx={{ textAlign: 'center' }}
         >
           <Typography variant="body2" className="privacy-footer-text" color="text.secondary">
-            © 2024 WanderCall. This Privacy Policy is effective as of December 15, 2024. Your privacy is our priority.
+            © 2024 wandercall. This Privacy Policy is effective as of December 15, 2024. Your privacy is our priority.
           </Typography>
         </motion.div>
       </Container>

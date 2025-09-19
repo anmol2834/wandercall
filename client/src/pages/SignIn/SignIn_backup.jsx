@@ -302,7 +302,7 @@ const SignIn = () => {
       
       <Box className="mobile-footer">
         <Typography variant="body2" className="copyright-text">
-          © 2024 WanderCall. All rights reserved.
+          © 2024 wandercall. All rights reserved.
         </Typography>
       </Box>
 

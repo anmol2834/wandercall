@@ -9,13 +9,13 @@ const SEO = ({
   type = 'website',
   structuredData 
 }) => {
-  const defaultTitle = 'WanderCall - Unique Experiences & Adventure Booking Platform';
+  const defaultTitle = 'wandercall - Unique Experiences & Adventure Booking Platform';
   const defaultDescription = 'Discover unique experiences and create unforgettable memories with our curated collection of adventures worldwide. Book drone adventures, storytelling sessions, expert workshops, and gaming events.';
   const defaultKeywords = 'experiences, adventure booking, drone photography, storytelling sessions, expert workshops, gaming events, unique activities, wandercall, travel marketplace, experience booking platform, adventure tourism, activity booking';
   const defaultImage = 'https://wandercall.com/android-chrome-512x512.png';
   const baseUrl = 'https://wandercall.com';
 
-  const seoTitle = title ? `${title} | WanderCall` : defaultTitle;
+  const seoTitle = title ? `${title} | wandercall` : defaultTitle;
   const seoDescription = description || defaultDescription;
   const seoKeywords = keywords || defaultKeywords;
   const seoImage = image || defaultImage;

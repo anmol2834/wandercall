@@ -39,7 +39,7 @@ const Footer = () => {
           {/* Brand Section */}
           <Grid item xs={12} md={4}>
             <Typography variant="h5" className="footer-brand">
-              WanderCall
+              wandercall
             </Typography>
             <Typography variant="body1" className="footer-description">
               Discover unique experiences and create unforgettable memories with our curated collection of adventures worldwide.
@@ -113,7 +113,7 @@ const Footer = () => {
         
         <Box className="footer-bottom">
           <Typography variant="body2" className="copyright">
-            © {currentYear} WanderCall. All rights reserved.
+            © {currentYear} wandercall. All rights reserved.
           </Typography>
           <Typography variant="body2" className="made-with-love">
             Where every call feels like a wonder!!

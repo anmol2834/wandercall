@@ -133,7 +133,7 @@ const SignUp = () => {
             transition={{ duration: 0.6, delay: 0.2 }}
           >
             <Typography variant="h3" className="signup-title">
-              Join WanderCall
+              Join wandercall
             </Typography>
             <Typography variant="body1" className="signup-subtitle">
               Create your account and start exploring
@@ -309,7 +309,7 @@ const SignUp = () => {
       {/* Mobile Footer */}
       <Box className="mobile-footer">
         <Typography variant="body2" className="copyright-text">
-          © 2024 WanderCall. All rights reserved.
+          © 2024 wandercall. All rights reserved.
         </Typography>
       </Box>
 

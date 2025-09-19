@@ -267,7 +267,7 @@ const TicketPDF = ({ ticketData }) => {
         
         <View style={styles.header}>
           <View style={styles.headerLeft}>
-            <Text style={styles.logoText}>WanderCall</Text>
+            <Text style={styles.logoText}>wandercall</Text>
             <View>
               <Text style={styles.tagline}>Experience the Extraordinary</Text>
             </View>
@@ -409,7 +409,7 @@ const TicketPDF = ({ ticketData }) => {
         
         <View style={styles.footer}>
           <View>
-            <Text style={styles.footerBrand}>WanderCall</Text>
+            <Text style={styles.footerBrand}>wandercall</Text>
             <Text style={styles.footerText}>Your Experience Awaits</Text>
           </View>
           <View>

@@ -385,7 +385,7 @@ const RewardsPage = () => {
                 </Typography>
                 <Grid container spacing={1}>
                   {[
-                    { name: 'First Steps', desc: 'Join WanderCall', earned: true },
+                    { name: 'First Steps', desc: 'Join wandercall', earned: true },
                     { name: 'Explorer', desc: 'Book first experience', earned: false },
                     { name: 'Reviewer', desc: 'Write 5 reviews', earned: false },
                     { name: 'Adventurer', desc: 'Complete 10 experiences', earned: false }
