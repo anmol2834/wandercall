@@ -28,27 +28,78 @@ const ProviderTerms = lazy(() => import('./pages/ProviderTerms/ProviderTerms'));
 const Waitlist = lazy(() => import('./pages/Waitlist/Waitlist'));
 const Booking = lazy(() => import('./pages/Booking/Booking'));
 
-// Loading component with spinner
+// Modern wireframe loading component
 const PageLoader = () => {
   const { mode } = useSelector((state) => state.theme);
   
   return (
     <Box sx={{ 
-      display: 'flex', 
-      justifyContent: 'center', 
-      alignItems: 'center', 
       minHeight: '100vh',
       background: mode === 'dark' 
         ? 'linear-gradient(135deg, #0f0f23 0%, #1a1a2e 25%, #16213e 50%, #0f3460 75%, #1e3c72 100%)'
-        : 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)'
+        : 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)',
+      p: 3
     }}>
-      <CircularProgress 
-        size={60} 
-        thickness={4} 
-        sx={{ 
-          color: mode === 'dark' ? '#6366f1' : '#4f46e5'
-        }} 
-      />
+      <Box sx={{ maxWidth: 1200, mx: 'auto', pt: 4 }}>
+        {/* Header skeleton */}
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
+          <Box sx={{ 
+            width: 120, 
+            height: 32, 
+            bgcolor: mode === 'dark' ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)', 
+            borderRadius: 2,
+            animation: 'pulse 1.5s ease-in-out infinite'
+          }} />
+          <Box sx={{ 
+            width: 80, 
+            height: 32, 
+            bgcolor: mode === 'dark' ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)', 
+            borderRadius: 2,
+            animation: 'pulse 1.5s ease-in-out infinite 0.2s'
+          }} />
+        </Box>
+        
+        {/* Main content skeleton */}
+        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: 'repeat(3, 1fr)' }, gap: 3 }}>
+          {[1,2,3,4,5,6].map(i => (
+            <Box key={i} sx={{ 
+              bgcolor: mode === 'dark' ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)', 
+              borderRadius: 3, 
+              p: 2,
+              animation: `pulse 1.5s ease-in-out infinite ${i * 0.1}s`
+            }}>
+              <Box sx={{ 
+                width: '100%', 
+                height: 200, 
+                bgcolor: mode === 'dark' ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)', 
+                borderRadius: 2, 
+                mb: 2 
+              }} />
+              <Box sx={{ 
+                width: '80%', 
+                height: 20, 
+                bgcolor: mode === 'dark' ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)', 
+                borderRadius: 1, 
+                mb: 1 
+              }} />
+              <Box sx={{ 
+                width: '60%', 
+                height: 16, 
+                bgcolor: mode === 'dark' ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)', 
+                borderRadius: 1 
+              }} />
+            </Box>
+          ))}
+        </Box>
+        
+        {/* CSS Animation */}
+        <style>{`
+          @keyframes pulse {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 0.7; }
+          }
+        `}</style>
+      </Box>
     </Box>
   );
 };

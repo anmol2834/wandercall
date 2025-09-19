@@ -1,7 +1,7 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
 
-const API_BASE_URL = 'http://localhost:5000/api';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
 // Async thunk for toggling review like
 export const toggleReviewLike = createAsyncThunk(
@@ -9,7 +9,7 @@ export const toggleReviewLike = createAsyncThunk(
   async ({ reviewId, token }, { rejectWithValue }) => {
     try {
       const response = await axios.post(
-        `${API_BASE_URL}/reviews/like/${reviewId}`,
+        `${API_BASE_URL}/api/reviews/like/${reviewId}`,
         {},
         {
           headers: {

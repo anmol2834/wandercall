@@ -90,6 +90,9 @@
 }
 
 @media (max-width: 768px) {
+  .card-skeleton {
+    margin: 0 1rem;
+  }
   .skeleton-content {
     padding: 1rem;
   }
