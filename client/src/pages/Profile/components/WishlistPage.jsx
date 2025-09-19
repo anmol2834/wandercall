@@ -153,15 +153,15 @@ const WishlistPage = () => {
                   borderRadius: 3,
                   height: 480
                 }}>
-                  <Box sx={{ height: 220, bgcolor: 'rgba(255,255,255,0.1)', borderRadius: '12px 12px 0 0' }} />
+                  <Box sx={{ height: 220, bgcolor: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)', borderRadius: '12px 12px 0 0' }} />
                   <CardContent sx={{ p: 3 }}>
-                    <Box sx={{ width: '80%', height: 20, bgcolor: 'rgba(255,255,255,0.1)', borderRadius: 2, mb: 1 }} />
-                    <Box sx={{ width: '60%', height: 16, bgcolor: 'rgba(255,255,255,0.1)', borderRadius: 2, mb: 2 }} />
-                    <Box sx={{ width: '90%', height: 14, bgcolor: 'rgba(255,255,255,0.1)', borderRadius: 2, mb: 1 }} />
-                    <Box sx={{ width: '70%', height: 14, bgcolor: 'rgba(255,255,255,0.1)', borderRadius: 2, mb: 3 }} />
+                    <Box sx={{ width: '80%', height: 20, bgcolor: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)', borderRadius: 2, mb: 1 }} />
+                    <Box sx={{ width: '60%', height: 16, bgcolor: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)', borderRadius: 2, mb: 2 }} />
+                    <Box sx={{ width: '90%', height: 14, bgcolor: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)', borderRadius: 2, mb: 1 }} />
+                    <Box sx={{ width: '70%', height: 14, bgcolor: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)', borderRadius: 2, mb: 3 }} />
                     <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <Box sx={{ width: '40%', height: 24, bgcolor: 'rgba(255,255,255,0.1)', borderRadius: 2 }} />
-                      <Box sx={{ width: 80, height: 32, bgcolor: 'rgba(255,255,255,0.1)', borderRadius: 2 }} />
+                      <Box sx={{ width: '40%', height: 24, bgcolor: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)', borderRadius: 2 }} />
+                      <Box sx={{ width: 80, height: 32, bgcolor: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)', borderRadius: 2 }} />
                     </Box>
                   </CardContent>
                 </Card>

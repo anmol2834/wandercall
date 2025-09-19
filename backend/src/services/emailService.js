@@ -359,7 +359,7 @@ const sendEmail = async ({ to, subject, template, data }) => {
 
 // Generate refund ticket email HTML
 const generateRefundTicketHTML = (data) => {
-  const { ticketNumber, orderId, userName, userEmail, upiId, productTitle, totalAmount, bookingDate, selectedDate, participants } = data;
+  const { ticketNumber, paymentId, userName, userEmail, upiId, productTitle, totalAmount, bookingDate, selectedDate, participants } = data;
   
   return `
     <!DOCTYPE html>
@@ -389,8 +389,8 @@ const generateRefundTicketHTML = (data) => {
                                         <td style="color: #6b7280; border-bottom: 1px solid #e5e7eb;">${ticketNumber}</td>
                                     </tr>
                                     <tr>
-                                        <td style="font-weight: bold; color: #374151; border-bottom: 1px solid #e5e7eb;">Order ID:</td>
-                                        <td style="color: #6b7280; border-bottom: 1px solid #e5e7eb;">${orderId}</td>
+                                        <td style="font-weight: bold; color: #374151; border-bottom: 1px solid #e5e7eb;">Payment ID:</td>
+                                        <td style="color: #6b7280; border-bottom: 1px solid #e5e7eb;">${paymentId}</td>
                                     </tr>
                                     <tr style="background-color: #f9fafb;">
                                         <td style="font-weight: bold; color: #374151; border-bottom: 1px solid #e5e7eb;">Customer Name:</td>
