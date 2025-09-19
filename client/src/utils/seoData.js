@@ -55,7 +55,7 @@ export const seoData = {
   
   contact: {
     title: 'Contact Us - Get Support & Help',
-    description: 'Get in touch with wandercall support team. Email us at teamwandercall@gmail.com or call +91 8733942557. We\'re here to help with bookings, questions, and support.',
+    description: 'Get in touch with wandercall support team. Email us at teamwandercall@gmail.com or call +91 9919668028. We\'re here to help with bookings, questions, and support.',
     keywords: 'contact wandercall, customer support, help center, experience support, booking assistance, wandercall phone number, wandercall email',
     url: '/contact',
     structuredData: {

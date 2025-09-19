@@ -51,7 +51,7 @@ const Footer = () => {
               </Box>
               <Box className="contact-item">
                 <Phone className="contact-icon" sx={{ color: 'white' }} />
-                <Typography variant="body2">+91 8733942557</Typography>
+                <Typography variant="body2">+91 9919668028</Typography>
               </Box>
               <Box className="contact-item">
                 <LocationOn className="contact-icon" sx={{ color: 'white' }} />

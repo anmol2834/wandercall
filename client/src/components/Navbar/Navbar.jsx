@@ -16,6 +16,7 @@ import {
   ListItemText,
   Typography,
 } from '@mui/material';
+import wandercallLogo from '../../assets/wandercall-logo1.svg';
 import {
   Search,
   FavoriteBorder,
@@ -116,12 +117,27 @@ const Navbar = () => {
 
   const drawer = (
     <Box className="mobile-drawer" sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-      <Box className="drawer-header" sx={{ p: 2, borderBottom: 1, borderColor: 'divider' }}>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <Typography variant="h6" sx={{ fontWeight: 700, color: 'primary.main' }}>
-            wandercall
-          </Typography>
-          <IconButton onClick={() => setMobileOpen(false)}>
+      <Box className="drawer-header" sx={{ p: 1, borderBottom: 1, borderColor: 'divider' }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', position: 'relative', width: '100%' }}>
+          <Box sx={{ 
+            position: 'absolute',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            display: 'flex',
+            alignItems: 'center'
+          }}>
+            <Box
+              component="img"
+              src={wandercallLogo}
+              alt="wandercall"
+              sx={{
+                height: 80,
+                width: 'auto',
+                filter: theme.palette.mode === 'dark' ? 'invert(1)' : 'invert(0)'
+              }}
+            />
+          </Box>
+          <IconButton onClick={() => setMobileOpen(false)} sx={{ marginLeft: 'auto' }}>
             <Close />
           </IconButton>
         </Box>
@@ -174,14 +190,22 @@ const Navbar = () => {
       </Box>
       
       {/* Bottom Actions */}
-      <Box className="drawer-buttons" sx={{ p: 2, borderTop: 1, borderColor: 'divider' }}>
+      <Box className="drawer-buttons" sx={{ 
+        p: 2, 
+        borderTop: 1, 
+        borderColor: 'divider',
+        marginTop: 'auto',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '0.5rem'
+      }}>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
           <Typography variant="body2" color="text.secondary">Theme</Typography>
           <ThemeToggle />
         </Box>
         
         {!isAuthenticated ? (
-          <Box sx={{ display: 'flex', gap: 1, mb: 2 }}>
+          <Box sx={{ display: 'flex', gap: 1 }}>
             <Button variant="outlined" fullWidth onClick={() => { handleSignIn(); setMobileOpen(false); }}>
               Sign In
             </Button>

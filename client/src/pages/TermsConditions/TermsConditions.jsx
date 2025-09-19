@@ -500,7 +500,7 @@ const TermsConditions = () => {
           <Paper sx={{ p: 3, mt: 2, backgroundColor: theme.palette.background.paper }}>
             <Typography variant="h6" gutterBottom>wandercall Support</Typography>
             <Typography variant="body1">Email: teamwandercall@gmail.com</Typography>
-            <Typography variant="body1">Phone: +91 8733942557</Typography>
+            <Typography variant="body1">Phone: +91 9919668028</Typography>
             <Typography variant="body1">Website: <Link href="https://wandercall.com" target="_blank" rel="noopener">https://wandercall.com</Link></Typography>
             <Typography variant="body1">Business Hours: Monday - Friday, 9:00 AM - 6:00 PM EST</Typography>
           </Paper>

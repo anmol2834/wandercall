@@ -3,6 +3,7 @@ import { FavoriteBorder, Favorite, Star, LocationOn } from '@mui/icons-material'
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
+import { selectAverageRating } from '../../redux/slices/reviewsSlice';
 import { wishlistService } from '../../services/wishlistService';
 import { useAuth } from '../../contexts/AuthContext';
 import './ExperienceCard.css';
@@ -17,6 +18,9 @@ const ExperienceCard = ({ experience }) => {
   const isWishlisted = useSelector(state => 
     state.wishlist.status[experience._id] || false
   );
+  
+  // Get calculated average rating from reviews only (no fallback to product rating)
+  const displayRating = useSelector(state => selectAverageRating(state, experience._id));
 
 
 
@@ -83,7 +87,7 @@ const ExperienceCard = ({ experience }) => {
           <div className="card-details">
             <div className="rating">
               <Star className="star-icon" />
-              <span className="rating-value">{experience.rating}</span>
+              <span className="rating-value">{displayRating}</span>
             </div>
             <div className="price">
               <span className="current-price">₹{experience.price}</span>

@@ -30,6 +30,77 @@ import TransactionHistoryPage from './components/TransactionHistoryPage';
 import ExperienceJournalPage from './components/ExperienceJournalPage';
 import CommunityPage from './components/CommunityPage';
 
+const AvatarImageLoader = ({ seed, index, userAvatar, onSelect, getAvatarUrl }) => {
+  const [imageLoaded, setImageLoaded] = useState(false);
+  const [imageError, setImageError] = useState(false);
+
+  return (
+    <motion.div
+      whileHover={{ scale: 1.05 }}
+      whileTap={{ scale: 0.95 }}
+      onClick={onSelect}
+      style={{
+        width: 60,
+        height: 60,
+        cursor: 'pointer',
+        border: userAvatar === index ? '2px solid #6366f1' : '1px solid rgba(255, 255, 255, 0.2)',
+        borderRadius: '50%',
+        overflow: 'hidden',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        background: userAvatar === index ? 'rgba(99, 102, 241, 0.1)' : 'transparent',
+        boxShadow: userAvatar === index ? '0 2px 8px rgba(99, 102, 241, 0.3)' : 'none',
+        position: 'relative'
+      }}
+    >
+      {!imageLoaded && !imageError && (
+        <motion.div
+          animate={{ opacity: [0.3, 0.7, 0.3] }}
+          transition={{ duration: 1.5, repeat: Infinity }}
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(139, 92, 246, 0.1))',
+            borderRadius: '50%'
+          }}
+        />
+      )}
+      
+      <img 
+        src={getAvatarUrl(seed, index < 10 ? 'adventurer' : index < 20 ? 'personas' : index < 25 ? 'bottts' : 'fun-emoji')} 
+        alt={`Avatar ${index + 1}`} 
+        style={{ 
+          width: '100%', 
+          height: '100%',
+          opacity: imageLoaded ? 1 : 0,
+          transition: 'opacity 0.3s ease'
+        }}
+        onLoad={() => setImageLoaded(true)}
+        onError={() => setImageError(true)}
+      />
+      
+      {imageError && (
+        <Box sx={{
+          width: '100%',
+          height: '100%',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          background: 'rgba(99, 102, 241, 0.1)',
+          color: 'rgba(99, 102, 241, 0.7)',
+          fontSize: '12px'
+        }}>
+          ?
+        </Box>
+      )}
+    </motion.div>
+  );
+};
+
 const Profile = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -784,30 +855,13 @@ const Profile = () => {
                 <Grid container spacing={1}>
                   {avatarSeeds.map((seed, index) => (
                     <Grid item xs={4} key={index} sx={{ display: 'flex', justifyContent: 'center' }}>
-                      <motion.div
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                        onClick={() => selectAvatar(index)}
-                        style={{
-                          width: 60,
-                          height: 60,
-                          cursor: 'pointer',
-                          border: userAvatar === index ? '2px solid #6366f1' : '1px solid rgba(255, 255, 255, 0.2)',
-                          borderRadius: '50%',
-                          overflow: 'hidden',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          background: userAvatar === index ? 'rgba(99, 102, 241, 0.1)' : 'transparent',
-                          boxShadow: userAvatar === index ? '0 2px 8px rgba(99, 102, 241, 0.3)' : 'none'
-                        }}
-                      >
-                        <img 
-                          src={getAvatarUrl(seed, index < 10 ? 'adventurer' : index < 20 ? 'personas' : index < 25 ? 'bottts' : 'fun-emoji')} 
-                          alt={`Avatar ${index + 1}`} 
-                          style={{ width: '100%', height: '100%' }}
-                        />
-                      </motion.div>
+                      <AvatarImageLoader
+                        seed={seed}
+                        index={index}
+                        userAvatar={userAvatar}
+                        onSelect={() => selectAvatar(index)}
+                        getAvatarUrl={getAvatarUrl}
+                      />
                     </Grid>
                   ))}
                 </Grid>

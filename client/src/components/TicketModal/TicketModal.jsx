@@ -91,9 +91,9 @@ const TicketModal = ({ open, onClose, ticketData }) => {
             <DialogContent sx={{ 
               p: 0, 
               position: 'relative',
-              overflow: { xs: 'auto', md: 'hidden' },
-              height: { xs: '100vh', md: 'auto' },
-              maxHeight: { xs: '100vh', md: 'none' }
+              overflow: 'auto',
+              height: { xs: '100vh', md: '80vh' },
+              maxHeight: { xs: '100vh', md: '80vh' }
             }}>
               {/* Close Button */}
               <IconButton

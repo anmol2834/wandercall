@@ -61,8 +61,8 @@ const Contact = () => {
       icon: <Phone />,
       title: 'Phone Support',
       description: 'Speak directly with our team',
-      contact: '+91 8733942557',
-      action: 'tel:+918733942557',
+      contact: '+91 9919668028',
+      action: 'tel:+919919668028',
       color: '#10b981'
     },
     {
@@ -77,8 +77,8 @@ const Contact = () => {
       icon: <WhatsApp />,
       title: 'WhatsApp',
       description: 'Quick support on WhatsApp',
-      contact: '+91 8733942557',
-      action: 'https://wa.me/+918733942557',
+      contact: '+91 9919668028',
+      action: 'https://wa.me/+919919668028',
       color: '#25d366'
     }
   ];
@@ -94,21 +94,21 @@ const Contact = () => {
 
   const teamMembers = [
     {
-      name: 'Anmol Sinha',
+      name: 'Rishi Sinha',
       role: 'Customer Success Manager',
-      avatar: 'SJ',
+      avatar: 'RS',
       color: '#6366f1'
     },
     {
-      name: 'Rishiraj Sinha',
+      name: 'Anmol Sinha',
       role: 'Technical Support Lead',
-      avatar: 'MC',
+      avatar: 'AS',
       color: '#10b981'
     },
     {
-      name: 'Suryansh',
+      name: 'Suryansh Pandey',
       role: 'Privacy Officer',
-      avatar: 'ER',
+      avatar: 'SP',
       color: '#f59e0b'
     }
   ];
@@ -486,8 +486,8 @@ const Contact = () => {
                     <LocationOn color="primary" />
                   </ListItemIcon>
                   <ListItemText 
-                    primary="123 Innovation Street"
-                    secondary="surat, GJ - 394510, india"
+                    primary="Mora Tekra, Hazira Road"
+                    secondary="surat, GJ - 394517, india"
                   />
                 </ListItem>
                 <ListItem sx={{ px: 0 }}>

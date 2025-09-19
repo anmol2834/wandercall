@@ -109,4 +109,25 @@ const reviewsSlice = createSlice({
 });
 
 export const { clearError, clearReviews } = reviewsSlice.actions;
+
+// Selectors
+export const selectAverageRating = (state, productId) => {
+  const cachedReviews = state.reviews.reviewsCache[productId];
+  const reviews = cachedReviews?.reviews || [];
+  
+  if (reviews.length === 0) {
+    return 0; // Return 0 if no reviews, don't use product static rating
+  }
+  
+  const totalRating = reviews.reduce((sum, review) => sum + (review.rating || 0), 0);
+  const averageRating = totalRating / reviews.length;
+  
+  return Math.round(averageRating * 10) / 10; // Round to 1 decimal place
+};
+
+export const selectReviewCount = (state, productId) => {
+  const cachedReviews = state.reviews.reviewsCache[productId];
+  return cachedReviews?.reviews?.length || 0;
+};
+
 export default reviewsSlice.reducer;

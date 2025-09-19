@@ -51,65 +51,20 @@ const AboutUs = () => {
     {
       name: 'Rishi Sinha',
       role: 'CEO & Co-Founder',
-      description: 'Passionate experiencers with 15+ years in hospitality industry',
-      illustration: (
-        <svg viewBox="0 0 300 300" className="team-illustration">
-          <defs>
-            <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor="#6366f1" />
-              <stop offset="100%" stopColor="#8b5cf6" />
-            </linearGradient>
-          </defs>
-          <circle cx="150" cy="120" r="60" fill="url(#grad1)" opacity="0.2" />
-          <circle cx="150" cy="120" r="45" fill="url(#grad1)" />
-          <circle cx="135" cy="105" r="8" fill="white" />
-          <circle cx="165" cy="105" r="8" fill="white" />
-          <path d="M125 135 Q150 155 175 135" stroke="white" strokeWidth="3" fill="none" />
-          <rect x="120" y="180" width="60" height="80" rx="30" fill="url(#grad1)" opacity="0.8" />
-        </svg>
-      )
+      description: 'Oversees production and operations, ensuring seamless delivery of experiences',
+      photo: 'https://res.cloudinary.com/drfndqoql/image/upload/v1758282103/rishi_photo_mc3xuq.png'
     },
     {
       name: 'Anmol Sinha',
       role: 'CTO & Co-Founder',
-      description: 'experiencers with a vision for tech-driven and product management',
-      illustration: (
-        <svg viewBox="0 0 300 300" className="team-illustration">
-          <defs>
-            <linearGradient id="grad2" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor="#ec4899" />
-              <stop offset="100%" stopColor="#f59e0b" />
-            </linearGradient>
-          </defs>
-          <circle cx="150" cy="120" r="60" fill="url(#grad2)" opacity="0.2" />
-          <circle cx="150" cy="120" r="45" fill="url(#grad2)" />
-          <circle cx="135" cy="105" r="8" fill="white" />
-          <circle cx="165" cy="105" r="8" fill="white" />
-          <path d="M125 135 Q150 155 175 135" stroke="white" strokeWidth="3" fill="none" />
-          <rect x="120" y="180" width="60" height="80" rx="30" fill="url(#grad2)" opacity="0.8" />
-        </svg>
-      )
+      description: 'Developer and tech architect, building and scaling the core application',
+      photo: 'https://res.cloudinary.com/drfndqoql/image/upload/v1758279542/my-profile-pic_mdcc5t.png'
     },
     {
-      name: 'Suryansh',
+      name: 'Suryansh Pandey',
       role: 'CFO & Co-Founder',
-      description: 'Building innovative solutions for modern experiencerss and finance',
-      illustration: (
-        <svg viewBox="0 0 300 300" className="team-illustration">
-          <defs>
-            <linearGradient id="grad3" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor="#10b981" />
-              <stop offset="100%" stopColor="#3b82f6" />
-            </linearGradient>
-          </defs>
-          <circle cx="150" cy="120" r="60" fill="url(#grad3)" opacity="0.2" />
-          <circle cx="150" cy="120" r="45" fill="url(#grad3)" />
-          <circle cx="135" cy="105" r="8" fill="white" />
-          <circle cx="165" cy="105" r="8" fill="white" />
-          <path d="M125 135 Q150 155 175 135" stroke="white" strokeWidth="3" fill="none" />
-          <rect x="120" y="180" width="60" height="80" rx="30" fill="url(#grad3)" opacity="0.8" />
-        </svg>
-      )
+      description: 'Leads budgeting, financial planning, and negotiations to drive sustainable growth',
+      photo: 'https://res.cloudinary.com/drfndqoql/image/upload/v1758282934/Gemini_Generated_Image_gvhvsogvhvsogvhv_pkdhzv.png'
     }
   ];
 
@@ -469,7 +424,21 @@ const AboutUs = () => {
                 <Card className="team-card" sx={{ backgroundColor: theme.palette.background.paper }}>
                   <CardContent className="team-content">
                     <Box className="team-avatar">
-                      {member.illustration}
+                      <div className="photo-frame">
+                        <img 
+                          src={member.photo} 
+                          alt={member.name}
+                          className="team-photo"
+                          style={{
+                            width: '120px',
+                            height: '120px',
+                            borderRadius: '50%',
+                            objectFit: 'cover',
+                            border: '4px solid #6366f1',
+                            boxShadow: '0 8px 32px rgba(99, 102, 241, 0.3)'
+                          }}
+                        />
+                      </div>
                     </Box>
                     <Typography variant="h5" className="team-name">
                       {member.name}

@@ -5,7 +5,7 @@ import {
 } from '@mui/material';
 import {
   Explore, LocationOn, Star, 
-  CheckCircle, Cancel, Schedule, CalendarToday, Download, Visibility, RateReview, CancelOutlined, AccountBalance
+  CheckCircle, Cancel, Schedule, CalendarToday, Download, Visibility, RateReview, CancelOutlined, AccountBalance, Group
 } from '@mui/icons-material';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTheme } from '@mui/material/styles';
@@ -235,7 +235,6 @@ const BookingsPage = () => {
     if (tabValue === 0) return true;
     if (tabValue === 1) return booking.status === 'active';
     if (tabValue === 2) return booking.status === 'used';
-    if (tabValue === 3) return booking.status === 'cancelled';
     return true;
   });
 
@@ -305,7 +304,6 @@ const BookingsPage = () => {
           <Tab label="All" />
           <Tab label="Upcoming" />
           <Tab label="Done" />
-          <Tab label="Cancelled" />
         </Tabs>
       </Box>
 
@@ -456,8 +454,16 @@ const BookingsPage = () => {
                             alignItems: { xs: 'center', sm: 'flex-start' },
                             mb: { xs: 0.5, sm: 0 }
                           }}>
-                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                              <CalendarToday sx={{ fontSize: { xs: 14, sm: 18 } }} color="primary" />
+                            <Box sx={{ 
+                              display: 'flex', 
+                              alignItems: 'center', 
+                              gap: 0.5,
+                              minWidth: { sm: '120px' }
+                            }}>
+                              <CalendarToday sx={{ 
+                                fontSize: { xs: 14, sm: 18 },
+                                minWidth: { sm: '18px' }
+                              }} color="primary" />
                               <Typography 
                                 variant="body2" 
                                 color="text.secondary" 
@@ -467,31 +473,49 @@ const BookingsPage = () => {
                               </Typography>
                             </Box>
                             
-                            <Typography 
-                              variant="body2" 
-                              color="text.secondary" 
-                              sx={{ 
-                                fontSize: { xs: '0.7rem', sm: '0.85rem' },
-                                pl: { xs: 0, sm: 3.2 },
-                                mt: { xs: 0, sm: 0.5 }
-                              }}
-                            >
-                              {booking.status === 'used' && booking.bookingIntent ? booking.bookingIntent.participants : booking.participants} people
-                            </Typography>
+                            <Box sx={{ 
+                              display: 'flex', 
+                              alignItems: 'center', 
+                              gap: 0.5, 
+                              pl: { xs: 0, sm: 0 }, 
+                              mt: { xs: 0, sm: 0.5 },
+                              minWidth: { sm: '120px' }
+                            }}>
+                              <Group sx={{ 
+                                fontSize: { xs: 14, sm: 18 },
+                                minWidth: { sm: '18px' }
+                              }} color="primary" />
+                              <Typography 
+                                variant="body2" 
+                                color="text.secondary" 
+                                sx={{ fontSize: { xs: '0.7rem', sm: '0.85rem' } }}
+                              >
+                                {booking.status === 'used' && booking.bookingIntent ? booking.bookingIntent.participants : booking.participants} people
+                              </Typography>
+                            </Box>
                           </Box>
 
                           {booking.status !== 'used' && (
-                            <Typography 
-                              variant="body2" 
-                              color="text.secondary" 
-                              sx={{ 
-                                fontSize: { xs: '0.7rem', sm: '0.85rem' },
-                                pl: { xs: 0, sm: 3.2 },
-                                textAlign: { xs: 'center', sm: 'left' }
-                              }}
-                            >
-                              #{booking.ticketNumber}
-                            </Typography>
+                            <Box sx={{ 
+                              display: 'flex', 
+                              alignItems: 'center', 
+                              gap: 0.5, 
+                              pl: { xs: 0, sm: 0 }, 
+                              justifyContent: { xs: 'center', sm: 'flex-start' },
+                              minWidth: { sm: '120px' }
+                            }}>
+                              <CheckCircle sx={{ 
+                                fontSize: { xs: 14, sm: 18 },
+                                minWidth: { sm: '18px' }
+                              }} color="primary" />
+                              <Typography 
+                                variant="body2" 
+                                color="text.secondary" 
+                                sx={{ fontSize: { xs: '0.7rem', sm: '0.85rem' } }}
+                              >
+                                #{booking.ticketNumber}
+                              </Typography>
+                            </Box>
                           )}
                         </Box>
                       </Box>

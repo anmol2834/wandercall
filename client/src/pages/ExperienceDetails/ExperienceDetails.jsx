@@ -12,7 +12,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchProductById } from '../../redux/slices/productsSlice';
-import { fetchReviews, clearReviews } from '../../redux/slices/reviewsSlice';
+import { fetchReviews, clearReviews, selectAverageRating, selectReviewCount } from '../../redux/slices/reviewsSlice';
 import { toggleReviewLike } from '../../redux/slices/reviewLikesSlice';
 import { wishlistService } from '../../services/wishlistService';
 import ManualReviewForm from '../../components/ManualReviewForm/ManualReviewForm';
@@ -27,6 +27,10 @@ const ExperienceDetails = () => {
   const dispatch = useDispatch();
   const { selectedProduct: product, productLoading, error } = useSelector(state => state.products);
   const { reviews: dbReviews, loading: reviewsLoading } = useSelector(state => state.reviews);
+  
+  // Get calculated average rating and review count from reviews
+  const averageRating = useSelector(state => selectAverageRating(state, id));
+  const reviewCount = useSelector(state => selectReviewCount(state, id));
   const { user } = useAuth();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
@@ -75,8 +79,8 @@ const ExperienceDetails = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Loading state
-  if (productLoading) {
+  // Loading state - show wireframe while fetching
+  if (productLoading || (!product && !error)) {
     return (
       <Box sx={{ 
         minHeight: '100vh', 
@@ -84,30 +88,56 @@ const ExperienceDetails = () => {
         background: theme.palette.mode === 'dark' 
           ? 'linear-gradient(135deg, #0f0f23 0%, #1a1a2e 25%, #16213e 50%, #0f3460 75%, #1e3c72 100%)'
           : 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)',
-        p: 3
+        width: '100%',
+        overflow: 'hidden'
       }}>
-        <Container maxWidth="lg">
-          <Grid container spacing={3}>
-            <Grid item xs={12} md={8}>
-              <Box sx={{ mb: 3, display: 'flex', gap: 1 }}>
-                {[1,2,3].map(i => (
-                  <motion.div key={i} animate={{ opacity: [0.3, 0.7, 0.3] }} transition={{ duration: 1.5, repeat: Infinity, delay: i * 0.2 }}>
-                    <Box sx={{ 
-                      width: 80, 
-                      height: 24, 
-                      bgcolor: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)', 
-                      borderRadius: 3 
-                    }} />
-                  </motion.div>
-                ))}
-              </Box>
+        <Container maxWidth="lg" sx={{ py: 4, px: { xs: 2, sm: 3, md: 4 } }}>
+          <Grid container spacing={4}>
+            <Grid item xs={12} lg={8}>
+              {/* Title skeleton */}
               <motion.div animate={{ opacity: [0.3, 0.7, 0.3] }} transition={{ duration: 1.5, repeat: Infinity }}>
                 <Box sx={{ 
-                  width: '70%', 
-                  height: 40, 
+                  width: '80%', 
+                  height: 32, 
                   bgcolor: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)', 
                   borderRadius: 2, 
                   mb: 2 
+                }} />
+              </motion.div>
+              
+              {/* Image skeleton */}
+              <motion.div animate={{ opacity: [0.3, 0.7, 0.3] }} transition={{ duration: 1.5, repeat: Infinity, delay: 0.2 }}>
+                <Box sx={{ 
+                  width: '100%', 
+                  height: { xs: 250, md: 400 }, 
+                  bgcolor: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)', 
+                  borderRadius: 3, 
+                  mb: 3 
+                }} />
+              </motion.div>
+              
+              {/* Content skeletons */}
+              {[1,2,3].map(i => (
+                <motion.div key={i} animate={{ opacity: [0.3, 0.7, 0.3] }} transition={{ duration: 1.5, repeat: Infinity, delay: i * 0.3 }}>
+                  <Box sx={{ 
+                    width: i === 1 ? '90%' : i === 2 ? '70%' : '85%', 
+                    height: 20, 
+                    bgcolor: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)', 
+                    borderRadius: 2, 
+                    mb: 1.5 
+                  }} />
+                </motion.div>
+              ))}
+            </Grid>
+            
+            <Grid item xs={12} lg={4}>
+              {/* Sidebar skeleton */}
+              <motion.div animate={{ opacity: [0.3, 0.7, 0.3] }} transition={{ duration: 1.5, repeat: Infinity, delay: 0.5 }}>
+                <Box sx={{ 
+                  width: '100%', 
+                  height: 300, 
+                  bgcolor: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)', 
+                  borderRadius: 3 
                 }} />
               </motion.div>
             </Grid>
@@ -117,7 +147,8 @@ const ExperienceDetails = () => {
     );
   }
 
-  if (error || !product) {
+  // Only show error after loading is complete and no product found
+  if (error || (!productLoading && !product)) {
     return (
       <Box sx={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
         <Typography variant="h5" sx={{ mb: 2 }}>Experience not found</Typography>
@@ -134,8 +165,8 @@ const ExperienceDetails = () => {
     category: product.company_Name,
     price: product.price,
     originalPrice: product.mrp,
-    rating: product.rating,
-    reviewCount: 247, // Static for now
+    rating: averageRating, // Only use calculated rating from reviews
+    reviewCount: reviewCount, // Only use actual review count from reviews collection
     duration: (() => {
       const start = new Date(`1970-01-01 ${product.openTime}`);
       const end = new Date(`1970-01-01 ${product.closeTime}`);
