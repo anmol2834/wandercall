@@ -1,6 +1,10 @@
 const express = require('express');
 const cors = require('cors');
+const mongoose = require('mongoose');
 require('dotenv').config();
+
+// Remove insecure TLS setting if it exists
+delete process.env.NODE_TLS_REJECT_UNAUTHORIZED;
 const connectDB = require('./config/database');
 const { startRewardExpiryChecker } = require('./utils/rewardExpiry');
 const { startBookingCleanup } = require('./utils/cleanupBookings');
@@ -174,11 +178,12 @@ process.on('unhandledRejection', (reason, promise) => {
 
 // Graceful shutdown
 const gracefulShutdown = () => {
-  console.log('Received shutdown signal, closing server...');
   server.close(async () => {
     try {
-      await mongoose.connection.close();
-      console.log('Database connection closed');
+      if (mongoose.connection.readyState === 1) {
+        await mongoose.connection.close();
+        console.log('Database connection closed');
+      }
       process.exit(0);
     } catch (err) {
       console.error('Error during shutdown:', err);
