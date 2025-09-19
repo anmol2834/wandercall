@@ -1,7 +1,7 @@
 import { useSelector } from 'react-redux';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { ThemeProvider, CssBaseline } from '@mui/material';
-import { useEffect } from 'react';
+import { useEffect, Component } from 'react';
 import getTheme from './utils/theme';
 import { preventZoom } from './utils/preventZoom';
 import { AuthProvider } from './contexts/AuthContext';
@@ -10,7 +10,59 @@ import { useWishlistInit } from './hooks/useWishlistInit';
 import ScrollToTop from './components/ScrollToTop/ScrollToTop';
 import ProtectedRoute from './components/ProtectedRoute/ProtectedRoute';
 import { Suspense, lazy } from 'react';
-import { CircularProgress, Box } from '@mui/material';
+import { CircularProgress, Box, Typography, Button } from '@mui/material';
+
+// Error Boundary Component
+class ErrorBoundary extends Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
+
+  static getDerivedStateFromError(error) {
+    return { hasError: true, error };
+  }
+
+  componentDidCatch(error, errorInfo) {
+    console.error('App Error:', error, errorInfo);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <Box sx={{ 
+          display: 'flex', 
+          flexDirection: 'column',
+          alignItems: 'center', 
+          justifyContent: 'center', 
+          minHeight: '100vh',
+          p: 3,
+          textAlign: 'center'
+        }}>
+          <Typography variant="h4" sx={{ mb: 2 }}>Something went wrong</Typography>
+          <Typography variant="body1" sx={{ mb: 3, color: 'text.secondary' }}>
+            We're sorry, but something unexpected happened.
+          </Typography>
+          <Button 
+            variant="contained" 
+            onClick={() => window.location.reload()}
+            sx={{ mb: 2 }}
+          >
+            Reload Page
+          </Button>
+          <Button 
+            variant="outlined" 
+            onClick={() => window.location.href = '/'}
+          >
+            Go Home
+          </Button>
+        </Box>
+      );
+    }
+
+    return this.props.children;
+  }
+}
 // Lazy load all components including Home
 const Home = lazy(() => import('./pages/UserDashboard/Home'));
 const SignIn = lazy(() => import('./pages/SignIn/SignIn'));
@@ -114,52 +166,58 @@ function App() {
   const theme = getTheme(mode);
 
   useEffect(() => {
-    preventZoom();
+    try {
+      preventZoom();
+    } catch (error) {
+      console.error('Error in preventZoom:', error);
+    }
   }, []);
 
   return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
-      <AuthProvider>
-        <WishlistInitializer />
-        <RewardsProvider>
-          <Router>
-            <ScrollToTop />
-          <Suspense fallback={<PageLoader />}>
-            <Routes>
-              <Route path="/" element={<Home />} />
-              <Route path="/signin" element={
-                <ProtectedRoute requireAuth={false}>
-                  <SignIn />
-                </ProtectedRoute>
-              } />
-              <Route path="/signup" element={
-                <ProtectedRoute requireAuth={false}>
-                  <SignUp />
-                </ProtectedRoute>
-              } />
-              <Route path="/about" element={<AboutUs />} />
-              <Route path="/terms-and-conditions" element={<TermsConditions />} />
-              <Route path="/terms" element={<Navigate to="/terms-and-conditions" replace />} />
-              <Route path="/contact" element={<Contact />} />
-              <Route path="/privacy" element={<Privacy />} />
-              <Route path="/profile/*" element={
-                <ProtectedRoute>
-                  <Profile />
-                </ProtectedRoute>
-              } />
-              <Route path="/experience/:id" element={<ExperienceDetails />} />
-              <Route path="/booking/:id" element={<Booking />} />
-              <Route path="/ticket/:id" element={<Ticket />} />
-              <Route path="/become-provider" element={<ProviderRegistration />} />
-              <Route path="/provider-terms" element={<ProviderTerms />} />
-              <Route path="/waitlist" element={<Waitlist />} />
-            </Routes>
-          </Suspense>
-          </Router>
-        </RewardsProvider>
-      </AuthProvider>
-  </ThemeProvider>
+    <ErrorBoundary>
+      <ThemeProvider theme={theme}>
+        <CssBaseline />
+        <AuthProvider>
+          <WishlistInitializer />
+          <RewardsProvider>
+            <Router>
+              <ScrollToTop />
+            <Suspense fallback={<PageLoader />}>
+              <Routes>
+                <Route path="/" element={<Home />} />
+                <Route path="/signin" element={
+                  <ProtectedRoute requireAuth={false}>
+                    <SignIn />
+                  </ProtectedRoute>
+                } />
+                <Route path="/signup" element={
+                  <ProtectedRoute requireAuth={false}>
+                    <SignUp />
+                  </ProtectedRoute>
+                } />
+                <Route path="/about" element={<AboutUs />} />
+                <Route path="/terms-and-conditions" element={<TermsConditions />} />
+                <Route path="/terms" element={<Navigate to="/terms-and-conditions" replace />} />
+                <Route path="/contact" element={<Contact />} />
+                <Route path="/privacy" element={<Privacy />} />
+                <Route path="/profile/*" element={
+                  <ProtectedRoute>
+                    <Profile />
+                  </ProtectedRoute>
+                } />
+                <Route path="/experience/:id" element={<ExperienceDetails />} />
+                <Route path="/booking/:id" element={<Booking />} />
+                <Route path="/ticket/:id" element={<Ticket />} />
+                <Route path="/become-provider" element={<ProviderRegistration />} />
+                <Route path="/provider-terms" element={<ProviderTerms />} />
+                <Route path="/waitlist" element={<Waitlist />} />
+              </Routes>
+            </Suspense>
+            </Router>
+          </RewardsProvider>
+        </AuthProvider>
+      </ThemeProvider>
+    </ErrorBoundary>
   );
 }
 
