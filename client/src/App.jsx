@@ -11,9 +11,8 @@ import ScrollToTop from './components/ScrollToTop/ScrollToTop';
 import ProtectedRoute from './components/ProtectedRoute/ProtectedRoute';
 import { Suspense, lazy } from 'react';
 import { CircularProgress, Box } from '@mui/material';
-import Home from './pages/UserDashboard/Home';
-
-// Lazy load non-critical components
+// Lazy load all components including Home
+const Home = lazy(() => import('./pages/UserDashboard/Home'));
 const SignIn = lazy(() => import('./pages/SignIn/SignIn'));
 const SignUp = lazy(() => import('./pages/SignUp/SignUp'));
 const AboutUs = lazy(() => import('./pages/AboutUs/AboutUs'));
