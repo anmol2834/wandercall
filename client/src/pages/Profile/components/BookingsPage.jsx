@@ -171,6 +171,16 @@ const BookingsPage = () => {
     return diffInHours <= 48;
   };
 
+  // Check if booking is in Done section (completed or past date)
+  const isBookingInDoneSection = (booking) => {
+    const bookingDate = new Date(booking.selectedDate);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    bookingDate.setHours(0, 0, 0, 0);
+    
+    return booking.status === 'used' || bookingDate < today;
+  };
+
   useEffect(() => {
     if (bookings && bookings.length > 0) {
       bookings.forEach(booking => {
@@ -232,9 +242,32 @@ const BookingsPage = () => {
   };
 
   const filteredBookings = bookings.filter(booking => {
-    if (tabValue === 0) return true;
-    if (tabValue === 1) return booking.status === 'active';
-    if (tabValue === 2) return booking.status === 'used';
+    if (tabValue === 0) return true; // All bookings
+    
+    if (tabValue === 1) { // Upcoming - only today and tomorrow
+      if (booking.status !== 'active') return false;
+      
+      const bookingDate = new Date(booking.selectedDate);
+      const today = new Date();
+      const tomorrow = new Date(today);
+      tomorrow.setDate(today.getDate() + 1);
+      
+      today.setHours(0, 0, 0, 0);
+      tomorrow.setHours(0, 0, 0, 0);
+      bookingDate.setHours(0, 0, 0, 0);
+      
+      return bookingDate >= today && bookingDate <= tomorrow;
+    }
+    
+    if (tabValue === 2) { // Done - completed or past dates
+      const bookingDate = new Date(booking.selectedDate);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      bookingDate.setHours(0, 0, 0, 0);
+      
+      return booking.status === 'used' || bookingDate < today;
+    }
+    
     return true;
   });
 
@@ -380,38 +413,41 @@ const BookingsPage = () => {
                         </Box>
                       )}
                       
-                      <TicketDownloader
-                        ticketData={formatTicketData(booking)}
-                        fileName={`wandercall-ticket-${booking.ticketNumber || 'ticket'}.pdf`}
-                      >
-                        {({ loading, error }) => (
-                          <Box
-                            onClick={() => !loading && !error && handleDownloadTicket(booking._id)}
-                            sx={{
-                              position: 'absolute',
-                              top: 12,
-                              right: 12,
-                              backgroundColor: loading ? 'rgba(100, 116, 139, 0.7)' : 'rgba(0,0,0,0.7)',
-                              borderRadius: '50%',
-                              p: 1,
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                              color: 'white',
-                              cursor: loading || error ? 'default' : 'pointer',
-                              '&:hover': {
-                                backgroundColor: loading || error ? 'rgba(100, 116, 139, 0.7)' : 'rgba(0,0,0,0.9)'
-                              }
-                            }}
-                          >
-                            {loading ? (
-                              <CircularProgress size={16} sx={{ color: 'white' }} />
-                            ) : (
-                              <Download fontSize="small" />
-                            )}
-                          </Box>
-                        )}
-                      </TicketDownloader>
+                      {/* Only show download for upcoming bookings */}
+                      {!isBookingInDoneSection(booking) && (
+                        <TicketDownloader
+                          ticketData={formatTicketData(booking)}
+                          fileName={`wandercall-ticket-${booking.ticketNumber || 'ticket'}.pdf`}
+                        >
+                          {({ loading, error }) => (
+                            <Box
+                              onClick={() => !loading && !error && handleDownloadTicket(booking._id)}
+                              sx={{
+                                position: 'absolute',
+                                top: 12,
+                                right: 12,
+                                backgroundColor: loading ? 'rgba(100, 116, 139, 0.7)' : 'rgba(0,0,0,0.7)',
+                                borderRadius: '50%',
+                                p: 1,
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                color: 'white',
+                                cursor: loading || error ? 'default' : 'pointer',
+                                '&:hover': {
+                                  backgroundColor: loading || error ? 'rgba(100, 116, 139, 0.7)' : 'rgba(0,0,0,0.9)'
+                                }
+                              }}
+                            >
+                              {loading ? (
+                                <CircularProgress size={16} sx={{ color: 'white' }} />
+                              ) : (
+                                <Download fontSize="small" />
+                              )}
+                            </Box>
+                          )}
+                        </TicketDownloader>
+                      )}
                     </Box>
 
                     <CardContent sx={{ 
@@ -551,23 +587,37 @@ const BookingsPage = () => {
                           justifyContent: 'center',
                           alignItems: 'stretch'
                         }}>
-                          {booking.status === 'used' ? (
-                            <Button 
-                              variant="outlined" 
-                              size="small"
-                              startIcon={<RateReview />}
-                              sx={{ 
-                                borderRadius: 2,
-                                fontSize: { xs: '0.75rem', sm: '0.8rem' },
-                                px: { xs: 2, sm: 1.5 },
-                                py: { xs: 1, sm: 0.8 },
-                                minWidth: { xs: 'auto', sm: 90 },
-                                flex: { xs: 1, sm: 'none' }
-                              }}
-                            >
-                              Review
-                            </Button>
+                          {isBookingInDoneSection(booking) ? (
+                            // Done section - show Review or Not Attended
+                            booking.status === 'used' ? (
+                              <Button 
+                                variant="outlined" 
+                                size="small"
+                                startIcon={<RateReview />}
+                                sx={{ 
+                                  borderRadius: 2,
+                                  fontSize: { xs: '0.75rem', sm: '0.8rem' },
+                                  px: { xs: 2, sm: 1.5 },
+                                  py: { xs: 1, sm: 0.8 },
+                                  minWidth: { xs: 'auto', sm: 90 },
+                                  flex: { xs: 1, sm: 'none' }
+                                }}
+                              >
+                                Review
+                              </Button>
+                            ) : (
+                              <Chip 
+                                label="Not Attended" 
+                                color="warning"
+                                variant="outlined"
+                                sx={{ 
+                                  fontSize: { xs: '0.75rem', sm: '0.8rem' },
+                                  fontWeight: 600
+                                }}
+                              />
+                            )
                           ) : (
+                            // Upcoming section - show View and Refund buttons
                             <>
                               <Button 
                                 variant="outlined" 
@@ -587,49 +637,23 @@ const BookingsPage = () => {
                               </Button>
 
                               {booking.status === 'active' && isWithin48Hours(booking.createdAt) && (
-                                <>
-                                  <Button 
-                                    variant="outlined" 
-                                    size="small"
-                                    color="warning"
-                                    startIcon={<AccountBalance />}
-                                    onClick={() => handleRefundRequest(booking)}
-                                    sx={{ 
-                                      borderRadius: 2,
-                                      fontSize: { xs: '0.75rem', sm: '0.8rem' },
-                                      px: { xs: 2, sm: 1.5 },
-                                      py: { xs: 1, sm: 0.8 },
-                                      minWidth: { xs: 'auto', sm: 80 },
-                                      flex: { xs: 1, sm: 'none' }
-                                    }}
-                                  >
-                                    Refund
-                                  </Button>
-                                  {/* <Button 
-                                    variant="outlined" 
-                                    size="small"
-                                    color="error"
-                                    startIcon={cancellingTickets.has(booking._id) ? 
-                                      <CircularProgress size={14} /> : <CancelOutlined />}
-                                    onClick={() => {
-                                      setConfirmConfig({
-                                        open: true,
-                                        ticketId: booking._id
-                                      });
-                                    }}
-                                    disabled={cancellingTickets.has(booking._id)}
-                                    sx={{ 
-                                      borderRadius: 2,
-                                      fontSize: { xs: '0.75rem', sm: '0.8rem' },
-                                      px: { xs: 2, sm: 1.5 },
-                                      py: { xs: 1, sm: 0.8 },
-                                      minWidth: { xs: 'auto', sm: 80 },
-                                      flex: { xs: 1, sm: 'none' }
-                                    }}
-                                  >
-                                    {cancellingTickets.has(booking._id) ? 'Cancelling...' : 'Cancel'}
-                                  </Button> */}
-                                </>
+                                <Button 
+                                  variant="outlined" 
+                                  size="small"
+                                  color="warning"
+                                  startIcon={<AccountBalance />}
+                                  onClick={() => handleRefundRequest(booking)}
+                                  sx={{ 
+                                    borderRadius: 2,
+                                    fontSize: { xs: '0.75rem', sm: '0.8rem' },
+                                    px: { xs: 2, sm: 1.5 },
+                                    py: { xs: 1, sm: 0.8 },
+                                    minWidth: { xs: 'auto', sm: 80 },
+                                    flex: { xs: 1, sm: 'none' }
+                                  }}
+                                >
+                                  Refund
+                                </Button>
                               )}
                             </>
                           )}

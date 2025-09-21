@@ -2,14 +2,33 @@ import { useState, useEffect } from 'react';
 import { Box } from '@mui/material';
 import { motion, AnimatePresence } from 'framer-motion';
 
-const ImageLoader = ({ src, alt, sx, className, ...props }) => {
+const ImageLoader = ({ src, alt, sx, className, fallbackSrc = '/assets/placeholder.jpg', ...props }) => {
   const [imageLoaded, setImageLoaded] = useState(false);
+  const [imageSrc, setImageSrc] = useState(src);
+  const [hasError, setHasError] = useState(false);
 
   useEffect(() => {
+    setImageLoaded(false);
+    setHasError(false);
+    setImageSrc(src);
+    
     const img = new Image();
     img.onload = () => setImageLoaded(true);
+    img.onerror = () => {
+      setHasError(true);
+      if (src !== fallbackSrc) {
+        setImageSrc(fallbackSrc);
+        // Try loading fallback
+        const fallbackImg = new Image();
+        fallbackImg.onload = () => setImageLoaded(true);
+        fallbackImg.onerror = () => setImageLoaded(true); // Show placeholder even if fallback fails
+        fallbackImg.src = fallbackSrc;
+      } else {
+        setImageLoaded(true);
+      }
+    };
     img.src = src;
-  }, [src]);
+  }, [src, fallbackSrc]);
 
   return (
     <Box sx={{ position: 'relative', ...sx }} className={className} {...props}>
@@ -17,7 +36,7 @@ const ImageLoader = ({ src, alt, sx, className, ...props }) => {
         {imageLoaded ? (
           <motion.img
             key="image"
-            src={src}
+            src={imageSrc}
             alt={alt}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}

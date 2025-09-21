@@ -181,7 +181,6 @@ process.on('unhandledRejection', (reason, promise) => {
 
 // Graceful shutdown
 const gracefulShutdown = (signal = 'SIGTERM') => {
-  console.log(`\n🔄 Received ${signal}. Starting graceful shutdown...`);
   
   server.close(async () => {
     try {
@@ -199,7 +198,6 @@ const gracefulShutdown = (signal = 'SIGTERM') => {
   
   // Force exit after 10 seconds
   setTimeout(() => {
-    console.log('⚠️  Forced shutdown after timeout');
     process.exit(0);
   }, 10000);
 };

@@ -6,8 +6,9 @@ import {
 import { 
   ArrowBack, KeyboardArrowUp, Email, Phone, LocationOn, Schedule,
   Send, Support, Security, Business, QuestionAnswer, BugReport,
-  Feedback, Chat, WhatsApp, Twitter, LinkedIn, Instagram
+  Feedback, Chat, WhatsApp, LinkedIn, Instagram
 } from '@mui/icons-material';
+import { SvgIcon } from '@mui/material';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
@@ -112,8 +113,15 @@ const Contact = () => {
     }
   ];
 
+  // Custom X (Twitter) Icon Component
+  const XIcon = () => (
+    <SvgIcon viewBox="0 0 24 24">
+      <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+    </SvgIcon>
+  );
+
   const socialLinks = [
-    { icon: <Twitter />, name: 'Twitter', url: 'https://twitter.com/wandercall', color: '#1da1f2' },
+    { icon: <XIcon />, name: 'X', url: 'https://x.com/wandercall', color: '#000000' },
     { icon: <LinkedIn />, name: 'LinkedIn', url: 'https://linkedin.com/company/wandercall', color: '#0077b5' },
     { icon: <Instagram />, name: 'Instagram', url: 'https://www.instagram.com/wandercallofficial/', color: '#e4405f' }
   ];

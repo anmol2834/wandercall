@@ -35,11 +35,9 @@ const TransactionHistoryPage = () => {
           }
         });
         
-        console.log('Response status:', response.status);
         
         const data = await response.json();
         
-        console.log('Response data:', data);
         
         if (data.success) {
           setTransactions(data.transactions || []);

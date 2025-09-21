@@ -6,22 +6,46 @@ export const fetchMyBookings = createAsyncThunk(
   'tickets/fetchMyBookings',
   async (_, { rejectWithValue }) => {
     try {
-      const response = await ticketAPI.getMyBookings();
-      return response.data.tickets;
+      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+      const token = localStorage.getItem('token');
+      
+      const response = await fetch(`${apiUrl}/api/bookings/my-bookings`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      const data = await response.json();
+      
+      if (!data.success) {
+        throw new Error(data.message);
+      }
+      
+      return data.bookings;
     } catch (error) {
-      return rejectWithValue(error.response?.data?.message || 'Failed to fetch bookings');
+      return rejectWithValue(error.message || 'Failed to fetch bookings');
     }
   }
 );
 
 export const fetchTicketById = createAsyncThunk(
   'tickets/fetchTicketById',
-  async (ticketId, { rejectWithValue }) => {
+  async (ticketId, { rejectWithValue, getState }) => {
     try {
-      const response = await ticketAPI.getTicket(ticketId);
-      return response.data.ticket;
+      // Get ticket from existing bookings data instead of API call
+      const state = getState();
+      const ticket = state.tickets.bookings.find(booking => 
+        booking._id === ticketId || booking.ticketId === ticketId
+      );
+      
+      if (ticket) {
+        return ticket;
+      } else {
+        throw new Error('Ticket not found');
+      }
     } catch (error) {
-      return rejectWithValue(error.response?.data?.message || 'Failed to fetch ticket');
+      return rejectWithValue(error.message || 'Failed to fetch ticket');
     }
   }
 );
@@ -30,10 +54,10 @@ export const markTicketAsDownloaded = createAsyncThunk(
   'tickets/markAsDownloaded',
   async (ticketId, { rejectWithValue }) => {
     try {
-      const response = await ticketAPI.markAsDownloaded(ticketId);
-      return response.data.ticket;
+      // For now, just return the ticketId since we're using single fetch
+      return { _id: ticketId };
     } catch (error) {
-      return rejectWithValue(error.response?.data?.message || 'Failed to mark as downloaded');
+      return rejectWithValue(error.message || 'Failed to mark as downloaded');
     }
   }
 );

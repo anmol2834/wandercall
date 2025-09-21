@@ -15,7 +15,10 @@ const bookingIntentSchema = new mongoose.Schema({
   discount: { type: Number, default: 0 },
   
   // Status
-  status: { type: String, enum: ['PENDING', 'PROCESSING', 'PAID', 'FAILED'], default: 'PENDING' }
+  status: { type: String, enum: ['PENDING', 'PROCESSING', 'PAID', 'FAILED'], default: 'PENDING' },
+  
+  // Ticket reference (will be null after ticket deletion)
+  ticketId: { type: mongoose.Schema.Types.ObjectId, ref: 'Ticket', default: null }
 }, { timestamps: true });
 
 // Auto-delete pending bookings after 20 minutes

@@ -51,8 +51,11 @@ const createTicketFromPayment = async (orderId, paymentId = null) => {
 
     await ticket.save();
 
-    // Mark as PAID
-    await BookingIntent.findByIdAndUpdate(bookingIntent._id, { status: 'PAID' });
+    // Mark as PAID and set ticket reference
+    await BookingIntent.findByIdAndUpdate(bookingIntent._id, { 
+      status: 'PAID',
+      ticketId: ticket._id 
+    });
 
     // Send email notification to provider
     try {

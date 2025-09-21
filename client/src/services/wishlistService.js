@@ -1,6 +1,7 @@
 import { wishlistAPI } from './api';
 import { setWishlistItems, addWishlistItem, removeWishlistItem } from '../redux/slices/wishlistSlice';
 import { throttle } from '../utils/throttle';
+import { clearCache } from '../hooks/useDataCache';
 
 class WishlistService {
   constructor() {

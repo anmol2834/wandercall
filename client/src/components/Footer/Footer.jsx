@@ -1,7 +1,6 @@
-import { Box, Grid, Typography, IconButton, Container, Divider, useTheme } from '@mui/material';
+import { Box, Grid, Typography, IconButton, Container, Divider, useTheme, SvgIcon } from '@mui/material';
 import { 
   Instagram, 
-  Twitter, 
   LinkedIn, 
   YouTube,
   Email,
@@ -16,9 +15,16 @@ const Footer = () => {
   const theme = useTheme();
   const currentYear = new Date().getFullYear();
 
+  // Custom X (Twitter) Icon Component
+  const XIcon = () => (
+    <SvgIcon viewBox="0 0 24 24">
+      <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+    </SvgIcon>
+  );
+
   const socialLinks = [
     { icon: <Instagram />, label: 'Instagram', color: '#E4405F', url: 'https://www.instagram.com/wandercallofficial/' },
-    { icon: <Twitter />, label: 'Twitter', color: '#1DA1F2', url: 'https://twitter.com/wandercall' },
+    { icon: <XIcon />, label: 'X', color: '#000000', url: 'https://x.com/wandercall' },
     { icon: <LinkedIn />, label: 'LinkedIn', color: '#0077B5', url: 'https://linkedin.com/company/wandercall' },
     { icon: <YouTube />, label: 'YouTube', color: '#FF0000', url: 'https://youtube.com/@wandercall' },
   ];

@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const { updateBookingIntentsWithTicketIds } = require('./updateBookingIntents');
 
 const cleanupDatabase = async () => {
   try {
@@ -30,6 +31,13 @@ const cleanupDatabase = async () => {
       await db.collection('bookingintents').createIndex({ orderId: 1 }, { unique: true });
     } catch (error) {
       // Index already exists
+    }
+    
+    // Run BookingIntent ticketId migration
+    try {
+      await updateBookingIntentsWithTicketIds();
+    } catch (error) {
+      console.error('BookingIntent migration failed:', error);
     }
     
   } catch (error) {
