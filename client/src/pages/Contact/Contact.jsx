@@ -121,20 +121,14 @@ const Contact = () => {
   );
 
   const socialLinks = [
-    { icon: <XIcon />, name: 'X', url: 'https://x.com/wandercall', color: '#000000' },
+    { icon: <XIcon />, name: 'X', url: 'https://x.com/teamwandercall', color: '#000000' },
     { icon: <LinkedIn />, name: 'LinkedIn', url: 'https://linkedin.com/company/wandercall', color: '#0077b5' },
     { icon: <Instagram />, name: 'Instagram', url: 'https://www.instagram.com/wandercallofficial/', color: '#e4405f' }
   ];
 
   return (
     <Box className="contact-page-container" sx={{ backgroundColor: theme.palette.background.default, minHeight: '100vh' }}>
-      {/* Back Button */}
-      <IconButton 
-        onClick={() => navigate(-1)}
-        sx={{ position: 'fixed', top: 20, left: 20, zIndex: 1000, backgroundColor: theme.palette.background.paper }}
-      >
-        <ArrowBack />
-      </IconButton>
+
 
       {/* Hero Section */}
       <Box className="contact-hero-section" sx={{ py: { xs: 8, md: 12 }, px: { xs: 2, md: 0 } }}>

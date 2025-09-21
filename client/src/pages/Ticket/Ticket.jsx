@@ -267,34 +267,10 @@ const Ticket = () => {
         {/* Header Actions */}
         <Box sx={{
           display: 'flex',
-          justifyContent: 'space-between',
+          justifyContent: 'flex-end',
           alignItems: 'center',
           mb: { xs: 3, sm: 4 }
         }}>
-          <motion.div
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-          >
-            <IconButton 
-              onClick={() => navigate('/')}
-              sx={{ 
-                bgcolor: 'rgba(255, 255, 255, 0.9)',
-                backdropFilter: 'blur(10px)',
-                boxShadow: '0 4px 20px rgba(0, 0, 0, 0.1)',
-                border: '1px solid rgba(255, 255, 255, 0.2)',
-                color: theme.palette.mode === 'dark' ? '#1a1a2e' : '#333',
-                '&:hover': { 
-                  boxShadow: '0 6px 25px rgba(0, 0, 0, 0.15)',
-                  bgcolor: 'rgba(255, 255, 255, 1)',
-                  color: theme.palette.mode === 'dark' ? '#000' : '#333'
-                }
-              }}
-              size={isMobile ? 'small' : 'medium'}
-            >
-              <Home fontSize={isMobile ? 'small' : 'medium'} />
-            </IconButton>
-          </motion.div>
-        
           <TicketDownloader
             ticketData={formatTicketData()}
             fileName={`wandercall-ticket-${ticket.ticketNumber}.pdf`}

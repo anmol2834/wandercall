@@ -181,7 +181,7 @@ const AboutUs = () => {
       </Box>
 
       {/* Enhanced Stats Section */}
-      <Container maxWidth="lg" className="about-stats-section">
+      <Container maxWidth="lg" className="about-stats-section" sx={{ pt: { xs: 6, sm: 8 } }}>
         <motion.div
           initial={{ opacity: 0, y: 50 }}
           whileInView={{ opacity: 1, y: 0 }}

@@ -24,7 +24,7 @@ const Footer = () => {
 
   const socialLinks = [
     { icon: <Instagram />, label: 'Instagram', color: '#E4405F', url: 'https://www.instagram.com/wandercallofficial/' },
-    { icon: <XIcon />, label: 'X', color: '#000000', url: 'https://x.com/wandercall' },
+    { icon: <XIcon />, label: 'X', color: '#000000', url: 'https://x.com/teamwandercall' },
     { icon: <LinkedIn />, label: 'LinkedIn', color: '#0077B5', url: 'https://linkedin.com/company/wandercall' },
     { icon: <YouTube />, label: 'YouTube', color: '#FF0000', url: 'https://youtube.com/@wandercall' },
   ];

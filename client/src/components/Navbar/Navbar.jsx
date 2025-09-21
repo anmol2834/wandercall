@@ -253,41 +253,60 @@ const Navbar = () => {
                 color="inherit"
                 onClick={() => setMobileOpen(true)}
                 className="mobile-menu-btn"
+                sx={{ mr: 1 }}
               >
                 <MenuIcon />
               </IconButton>
-              <Box className="mobile-center" sx={{ flex: 1, mx: 2 }}>
-                <TextField
-                  variant="outlined"
-                  size="small"
-                  placeholder="Search experiences..."
-                  className="search-field mobile-search"
-                  fullWidth
-                  sx={{
-                    '& .MuiOutlinedInput-root': {
-                      borderRadius: 3,
-                      backgroundColor: 'rgba(255, 255, 255, 0.1)',
-                      '& fieldset': {
-                        borderColor: 'rgba(255, 255, 255, 0.2)'
-                      },
-                      '&:hover fieldset': {
-                        borderColor: 'rgba(255, 255, 255, 0.3)'
-                      },
-                      '&.Mui-focused fieldset': {
-                        borderColor: 'primary.main'
-                      }
-                    }
-                  }}
-                  InputProps={{
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <Search />
-                      </InputAdornment>
-                    ),
-                  }}
-                />
+              <Box
+                onClick={() => navigate('/search')}
+                sx={{
+                  flex: 1,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 1,
+                  px: 2,
+                  py: 1.5,
+                  mr: 1,
+                  borderRadius: 3,
+                  backgroundColor: theme.palette.mode === 'dark' 
+                    ? 'rgba(255, 255, 255, 0.1)' 
+                    : '#ffffff',
+                  border: theme.palette.mode === 'dark' 
+                    ? '1px solid rgba(255, 255, 255, 0.2)' 
+                    : 'none',
+                  boxShadow: theme.palette.mode === 'dark' 
+                    ? 'none' 
+                    : '0 2px 8px rgba(0, 0, 0, 0.08)',
+                  cursor: 'pointer',
+                  transition: 'all 0.3s ease',
+                  '&:hover': {
+                    backgroundColor: theme.palette.mode === 'dark'
+                      ? 'rgba(255, 255, 255, 0.15)'
+                      : '#ffffff',
+                    boxShadow: theme.palette.mode === 'dark' 
+                      ? 'none' 
+                      : '0 4px 12px rgba(0, 0, 0, 0.12)',
+                    borderColor: theme.palette.primary.main,
+                    transform: 'translateY(-1px)'
+                  }
+                }}
+              >
+                <Search sx={{ 
+                  color: theme.palette.mode === 'dark' 
+                    ? 'rgba(255, 255, 255, 0.7)' 
+                    : 'rgba(0, 0, 0, 0.6)'
+                }} />
+                <Typography sx={{ 
+                  color: theme.palette.mode === 'dark'
+                    ? 'rgba(255, 255, 255, 0.7)'
+                    : 'rgba(0, 0, 0, 0.6)', 
+                  fontSize: '1rem',
+                  flex: 1
+                }}>
+                  Search experiences...
+                </Typography>
               </Box>
-              <Box className="mobile-right">
+              <Box>
                 {isAuthenticated ? (
                   <Avatar className="user-avatar" onClick={handleProfileClick} sx={{ cursor: 'pointer' }}>
                     <img 
@@ -305,19 +324,53 @@ const Navbar = () => {
             </>
           ) : (
             <>
-              <TextField
-                variant="outlined"
-                size="small"
-                placeholder="Search experiences, locations, activities..."
-                className="search-field"
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <Search />
-                    </InputAdornment>
-                  ),
+              <Box
+                onClick={() => navigate('/search')}
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 1,
+                  px: 2,
+                  py: 1,
+                  minWidth: 300,
+                  borderRadius: 2,
+                  backgroundColor: theme.palette.mode === 'dark' 
+                    ? 'rgba(255, 255, 255, 0.1)' 
+                    : '#ffffff',
+                  border: theme.palette.mode === 'dark' 
+                    ? '1px solid rgba(255, 255, 255, 0.2)' 
+                    : 'none',
+                  boxShadow: theme.palette.mode === 'dark' 
+                    ? 'none' 
+                    : '0 2px 8px rgba(0, 0, 0, 0.08)',
+                  cursor: 'pointer',
+                  transition: 'all 0.3s ease',
+                  '&:hover': {
+                    backgroundColor: theme.palette.mode === 'dark'
+                      ? 'rgba(255, 255, 255, 0.15)'
+                      : '#ffffff',
+                    boxShadow: theme.palette.mode === 'dark' 
+                      ? 'none' 
+                      : '0 4px 12px rgba(0, 0, 0, 0.12)',
+                    borderColor: theme.palette.primary.main,
+                    transform: 'translateY(-1px)'
+                  }
                 }}
-              />
+              >
+                <Search sx={{ 
+                  color: theme.palette.mode === 'dark' 
+                    ? 'rgba(255, 255, 255, 0.7)' 
+                    : 'rgba(0, 0, 0, 0.6)'
+                }} />
+                <Typography sx={{ 
+                  color: theme.palette.mode === 'dark'
+                    ? 'rgba(255, 255, 255, 0.7)'
+                    : 'rgba(0, 0, 0, 0.6)', 
+                  fontSize: '0.875rem'
+                }}>
+                  Search experiences, locations, activities...
+                </Typography>
+              </Box>
               
               <Box className="nav-center">
                 {navItems.map((item) => (
