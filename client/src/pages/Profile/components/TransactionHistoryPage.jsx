@@ -11,50 +11,49 @@ import {
 } from '@mui/icons-material';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTheme } from '@mui/material/styles';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchMyBookings } from '../../../redux/slices/ticketSlice';
 import TransactionHistoryPageLoader from '../../../components/loaders/TransactionHistoryPageLoader';
 
 const TransactionHistoryPage = () => {
   const theme = useTheme();
+  const dispatch = useDispatch();
+  const { bookings, loading, error } = useSelector(state => state.tickets);
   const [tabValue, setTabValue] = useState(0);
   const [searchQuery, setSearchQuery] = useState('');
-  const [transactions, setTransactions] = useState([]);
-  const [stats, setStats] = useState({});
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
 
-  // Fetch transactions
+  // Fetch bookings data
   useEffect(() => {
-    const fetchTransactions = async () => {
-      try {
-        setLoading(true);
-        const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
-        
-        const response = await fetch(`${apiUrl}/api/transactions/history`, {
-          headers: {
-            'Authorization': `Bearer ${localStorage.getItem('token')}`
-          }
-        });
-        
-        
-        const data = await response.json();
-        
-        
-        if (data.success) {
-          setTransactions(data.transactions || []);
-          setStats(data.stats || {});
-        } else {
-          setError(data.message || 'Failed to load transactions');
-        }
-      } catch (err) {
-        setError('Failed to fetch transactions');
-        console.error('Error fetching transactions:', err);
-      } finally {
-        setLoading(false);
-      }
-    };
+    dispatch(fetchMyBookings());
+  }, [dispatch]);
 
-    fetchTransactions();
-  }, []);
+  // Transform bookings to transactions format
+  const transactions = bookings.map(booking => ({
+    id: booking._id,
+    title: booking.productId?.title || booking.title || 'Experience Booking',
+    amount: booking.totalPrice || 0,
+    basePrice: (booking.totalPrice || 0) - (booking.gst || 0) - (booking.discount || 0),
+    gst: booking.gst || 0,
+    discount: booking.discount || 0,
+    status: booking.status === 'active' ? 'completed' : booking.status === 'cancelled' ? 'cancelled' : 'completed',
+    type: 'booking',
+    date: booking.createdAt || booking.selectedDate,
+    paymentId: booking.paymentId || booking.orderId,
+    participants: booking.participants || 1
+  }));
+
+  // Calculate stats from bookings
+  const stats = {
+    totalTransactions: transactions.length,
+    totalSpent: transactions.filter(t => t.status === 'completed').reduce((sum, t) => sum + t.amount, 0),
+    totalFailed: transactions.filter(t => t.status === 'failed').reduce((sum, t) => sum + t.amount, 0),
+    pendingCount: transactions.filter(t => t.status === 'pending').length,
+    thisMonthCount: transactions.filter(t => {
+      const transactionDate = new Date(t.date);
+      const now = new Date();
+      return transactionDate.getMonth() === now.getMonth() && transactionDate.getFullYear() === now.getFullYear();
+    }).length
+  };
 
   const getStatusColor = (status) => {
     switch (status) {
@@ -85,7 +84,7 @@ const TransactionHistoryPage = () => {
     }
   };
 
-  const filteredTransactions = (transactions || []).filter(transaction => {
+  const filteredTransactions = transactions.filter(transaction => {
     const matchesSearch = (transaction.title || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
                          (transaction.id || '').toLowerCase().includes(searchQuery.toLowerCase());
     
@@ -109,7 +108,7 @@ const TransactionHistoryPage = () => {
       <Container maxWidth="lg" sx={{ py: 4, textAlign: 'center' }}>
         <Typography variant="h6" color="error" sx={{ mb: 2 }}>Error loading transactions</Typography>
         <Typography variant="body2" color="text.secondary">{error}</Typography>
-        <Button onClick={() => window.location.reload()} sx={{ mt: 2 }}>Retry</Button>
+        <Button onClick={() => dispatch(fetchMyBookings())} sx={{ mt: 2 }}>Retry</Button>
       </Container>
     );
   }

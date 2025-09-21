@@ -41,9 +41,20 @@ const BookingsPage = () => {
 
   const handleDownloadTicket = async (ticketId) => {
     try {
+      if (!ticketId) {
+        console.error('No ticket ID provided');
+        return;
+      }
+      // Mark as downloaded in Redux without affecting the booking data
       await dispatch(markTicketAsDownloaded(ticketId));
     } catch (error) {
       console.error('Error downloading ticket:', error);
+      setAlertConfig({
+        open: true,
+        type: 'error',
+        title: 'Download Failed',
+        message: 'Failed to download ticket. Please try again.'
+      });
     }
   };
 
@@ -151,16 +162,24 @@ const BookingsPage = () => {
   };
 
   const checkCancellationEligibility = async (ticketId) => {
+    // Skip if already checked or checking
+    if (cancellationEligibility[ticketId] || cancellingTickets.has(ticketId)) {
+      return;
+    }
+    
     try {
       const result = await cancellationAPI.checkCancellationEligibility(ticketId);
-      if (result.success) {
-        setCancellationEligibility(prev => ({
-          ...prev,
-          [ticketId]: result
-        }));
-      }
+      setCancellationEligibility(prev => ({
+        ...prev,
+        [ticketId]: result
+      }));
     } catch (error) {
       console.error('Error checking cancellation eligibility:', error);
+      // Set a default state to prevent repeated calls
+      setCancellationEligibility(prev => ({
+        ...prev,
+        [ticketId]: { success: false, canCancel: false, hoursLeft: 0 }
+      }));
     }
   };
 
@@ -183,17 +202,24 @@ const BookingsPage = () => {
 
   useEffect(() => {
     if (bookings && bookings.length > 0) {
-      bookings.forEach(booking => {
-        if (booking.status === 'active') {
-          checkCancellationEligibility(booking._id);
-        }
+      // Only check for active bookings that haven't been checked yet
+      const activeBookings = bookings.filter(booking => 
+        booking.status === 'active' && !cancellationEligibility[booking._id]
+      );
+      
+      activeBookings.forEach(booking => {
+        checkCancellationEligibility(booking._id);
       });
     }
   }, [bookings]);
 
   const formatTicketData = (booking) => {
-    const basePrice = booking.totalPrice - booking.gst - (booking.discount || 0);
+    const totalPrice = booking.totalPrice || 0;
+    const gst = booking.gst || 0;
+    const discount = booking.discount || 0;
+    const basePrice = totalPrice - gst - discount;
     const productLocation = booking.productId?.location || {};
+    
     return {
       ticketNumber: booking.ticketNumber || 'TKT001',
       title: booking.productId?.title || booking.title || 'Experience',
@@ -206,10 +232,10 @@ const BookingsPage = () => {
       fullAddress: productLocation.address || `${booking.city || 'City'}, ${booking.state || 'State'}`,
       pincode: productLocation.pincode || '000000',
       providerPhone: booking.productId?.phone || 'N/A',
-      totalPrice: booking.totalPrice || 0,
-      basePrice: basePrice > 0 ? basePrice : booking.totalPrice || 0,
-      gst: booking.gst || 0,
-      discount: booking.discount || 0,
+      totalPrice: totalPrice,
+      basePrice: basePrice > 0 ? basePrice : totalPrice,
+      gst: gst,
+      discount: discount,
       paymentId: booking.paymentId || 'Processing'
     };
   };
@@ -575,7 +601,7 @@ const BookingsPage = () => {
                               fontSize: { xs: '1rem', sm: '1.1rem' }
                             }}
                           >
-                            ₹{(booking.status === 'used' && booking.bookingIntent ? booking.bookingIntent.totalPrice : booking.totalPrice).toFixed(2)}
+                            ₹{((booking.status === 'used' && booking.bookingIntent ? booking.bookingIntent.totalPrice : booking.totalPrice) || 0).toFixed(2)}
                           </Typography>
                         </Box>
                         

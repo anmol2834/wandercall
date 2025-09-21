@@ -59,7 +59,6 @@ const getTheme = (mode) => createTheme({
           borderRadius: 12,
           fontWeight: 500,
           transition: 'all 0.3s ease',
-          color: mode === 'light' ? '#ffffff' : 'inherit',
         },
         outlined: {
           borderColor: mode === 'light' ? '#4f46e5' : 'inherit',
@@ -87,6 +86,53 @@ const getTheme = (mode) => createTheme({
         root: {
           '& .MuiOutlinedInput-root': {
             borderRadius: 12,
+          },
+        },
+      },
+    },
+    MuiAutocomplete: {
+      styleOverrides: {
+        option: {
+          color: mode === 'light' ? '#0f172a' : '#f8fafc',
+          '&[aria-selected="true"]': {
+            backgroundColor: mode === 'light' ? '#e0e7ff' : '#374151',
+            color: mode === 'light' ? '#0f172a' : '#f8fafc',
+          },
+          '&.Mui-focused': {
+            backgroundColor: mode === 'light' ? '#f3f4f6' : '#4b5563',
+            color: mode === 'light' ? '#0f172a' : '#f8fafc',
+          },
+        },
+        paper: {
+          backgroundColor: mode === 'light' ? '#ffffff' : '#1e293b',
+          color: mode === 'light' ? '#0f172a' : '#f8fafc',
+        },
+      },
+    },
+    MuiAutocomplete: {
+      styleOverrides: {
+        option: {
+          color: mode === 'light' ? '#0f172a' : '#f8fafc',
+          '&[aria-selected="true"]': {
+            backgroundColor: mode === 'light' ? '#e0e7ff' : '#374151',
+            color: mode === 'light' ? '#0f172a' : '#f8fafc',
+          },
+          '&.Mui-focused': {
+            backgroundColor: mode === 'light' ? '#f3f4f6' : '#4b5563',
+            color: mode === 'light' ? '#0f172a' : '#f8fafc',
+          },
+          '&:hover': {
+            backgroundColor: mode === 'light' ? '#f9fafb' : '#374151',
+            color: mode === 'light' ? '#0f172a' : '#f8fafc',
+          },
+        },
+        paper: {
+          backgroundColor: mode === 'light' ? '#ffffff' : '#1e293b',
+          color: mode === 'light' ? '#0f172a' : '#f8fafc',
+        },
+        listbox: {
+          '& .MuiAutocomplete-option': {
+            color: mode === 'light' ? '#0f172a' : '#f8fafc',
           },
         },
       },

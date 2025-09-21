@@ -111,10 +111,11 @@ const ticketSlice = createSlice({
         const ticketId = action.payload._id;
         const bookingIndex = state.bookings.findIndex(booking => booking._id === ticketId);
         if (bookingIndex !== -1) {
-          state.bookings[bookingIndex] = action.payload;
+          // Just mark as downloaded without replacing the entire object
+          state.bookings[bookingIndex].downloaded = true;
         }
         if (state.selectedTicket?._id === ticketId) {
-          state.selectedTicket = action.payload;
+          state.selectedTicket.downloaded = true;
         }
       });
   },

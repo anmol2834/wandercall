@@ -4,18 +4,32 @@ const Ticket = require('../models/Ticket');
 const BookingIntent = require('../models/BookingIntent');
 const Product = require('../models/Product');
 const User = require('../models/User');
-const verifyToken = require('../middleware/auth');
+const auth = require('../middleware/auth');
 const axios = require('axios');
 const { sendCancellationNotificationToProvider } = require('../services/emailService');
 
-// Cancel booking within 48 hours
-router.post('/cancel/:ticketId', verifyToken, async (req, res) => {
-  try {
-    const { ticketId } = req.params;
-    const userId = req.user.id;
+// Test route to check if cancellation routes are working
+router.get('/test', (req, res) => {
+  res.json({ success: true, message: 'Cancellation routes are working' });
+});
 
-    // Find the ticket
-    const ticket = await Ticket.findOne({ _id: ticketId, userId });
+// Cancel booking within 48 hours
+router.post('/cancel/:bookingId', auth, async (req, res) => {
+  try {
+    const { bookingId } = req.params;
+    const userId = req.user._id;
+
+    // Try to find ticket first, then booking intent
+    let ticket = await Ticket.findOne({ _id: bookingId, userId });
+    
+    if (!ticket) {
+      // If not found as ticket, try as booking intent
+      const bookingIntent = await BookingIntent.findOne({ _id: bookingId, userId });
+      if (bookingIntent && bookingIntent.ticketId) {
+        ticket = await Ticket.findById(bookingIntent.ticketId);
+      }
+    }
+    
     if (!ticket) {
       return res.status(404).json({ success: false, message: 'Ticket not found' });
     }
@@ -100,7 +114,7 @@ router.post('/cancel/:ticketId', verifyToken, async (req, res) => {
 
     // Delete from both collections
     await Promise.all([
-      Ticket.findByIdAndDelete(ticketId),
+      Ticket.findByIdAndDelete(ticket._id),
       BookingIntent.findOneAndDelete({ orderId: ticket.orderId })
     ]);
 
@@ -116,14 +130,24 @@ router.post('/cancel/:ticketId', verifyToken, async (req, res) => {
 });
 
 // Check if cancellation is allowed
-router.get('/check/:ticketId', verifyToken, async (req, res) => {
+router.get('/check/:bookingId', auth, async (req, res) => {
   try {
-    const { ticketId } = req.params;
-    const userId = req.user.id;
+    const { bookingId } = req.params;
+    const userId = req.user._id;
 
-    const ticket = await Ticket.findOne({ _id: ticketId, userId });
+    // Try to find ticket first, then booking intent
+    let ticket = await Ticket.findOne({ _id: bookingId, userId });
+    
     if (!ticket) {
-      return res.status(404).json({ success: false, message: 'Ticket not found' });
+      // If not found as ticket, try as booking intent
+      const bookingIntent = await BookingIntent.findOne({ _id: bookingId, userId });
+      if (bookingIntent && bookingIntent.ticketId) {
+        ticket = await Ticket.findById(bookingIntent.ticketId);
+      }
+    }
+
+    if (!ticket) {
+      return res.json({ success: true, canCancel: false, hoursLeft: 0 });
     }
 
     const bookingTime = new Date(ticket.createdAt);
@@ -141,7 +165,7 @@ router.get('/check/:ticketId', verifyToken, async (req, res) => {
     });
   } catch (error) {
     console.error('Error checking cancellation eligibility:', error);
-    res.status(500).json({ success: false, message: error.message });
+    res.json({ success: true, canCancel: false, hoursLeft: 0 });
   }
 });
 

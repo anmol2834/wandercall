@@ -3,13 +3,29 @@ import api from './api';
 export const refundTicketAPI = {
   createRefundTicket: async (ticketId, upiId) => {
     try {
-      const response = await api.post('/refund-ticket/create-refund-ticket', {
-        ticketId,
-        upiId
+      const token = localStorage.getItem('token');
+      if (!token) {
+        throw new Error('No authentication token found');
+      }
+      
+      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/refund-ticket/create-refund-ticket`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ ticketId, upiId })
       });
-      return response.data;
+      
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ message: 'Network error' }));
+        throw new Error(errorData.message || `HTTP ${response.status}`);
+      }
+      
+      return await response.json();
     } catch (error) {
-      throw error.response?.data || { success: false, message: 'Failed to create refund ticket' };
+      console.error('Refund ticket creation failed:', error);
+      throw { success: false, message: error.message || 'Failed to create refund ticket' };
     }
   }
 };

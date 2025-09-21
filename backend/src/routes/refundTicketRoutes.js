@@ -5,6 +5,11 @@ const BookingIntent = require('../models/BookingIntent');
 const Ticket = require('../models/Ticket');
 const { sendEmail } = require('../services/emailService');
 
+// Test route to check if refund ticket routes are working
+router.get('/test', (req, res) => {
+  res.json({ success: true, message: 'Refund ticket routes are working' });
+});
+
 // Create refund ticket
 router.post('/create-refund-ticket', auth, async (req, res) => {
   try {
@@ -18,14 +23,34 @@ router.post('/create-refund-ticket', auth, async (req, res) => {
       });
     }
 
-    const userId = req.user.id;
+    const userId = req.user._id;
 
-    // Find the ticket
-    const ticket = await Ticket.findOne({ 
+    // Try to find ticket first, then booking intent
+    let ticket = await Ticket.findOne({ 
       _id: ticketId, 
       userId: userId,
       status: 'active'
     }).populate('productId');
+    
+    let bookingIntent;
+    
+    if (!ticket) {
+      // If not found as ticket, try as booking intent
+      bookingIntent = await BookingIntent.findOne({ 
+        _id: ticketId, 
+        userId: userId,
+        status: 'PAID'
+      });
+      
+      if (bookingIntent && bookingIntent.ticketId) {
+        ticket = await Ticket.findById(bookingIntent.ticketId).populate('productId');
+      }
+    } else {
+      // Find the booking intent using orderId
+      bookingIntent = await BookingIntent.findOne({ 
+        orderId: ticket.orderId 
+      });
+    }
 
     if (!ticket) {
       return res.status(404).json({
@@ -33,11 +58,6 @@ router.post('/create-refund-ticket', auth, async (req, res) => {
         message: 'Active ticket not found'
       });
     }
-
-    // Find the booking intent
-    const bookingIntent = await BookingIntent.findOne({ 
-      orderId: ticket.orderId 
-    });
 
     if (!bookingIntent) {
       return res.status(404).json({
