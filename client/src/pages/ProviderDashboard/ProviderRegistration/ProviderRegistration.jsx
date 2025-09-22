@@ -12,7 +12,7 @@ import {
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import wandercallLogo from '../../assets/wandercall-logo2.svg';
+import wandercallLogo from '../../../assets/wandercall-logo2.svg';
 
 const ProviderRegistration = () => {
   const navigate = useNavigate();

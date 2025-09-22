@@ -368,7 +368,7 @@ const Navbar = () => {
                     : 'rgba(0, 0, 0, 0.6)', 
                   fontSize: '0.875rem'
                 }}>
-                  Search experiences, locations, activities...
+                  Search experiences...
                 </Typography>
               </Box>
               

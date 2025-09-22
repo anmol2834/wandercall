@@ -352,7 +352,25 @@ const RewardsPage = () => {
                               {option.xp}
                             </Typography>
                           </Box>
-                          <Button variant="outlined" size="small">
+                          <Button 
+                            variant="outlined" 
+                            size="small"
+                            onClick={() => {
+                              if (option.title === 'Book an Experience') {
+                                navigate('/');
+                                setTimeout(() => {
+                                  const experiencesSection = document.getElementById('experiences-section');
+                                  if (experiencesSection) {
+                                    experiencesSection.scrollIntoView({ behavior: 'smooth' });
+                                  }
+                                }, 100);
+                              } else if (option.title === 'Write a Review') {
+                                navigate('/profile/booked');
+                              } else if (option.title === 'Complete Profile') {
+                                navigate('/profile');
+                              }
+                            }}
+                          >
                             Start
                           </Button>
                         </Box>

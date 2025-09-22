@@ -135,7 +135,7 @@ const Search = () => {
                   autoFocus
                   fullWidth
                   variant="outlined"
-                  placeholder="Search experiences, locations, activities..."
+                  placeholder="Search experiences..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   sx={{
