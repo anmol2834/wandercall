@@ -932,13 +932,14 @@ const ProviderRegistration = () => {
                       </Typography>
                       <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
                         <Link 
-                          href="#" 
+                          onClick={() => navigate('/provider-login')}
                           sx={{ 
                             display: 'flex', 
                             alignItems: 'center', 
                             gap: 0.5,
                             color: '#667eea',
                             textDecoration: 'none',
+                            cursor: 'pointer',
                             '&:hover': {
                               color: '#764ba2',
                               textShadow: '0 0 8px rgba(102, 126, 234, 0.6)'

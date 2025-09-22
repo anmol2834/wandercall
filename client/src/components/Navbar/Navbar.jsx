@@ -116,121 +116,598 @@ const Navbar = () => {
   };
 
   const drawer = (
-    <Box className="mobile-drawer" sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-      <Box className="drawer-header" sx={{ p: 1, borderBottom: 1, borderColor: 'divider' }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', position: 'relative', width: '100%' }}>
-          <Box sx={{ 
-            position: 'absolute',
-            left: '50%',
-            transform: 'translateX(-50%)',
-            display: 'flex',
-            alignItems: 'center'
-          }}>
-            <Box
-              component="img"
-              src={wandercallLogo}
-              alt="wandercall"
-              sx={{
-                height: 80,
-                width: 'auto',
-                filter: theme.palette.mode === 'dark' ? 'invert(1)' : 'invert(0)'
-              }}
-            />
-          </Box>
-          <IconButton onClick={() => setMobileOpen(false)} sx={{ marginLeft: 'auto' }}>
-            <Close />
-          </IconButton>
-        </Box>
-      </Box>
-      
-      {/* Main Navigation */}
-      <Box sx={{ flex: 1, overflow: 'auto' }}>
-        <Typography variant="subtitle2" sx={{ px: 2, py: 1, color: 'text.secondary', fontWeight: 600 }}>
-          Navigation
-        </Typography>
-        <List sx={{ py: 0 }}>
-          {navItems.map((item) => (
-            <ListItem 
-              button 
-              key={item.label} 
-              className="drawer-item" 
-              onClick={() => {
-                handleNavItemClick(item.route);
-                setMobileOpen(false);
-              }}
-              sx={{ py: 1.5, mx: 1, borderRadius: 1, mb: 0.5 }}
-            >
-              <ListItemIcon sx={{ minWidth: 40 }}>{item.icon}</ListItemIcon>
-              <ListItemText primary={item.label} />
-            </ListItem>
-          ))}
-        </List>
-        
-        {/* Footer Links */}
-        <Typography variant="subtitle2" sx={{ px: 2, py: 1, mt: 2, color: 'text.secondary', fontWeight: 600 }}>
-          Information
-        </Typography>
-        <List sx={{ py: 0 }}>
-          {footerItems.map((item) => (
-            <ListItem 
-              button 
-              key={item.label} 
-              className="drawer-item" 
-              onClick={() => {
-                handleNavItemClick(item.route);
-                setMobileOpen(false);
-              }}
-              sx={{ py: 1.5, mx: 1, borderRadius: 1, mb: 0.5 }}
-            >
-              <ListItemIcon sx={{ minWidth: 40 }}>{item.icon}</ListItemIcon>
-              <ListItemText primary={item.label} />
-            </ListItem>
-          ))}
-        </List>
-      </Box>
-      
-      {/* Bottom Actions */}
-      <Box className="drawer-buttons" sx={{ 
-        p: 2, 
-        borderTop: 1, 
-        borderColor: 'divider',
-        marginTop: 'auto',
+    <Box sx={{ 
+      height: '100vh',
+      display: 'flex',
+      flexDirection: 'column',
+      backgroundColor: theme.palette.mode === 'dark' ? '#1a1a1a' : '#ffffff'
+    }}>
+      {/* Header */}
+      <Box sx={{ 
+        p: 2.5,
         display: 'flex',
-        flexDirection: 'column',
-        gap: '0.5rem'
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        borderBottom: `1px solid ${theme.palette.divider}`,
+        flexShrink: 0,
+        height: 80,
+        minHeight: 80,
+        maxHeight: 80
       }}>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-          <Typography variant="body2" color="text.secondary">Theme</Typography>
+        <Box
+          component="img"
+          src={wandercallLogo}
+          alt="wandercall"
+          sx={{
+            height: 60,
+            filter: theme.palette.mode === 'dark' ? 'invert(1)' : 'invert(0)'
+          }}
+        />
+        <IconButton 
+          onClick={() => setMobileOpen(false)}
+          size="small"
+          sx={{ 
+            '&:hover': {
+              backgroundColor: 'action.hover'
+            }
+          }}
+        >
+          <Close fontSize="small" />
+        </IconButton>
+      </Box>
+      
+      {/* Scrollable Content */}
+      <Box sx={{ 
+        flex: 1,
+        overflow: 'auto',
+        display: 'flex',
+        flexDirection: 'column'
+      }}>
+        {/* Main Navigation */}
+        <Box sx={{ px: 2, py: 2 }}>
+          <Typography variant="overline" sx={{ 
+            px: 1,
+            color: 'text.secondary',
+            fontWeight: 600,
+            fontSize: '0.7rem',
+            letterSpacing: '0.5px'
+          }}>
+            Navigation
+          </Typography>
+          <List sx={{ py: 0.5 }}>
+            {navItems.map((item) => (
+              <ListItem 
+                key={item.label}
+                onClick={() => {
+                  handleNavItemClick(item.route);
+                  setMobileOpen(false);
+                }}
+                sx={{ 
+                  py: 1.2,
+                  px: 1.5,
+                  borderRadius: 2,
+                  mb: 0.5,
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease',
+                  '&:hover': {
+                    backgroundColor: 'action.hover'
+                  }
+                }}
+              >
+                <ListItemIcon sx={{ 
+                  minWidth: 32,
+                  color: 'text.secondary'
+                }}>
+                  {item.icon}
+                </ListItemIcon>
+                <ListItemText 
+                  primary={item.label}
+                  primaryTypographyProps={{
+                    fontSize: '0.9rem',
+                    fontWeight: 500
+                  }}
+                />
+              </ListItem>
+            ))}
+          </List>
+        </Box>
+        
+        {/* Information Links */}
+        <Box sx={{ px: 2, pb: 2 }}>
+          <Typography variant="overline" sx={{ 
+            px: 1,
+            color: 'text.secondary',
+            fontWeight: 600,
+            fontSize: '0.7rem',
+            letterSpacing: '0.5px'
+          }}>
+            Information
+          </Typography>
+          <List sx={{ py: 0.5 }}>
+            {footerItems.map((item) => (
+              <ListItem 
+                key={item.label}
+                onClick={() => {
+                  handleNavItemClick(item.route);
+                  setMobileOpen(false);
+                }}
+                sx={{ 
+                  py: 1,
+                  px: 1.5,
+                  borderRadius: 2,
+                  mb: 0.5,
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease',
+                  '&:hover': {
+                    backgroundColor: 'action.hover'
+                  }
+                }}
+              >
+                <ListItemIcon sx={{ 
+                  minWidth: 32,
+                  color: 'text.secondary'
+                }}>
+                  {item.icon}
+                </ListItemIcon>
+                <ListItemText 
+                  primary={item.label}
+                  primaryTypographyProps={{
+                    fontSize: '0.85rem',
+                    color: 'text.secondary'
+                  }}
+                />
+              </ListItem>
+            ))}
+          </List>
+        </Box>
+        
+        {/* Spacer to push bottom section down */}
+        <Box sx={{ flex: 1, minHeight: 20 }} />
+      </Box>
+      
+      {/* Bottom Action Section - Always at bottom */}
+      <Box sx={{
+        flexShrink: 0,
+        borderTop: `1px solid ${theme.palette.divider}`,
+        backgroundColor: theme.palette.mode === 'dark' 
+          ? 'rgba(255, 255, 255, 0.02)' 
+          : 'rgba(0, 0, 0, 0.02)'
+      }}>
+        {/* Theme Toggle */}
+        <Box sx={{ 
+          px: 2.5,
+          py: 2,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          borderBottom: `1px solid ${theme.palette.divider}`
+        }}>
+          <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 500 }}>
+            Theme
+          </Typography>
           <ThemeToggle />
         </Box>
         
-        {!isAuthenticated ? (
-          <Box sx={{ display: 'flex', gap: 1 }}>
-            <Button variant="outlined" fullWidth onClick={() => { handleSignIn(); setMobileOpen(false); }}>
-              Sign In
+        {/* Action Buttons */}
+        <Box sx={{ p: 2.5, display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+          {/* Primary Actions */}
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.2 }}>
+            <Button 
+              variant="contained" 
+              fullWidth
+              onClick={() => { handleJoinWaitlist(); setMobileOpen(false); }}
+              sx={{
+                py: 1.4,
+                borderRadius: 3,
+                fontWeight: 600,
+                fontSize: '0.9rem',
+                textTransform: 'none',
+                background: 'linear-gradient(45deg, #6366f1, #8b5cf6)',
+                boxShadow: '0 3px 10px rgba(99, 102, 241, 0.3)',
+                '&:hover': {
+                  boxShadow: '0 5px 15px rgba(99, 102, 241, 0.4)',
+                  transform: 'translateY(-1px)'
+                }
+              }}
+            >
+              Join Waitlist
             </Button>
-            <Button variant="contained" fullWidth onClick={() => { handleSignUp(); setMobileOpen(false); }}>
-              Sign Up
+            <Button 
+              variant="contained" 
+              fullWidth
+              onClick={() => { handleBecomeProvider(); setMobileOpen(false); }}
+              sx={{
+                py: 1.4,
+                borderRadius: 3,
+                fontWeight: 600,
+                fontSize: '0.9rem',
+                textTransform: 'none',
+                background: 'linear-gradient(45deg, #f59e0b, #f97316)',
+                boxShadow: '0 3px 10px rgba(245, 158, 11, 0.3)',
+                '&:hover': {
+                  boxShadow: '0 5px 15px rgba(245, 158, 11, 0.4)',
+                  transform: 'translateY(-1px)'
+                }
+              }}
+            >
+              Become a Provider
             </Button>
           </Box>
-        ) : (
+          
+          {/* Secondary Actions */}
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+            <Button 
+              variant="outlined" 
+              fullWidth
+              onClick={() => { navigate('/provider-login'); setMobileOpen(false); }}
+              sx={{
+                py: 1.2,
+                borderRadius: 3,
+                fontWeight: 500,
+                fontSize: '0.85rem',
+                textTransform: 'none',
+                borderColor: 'primary.main',
+                color: 'primary.main',
+                '&:hover': {
+                  backgroundColor: 'primary.main',
+                  color: 'white'
+                }
+              }}
+            >
+              Provider Login
+            </Button>
+            
+            {!isAuthenticated ? (
+              <Box sx={{ display: 'flex', gap: 1 }}>
+                <Button 
+                  variant="text" 
+                  fullWidth
+                  onClick={() => { handleSignIn(); setMobileOpen(false); }}
+                  sx={{
+                    py: 1.2,
+                    borderRadius: 3,
+                    fontWeight: 500,
+                    fontSize: '0.85rem',
+                    textTransform: 'none',
+                    color: 'text.secondary',
+                    '&:hover': {
+                      backgroundColor: 'action.hover'
+                    }
+                  }}
+                >
+                  Sign In
+                </Button>
+                <Button 
+                  variant="text" 
+                  fullWidth
+                  onClick={() => { handleSignUp(); setMobileOpen(false); }}
+                  sx={{
+                    py: 1.2,
+                    borderRadius: 3,
+                    fontWeight: 500,
+                    fontSize: '0.85rem',
+                    textTransform: 'none',
+                    color: 'text.secondary',
+                    '&:hover': {
+                      backgroundColor: 'action.hover'
+                    }
+                  }}
+                >
+                  Sign Up
+                </Button>
+              </Box>
+            ) : (
+              <Button 
+                variant="text" 
+                fullWidth
+                startIcon={<Logout fontSize="small" />}
+                onClick={() => { handleLogout(); setMobileOpen(false); }}
+                sx={{
+                  py: 1.2,
+                  borderRadius: 3,
+                  fontWeight: 500,
+                  fontSize: '0.85rem',
+                  textTransform: 'none',
+                  color: 'text.secondary',
+                  '&:hover': {
+                    backgroundColor: 'action.hover'
+                  }
+                }}
+              >
+                Logout
+              </Button>
+            )}
+          </Box>
+        </Box>
+      </Box>
+    </Box>
+  );
+
+  const oldDrawer = (
+    <Box sx={{ 
+      height: '100%', 
+      display: 'flex', 
+      flexDirection: 'column',
+      backgroundColor: theme.palette.mode === 'dark' ? '#1a1a1a' : '#ffffff'
+    }}>
+      {/* Header */}
+      <Box sx={{ 
+        p: 3, 
+        borderBottom: `1px solid ${theme.palette.divider}`,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        minHeight: 72
+      }}>
+        <Box
+          component="img"
+          src={wandercallLogo}
+          alt="wandercall"
+          sx={{
+            height: 80,
+            width: 80,
+            filter: theme.palette.mode === 'dark' ? 'invert(1)' : 'invert(0)'
+          }}
+        />
+        <IconButton 
+          onClick={() => setMobileOpen(false)}
+          sx={{ 
+            p: 1,
+            '&:hover': {
+              backgroundColor: 'action.hover'
+            }
+          }}
+        >
+          <Close fontSize="small" />
+        </IconButton>
+      </Box>
+      
+      {/* Main Navigation */}
+      <Box sx={{ px: 2, py: 3 }}>
+        <Typography variant="overline" sx={{ 
+          px: 1, 
+          color: 'text.secondary', 
+          fontWeight: 600,
+          fontSize: '0.75rem',
+          letterSpacing: '0.5px'
+        }}>
+          Navigation
+        </Typography>
+        <List sx={{ py: 1 }}>
+          {navItems.map((item) => (
+            <ListItem 
+              key={item.label}
+              onClick={() => {
+                handleNavItemClick(item.route);
+                setMobileOpen(false);
+              }}
+              sx={{ 
+                py: 1.5, 
+                px: 2,
+                borderRadius: 2, 
+                mb: 0.5,
+                cursor: 'pointer',
+                transition: 'all 0.2s ease',
+                '&:hover': {
+                  backgroundColor: 'action.hover'
+                }
+              }}
+            >
+              <ListItemIcon sx={{ 
+                minWidth: 36,
+                color: 'text.secondary'
+              }}>
+                {item.icon}
+              </ListItemIcon>
+              <ListItemText 
+                primary={item.label}
+                primaryTypographyProps={{
+                  fontSize: '0.95rem',
+                  fontWeight: 500
+                }}
+              />
+            </ListItem>
+          ))}
+        </List>
+      </Box>
+      
+      {/* Information Links */}
+      <Box sx={{ px: 2, pb: 2 }}>
+        <Typography variant="overline" sx={{ 
+          px: 1, 
+          color: 'text.secondary', 
+          fontWeight: 600,
+          fontSize: '0.75rem',
+          letterSpacing: '0.5px'
+        }}>
+          Information
+        </Typography>
+        <List sx={{ py: 1 }}>
+          {footerItems.map((item) => (
+            <ListItem 
+              key={item.label}
+              onClick={() => {
+                handleNavItemClick(item.route);
+                setMobileOpen(false);
+              }}
+              sx={{ 
+                py: 1, 
+                px: 2,
+                borderRadius: 2, 
+                mb: 0.5,
+                cursor: 'pointer',
+                transition: 'all 0.2s ease',
+                '&:hover': {
+                  backgroundColor: 'action.hover'
+                }
+              }}
+            >
+              <ListItemIcon sx={{ 
+                minWidth: 36,
+                color: 'text.secondary'
+              }}>
+                {item.icon}
+              </ListItemIcon>
+              <ListItemText 
+                primary={item.label}
+                primaryTypographyProps={{
+                  fontSize: '0.875rem',
+                  color: 'text.secondary'
+                }}
+              />
+            </ListItem>
+          ))}
+        </List>
+      </Box>
+      
+      {/* Spacer */}
+      <Box sx={{ flex: 1 }} />
+      
+      {/* Theme Toggle */}
+      <Box sx={{ 
+        px: 3, 
+        py: 2,
+        borderTop: `1px solid ${theme.palette.divider}`,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between'
+      }}>
+        <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 500 }}>
+          Theme
+        </Typography>
+        <ThemeToggle />
+      </Box>
+      
+      {/* Action Buttons */}
+      <Box sx={{ p: 2, pt: 1, display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+        {/* Primary Actions */}
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+          <Button 
+            variant="contained" 
+            fullWidth
+            onClick={() => { handleJoinWaitlist(); setMobileOpen(false); }}
+            sx={{
+              py: 1.5,
+              borderRadius: 3,
+              fontWeight: 600,
+              fontSize: '0.95rem',
+              textTransform: 'none',
+              background: 'linear-gradient(45deg, #6366f1, #8b5cf6)',
+              boxShadow: '0 4px 12px rgba(99, 102, 241, 0.3)',
+              '&:hover': {
+                boxShadow: '0 6px 16px rgba(99, 102, 241, 0.4)',
+                transform: 'translateY(-1px)'
+              }
+            }}
+          >
+            Join Waitlist
+          </Button>
+          <Button 
+            variant="contained" 
+            fullWidth
+            onClick={() => { handleBecomeProvider(); setMobileOpen(false); }}
+            sx={{
+              py: 1.5,
+              borderRadius: 3,
+              fontWeight: 600,
+              fontSize: '0.95rem',
+              textTransform: 'none',
+              background: 'linear-gradient(45deg, #f59e0b, #f97316)',
+              boxShadow: '0 4px 12px rgba(245, 158, 11, 0.3)',
+              '&:hover': {
+                boxShadow: '0 6px 16px rgba(245, 158, 11, 0.4)',
+                transform: 'translateY(-1px)'
+              }
+            }}
+          >
+            Become a Provider
+          </Button>
+        </Box>
+        
+        {/* Secondary Actions */}
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
           <Button 
             variant="outlined" 
-            fullWidth 
-            startIcon={<Logout />} 
-            onClick={() => { handleLogout(); setMobileOpen(false); }}
-            sx={{ mb: 2 }}
+            fullWidth
+            onClick={() => { navigate('/provider-login'); setMobileOpen(false); }}
+            sx={{
+              py: 1.25,
+              borderRadius: 3,
+              fontWeight: 500,
+              fontSize: '0.9rem',
+              textTransform: 'none',
+              borderColor: 'primary.main',
+              color: 'primary.main',
+              '&:hover': {
+                backgroundColor: 'primary.main',
+                color: 'white'
+              }
+            }}
           >
-            Logout
+            Provider Login
           </Button>
-        )}
-        
-        <Button variant="contained" color="primary" fullWidth className="drawer-btn" onClick={() => { handleJoinWaitlist(); setMobileOpen(false); }} sx={{ mb: 1 }}>
-          Join Waitlist 
-        </Button>
-        <Button variant="contained" color="secondary" fullWidth className="drawer-btn" onClick={() => { handleBecomeProvider(); setMobileOpen(false); }}>
-          Become a Provider
-        </Button>
+          
+          {!isAuthenticated ? (
+            <Box sx={{ display: 'flex', gap: 1 }}>
+              <Button 
+                variant="text" 
+                fullWidth
+                onClick={() => { handleSignIn(); setMobileOpen(false); }}
+                sx={{
+                  py: 1.25,
+                  borderRadius: 3,
+                  fontWeight: 500,
+                  fontSize: '0.9rem',
+                  textTransform: 'none',
+                  color: 'text.secondary',
+                  '&:hover': {
+                    backgroundColor: 'action.hover'
+                  }
+                }}
+              >
+                Sign In
+              </Button>
+              <Button 
+                variant="text" 
+                fullWidth
+                onClick={() => { handleSignUp(); setMobileOpen(false); }}
+                sx={{
+                  py: 1.25,
+                  borderRadius: 3,
+                  fontWeight: 500,
+                  fontSize: '0.9rem',
+                  textTransform: 'none',
+                  color: 'text.secondary',
+                  '&:hover': {
+                    backgroundColor: 'action.hover'
+                  }
+                }}
+              >
+                Sign Up
+              </Button>
+            </Box>
+          ) : (
+            <Button 
+              variant="text" 
+              fullWidth
+              startIcon={<Logout fontSize="small" />}
+              onClick={() => { handleLogout(); setMobileOpen(false); }}
+              sx={{
+                py: 1.25,
+                borderRadius: 3,
+                fontWeight: 500,
+                fontSize: '0.9rem',
+                textTransform: 'none',
+                color: 'text.secondary',
+                '&:hover': {
+                  backgroundColor: 'action.hover'
+                }
+              }}
+            >
+              Logout
+            </Button>
+          )}
+        </Box>
       </Box>
     </Box>
   );
@@ -253,7 +730,6 @@ const Navbar = () => {
                 color="inherit"
                 onClick={() => setMobileOpen(true)}
                 className="mobile-menu-btn"
-                sx={{ mr: 1 }}
               >
                 <MenuIcon />
               </IconButton>
@@ -385,6 +861,29 @@ const Navbar = () => {
                 <Button variant="contained" color="secondary" className="cta-btn secondary-cta" onClick={handleBecomeProvider}>
                   Become a Provider
                 </Button>
+                <Button 
+                  variant="outlined" 
+                  className="provider-login-btn"
+                  onClick={() => navigate('/provider-login')}
+                  sx={{
+                    borderColor: 'primary.main',
+                    color: 'primary.main',
+                    fontWeight: 600,
+                    px: 2,
+                    py: 1,
+                    borderRadius: 2,
+                    fontSize: '0.875rem',
+                    transition: 'all 0.3s ease',
+                    '&:hover': {
+                      backgroundColor: 'primary.main',
+                      color: 'white',
+                      transform: 'translateY(-1px)',
+                      boxShadow: '0 4px 12px rgba(99, 102, 241, 0.3)'
+                    }
+                  }}
+                >
+                  Provider Login
+                </Button>
                 
                 {isAuthenticated && (
                   <Avatar className="user-avatar" onClick={handleProfileClick} sx={{ cursor: 'pointer' }}>
@@ -413,7 +912,7 @@ const Navbar = () => {
           '& .MuiDrawer-paper': { 
             boxSizing: 'border-box', 
             width: 280,
-            backgroundColor: theme.palette.background.paper,
+            backgroundColor: theme.palette.mode === 'dark' ? '#1a1a1a' : '#ffffff',
           },
         }}
       >
