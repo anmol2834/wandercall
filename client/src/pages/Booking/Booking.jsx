@@ -199,8 +199,7 @@ const Booking = () => {
   const couponDiscountAmount = couponApplied ? basePrice * (couponDiscount / 100) : 0;
   const discount = waitlistDiscountAmount + couponDiscountAmount;
   
-  const gst = (basePrice - discount) * 0.18;
-  const totalPrice = basePrice - discount + gst;
+  const totalPrice = basePrice - discount;
 
   const handleCouponApply = () => {
     const code = couponCode.toLowerCase();
@@ -303,7 +302,6 @@ const Booking = () => {
           phone: guestInfo.phone || user.phone,
         },
         totalPrice: Math.round(totalPrice * 100) / 100, // Ensure proper decimal formatting
-        gst: Math.round(gst * 100) / 100,
         discount: Math.round(discount * 100) / 100,
       };
       
@@ -376,17 +374,34 @@ const Booking = () => {
       
       // Check if this day is in provider's available days
       const dayName = dayNames[date.getDay()];
-      // Only allow bookings for current month
       const currentDate = new Date();
+      
+      // Check if date is in current or next month based on availability
       const isInCurrentMonth = date.getMonth() === currentDate.getMonth() && date.getFullYear() === currentDate.getFullYear();
+      const isInNextMonth = date.getMonth() === (currentDate.getMonth() + 1) % 12 && 
+        (currentDate.getMonth() === 11 ? date.getFullYear() === currentDate.getFullYear() + 1 : date.getFullYear() === currentDate.getFullYear());
       
       // If there's an error or no availability data, mark as unavailable for safety
       const isProviderAvailable = availabilityError 
         ? false 
         : (providerAvailability.length === 0 || providerAvailability.includes(dayName));
       
-      // Only available if: not past + current month + provider available
-      const isDateAvailable = !isPast && isInCurrentMonth && isProviderAvailable;
+      // Check if current month has any available dates
+      const currentMonthHasAvailableDates = (() => {
+        const currentMonthStart = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+        const currentMonthEnd = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
+        
+        for (let d = new Date(Math.max(currentMonthStart, tomorrow)); d <= currentMonthEnd; d.setDate(d.getDate() + 1)) {
+          const dayName = dayNames[d.getDay()];
+          const isAvailable = isProviderAvailable && (providerAvailability.length === 0 || providerAvailability.includes(dayName));
+          if (isAvailable) return true;
+        }
+        return false;
+      })();
+      
+      // Allow current month dates if available, or next month dates if current month has no availability
+      const isDateAvailable = !isPast && isProviderAvailable && 
+        (isInCurrentMonth || (!currentMonthHasAvailableDates && isInNextMonth));
       
       const isSelected = selectedDate && selectedDate.toDateString() === date.toDateString();
 
@@ -1038,7 +1053,7 @@ const Booking = () => {
                               }
                             }}
                           >
-                            {isProcessing ? 'Processing Payment...' : `Pay ₹${totalPrice.toFixed(2)} via Cashfree`}
+                            {isProcessing ? 'Processing Payment...' : `Pay ₹${Math.round(totalPrice)} via Cashfree`}
                           </Button>
                         </motion.div>
 
@@ -1221,12 +1236,7 @@ const Booking = () => {
                           {experience.location}
                         </Typography>
                       </Box>
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                        <Star sx={{ fontSize: 14, color: '#ffd700' }} />
-                        <Typography variant="caption">
-                          {experience.rating}
-                        </Typography>
-                      </Box>
+
                     </Box>
                   </Box>
 
@@ -1294,12 +1304,7 @@ const Booking = () => {
                       </Box>
                     )}
 
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
-                      <Typography variant="body2" color="text.secondary">
-                        GST (18%)
-                      </Typography>
-                      <Typography variant="body2">₹{gst.toFixed(2)}</Typography>
-                    </Box>
+
 
                     <Divider sx={{ my: 2 }} />
 
@@ -1308,7 +1313,7 @@ const Booking = () => {
                         Total Amount
                       </Typography>
                       <Typography variant="h6" fontWeight={700} color="primary.main">
-                        ₹{totalPrice.toFixed(2)}
+                        ₹{Math.round(totalPrice)}
                       </Typography>
                     </Box>
                   </Box>
