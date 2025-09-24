@@ -28,7 +28,10 @@ const Booking = () => {
   const { id } = useParams();
   const dispatch = useDispatch();
   const { selectedProduct: product, productLoading, error } = useSelector(state => state.products);
-  const providerAvailability = useSelector(state => selectProviderAvailability(state, id));
+  const providerAvailability = useSelector(state => {
+    const availability = state.products.providerAvailability?.[id];
+    return availability ? [...availability] : [];
+  }, (left, right) => JSON.stringify(left) === JSON.stringify(right));
   const availabilityLoading = useSelector(selectAvailabilityLoading);
   const availabilityError = useSelector(state => state.products.availabilityError);
   const { loading: checkoutLoading, paymentSession, error: checkoutError } = useSelector(state => state.checkout);
@@ -46,7 +49,7 @@ const Booking = () => {
   const [activeStep, setActiveStep] = useState(0);
   const [selectedDate, setSelectedDate] = useState(null);
   const [participants, setParticipants] = useState(1);
-  const [couponCode, setCouponCode] = useState('');
+  const [couponCode, setCouponCode] = useState('SAVE10');
   const [couponApplied, setCouponApplied] = useState(false);
   const [waitlistReward, setWaitlistReward] = useState(false);
   const [couponValid, setCouponValid] = useState(null);
@@ -66,10 +69,10 @@ const Booking = () => {
   }, [dispatch, id, product]);
 
   useEffect(() => {
-    if (id && product && providerAvailability.length === 0 && !availabilityLoading) {
+    if (id && product && (!providerAvailability || providerAvailability.length === 0) && !availabilityLoading) {
       dispatch(fetchProviderAvailability(id));
     }
-  }, [dispatch, id, product, providerAvailability.length, availabilityLoading]);
+  }, [dispatch, id, product, providerAvailability, availabilityLoading]);
 
   useEffect(() => {
     if (hasActiveDiscount) {
@@ -302,6 +305,7 @@ const Booking = () => {
           phone: guestInfo.phone || user.phone,
         },
         totalPrice: Math.round(totalPrice * 100) / 100, // Ensure proper decimal formatting
+        gst: 0, // Set to 0 since GST is removed from frontend
         discount: Math.round(discount * 100) / 100,
       };
       
