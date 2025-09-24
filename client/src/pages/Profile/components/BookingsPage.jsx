@@ -667,7 +667,7 @@ const BookingsPage = () => {
                                   variant="outlined" 
                                   size="small"
                                   color="warning"
-                                  startIcon={<AccountBalance />}
+                                  startIcon={<Cancel />}
                                   onClick={() => handleRefundRequest(booking)}
                                   sx={{ 
                                     borderRadius: 2,
@@ -678,7 +678,7 @@ const BookingsPage = () => {
                                     flex: { xs: 1, sm: 'none' }
                                   }}
                                 >
-                                  Refund
+                                  Cancel
                                 </Button>
                               )}
                             </>

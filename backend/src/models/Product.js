@@ -76,6 +76,11 @@ const productSchema = new mongoose.Schema({
     type: String,
     required: false
   },
+
+  active : {
+    type: Boolean,
+    default: false
+  },
   
   // Provider reference
   providerId: {

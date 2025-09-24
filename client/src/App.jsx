@@ -76,6 +76,7 @@ const ExperienceDetails = lazy(() => import('./pages/ExperienceDetails/Experienc
 const Ticket = lazy(() => import('./pages/Ticket/Ticket'));
 const ProviderRegistration = lazy(() => import('./pages/ProviderDashboard/ProviderRegistration/ProviderRegistration'));
 const ProviderLogin = lazy(() => import('./pages/ProviderDashboard/ProviderLogin/ProviderLogin'));
+const ProviderDashboard = lazy(() => import('./pages/ProviderDashboard/index'));
 const ProviderTerms = lazy(() => import('./pages/ProviderDashboard/ProviderTerms/ProviderTerms'));
 const Waitlist = lazy(() => import('./pages/Waitlist/Waitlist'));
 const Booking = lazy(() => import('./pages/Booking/Booking'));
@@ -333,6 +334,7 @@ function App() {
                 <Route path="/ticket/:id" element={<Ticket />} />
                 <Route path="/become-provider" element={<ProviderRegistration />} />
                 <Route path="/provider-login" element={<ProviderLogin />} />
+                <Route path="/provider/*" element={<ProviderDashboard />} />
                 <Route path="/provider-terms" element={<ProviderTerms />} />
                 <Route path="/waitlist" element={<Waitlist />} />
                 <Route path="/search" element={<Search />} />

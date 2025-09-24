@@ -17,6 +17,9 @@ const ProviderLogin = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   
+  // Maintenance mode - set to false to enable login
+  const [isMaintenanceMode] = useState(true);
+  
   const [formData, setFormData] = useState({
     email: '',
     password: ''
@@ -207,13 +210,37 @@ const ProviderLogin = () => {
                     </Box>
                   </motion.div>
 
-                  {/* Form */}
-                  <motion.form
-                    onSubmit={handleSubmit}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.6, delay: 0.4 }}
-                  >
+                  {/* Conditional Content */}
+                  {isMaintenanceMode ? (
+                    <motion.div
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.6, delay: 0.4 }}
+                    >
+                      <Box sx={{ textAlign: 'center', py: 4 }}>
+                        <Typography variant="h5" sx={{ 
+                          fontWeight: 700,
+                          mb: 2,
+                          color: 'warning.main'
+                        }}>
+                          🚧 Under Maintenance
+                        </Typography>
+                        <Typography variant="body1" color="text.secondary" sx={{ mb: 3, lineHeight: 1.6 }}>
+                          We're currently working on improving the provider portal. 
+                          Please check back soon for access to your dashboard.
+                        </Typography>
+                        <Typography variant="body2" color="text.secondary">
+                          Expected completion: Coming Soon
+                        </Typography>
+                      </Box>
+                    </motion.div>
+                  ) : (
+                    <motion.form
+                      onSubmit={handleSubmit}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.6, delay: 0.4 }}
+                    >
                     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
                       {/* Email Field */}
                       <TextField
@@ -416,6 +443,7 @@ const ProviderLogin = () => {
                       </motion.div>
                     </Box>
                   </motion.form>
+                  )}
                 </CardContent>
               </Card>
             </motion.div>

@@ -16,6 +16,10 @@ const Search = () => {
   const navigate = useNavigate();
   const theme = useTheme();
   const searchInputRef = useRef(null);
+  
+  // Maintenance mode - set to false to enable search
+  const [isMaintenanceMode] = useState(true);
+  
   const [searchQuery, setSearchQuery] = useState('');
   const [recentSearches, setRecentSearches] = useState([]);
   const [trendingSearches] = useState([
@@ -189,10 +193,33 @@ const Search = () => {
           </Box>
         </motion.div>
 
-
-
-        {/* Recent Searches Section */}
-        {recentSearches.length > 0 && (
+        {/* Conditional Content */}
+        {isMaintenanceMode ? (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+          >
+            <Box sx={{ textAlign: 'center', py: 8 }}>
+              <Typography variant="h4" sx={{ 
+                fontWeight: 700,
+                mb: 2,
+                color: 'warning.main'
+              }}>
+                🚧 Under Maintenance
+              </Typography>
+              <Typography variant="h6" color="text.secondary" sx={{ mb: 3, lineHeight: 1.6 }}>
+                We're currently improving our search functionality to serve you better.
+              </Typography>
+              <Typography variant="body1" color="text.secondary">
+                Please check back soon for enhanced search experience!
+              </Typography>
+            </Box>
+          </motion.div>
+        ) : (
+          <>
+            {/* Recent Searches Section */}
+            {recentSearches.length > 0 && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -407,8 +434,8 @@ const Search = () => {
             </Box>
           </Box>
         </motion.div>
-        
-
+          </>
+        )}
       </Container>
     </Box>
   );

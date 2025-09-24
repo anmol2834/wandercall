@@ -130,6 +130,23 @@ const Contact = () => {
     <Box className="contact-page-container" sx={{ backgroundColor: theme.palette.background.default, minHeight: '100vh' }}>
 
 
+      {/* Back Button */}
+      <Box sx={{ position: 'fixed', top: 20, left: 20, zIndex: 1000 }}>
+        <IconButton 
+          onClick={() => navigate(-1)}
+          sx={{
+            backgroundColor: 'rgba(255, 255, 255, 0.1)',
+            color: 'white',
+            backdropFilter: 'blur(10px)',
+            '&:hover': {
+              backgroundColor: 'rgba(255, 255, 255, 0.2)'
+            }
+          }}
+        >
+          <ArrowBack />
+        </IconButton>
+      </Box>
+
       {/* Hero Section */}
       <Box className="contact-hero-section" sx={{ py: { xs: 8, md: 12 }, px: { xs: 2, md: 0 } }}>
         <div className="contact-floating-elements">

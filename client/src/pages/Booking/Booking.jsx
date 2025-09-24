@@ -164,6 +164,19 @@ const Booking = () => {
     );
   }
 
+  // Check if experience is active
+  if (product && !product.active) {
+    return (
+      <Box sx={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', p: 3 }}>
+        <Typography variant="h4" sx={{ mb: 2, textAlign: 'center' }}>Experience Coming Soon</Typography>
+        <Typography variant="body1" color="text.secondary" sx={{ mb: 3, textAlign: 'center' }}>
+          This experience is not yet available for booking. Please check back later.
+        </Typography>
+        <Button variant="contained" onClick={() => navigate('/')} sx={{ mt: 2 }}>Back to Home</Button>
+      </Box>
+    );
+  }
+
   // Map product data to experience format for UI compatibility
   const experience = {
     id: product._id,
@@ -172,12 +185,6 @@ const Booking = () => {
     price: product.price,
     originalPrice: product.mrp,
     rating: product.rating,
-    duration: (() => {
-      const start = new Date(`1970-01-01 ${product.openTime}`);
-      const end = new Date(`1970-01-01 ${product.closeTime}`);
-      const diff = (end - start) / (1000 * 60 * 60);
-      return `${diff} hours`;
-    })(),
     groupSize: "2-15 people", // Static for now
     images: [product.img1, product.img2, product.img3, product.img4].filter(Boolean)
   };
@@ -1244,13 +1251,6 @@ const Booking = () => {
                       <Typography variant="body2" color="text.secondary">Participants:</Typography>
                       <Typography variant="body2" fontWeight={500}>
                         {participants} {participants === 1 ? 'Person' : 'People'}
-                      </Typography>
-                    </Box>
-
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                      <Typography variant="body2" color="text.secondary">Duration:</Typography>
-                      <Typography variant="body2" fontWeight={500}>
-                        {experience.duration}
                       </Typography>
                     </Box>
                   </Box>

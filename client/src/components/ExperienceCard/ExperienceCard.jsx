@@ -61,7 +61,7 @@ const ExperienceCard = ({ experience }) => {
           className={`card-image ${imageLoaded ? 'loaded' : ''}`}
           onLoad={() => setImageLoaded(true)}
         />
-        <div className="category-badge">SOON</div>
+        {!experience.active && <div className="category-badge">SOON</div>}
         <IconButton 
           className="wishlist-button"
           onClick={handleWishlistClick}

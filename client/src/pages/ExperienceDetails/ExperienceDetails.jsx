@@ -337,13 +337,15 @@ const ExperienceDetails = () => {
         >
           <Box sx={{ mb: 3 }}>
             <Box sx={{ display: 'flex', gap: 1, mb: 2, flexWrap: 'wrap' }}>
-              <motion.div
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.4, delay: 0.2 }}
-              >
-                <Chip label="SOON" sx={{ backgroundColor: '#667eea', color: 'white' }} size="small" />
-              </motion.div>
+              {!product.active && (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.4, delay: 0.2 }}
+                >
+                  <Chip label="SOON" sx={{ backgroundColor: '#667eea', color: 'white' }} size="small" />
+                </motion.div>
+              )}
               {experience.badges.map((badge, index) => (
                 <motion.div
                   key={badge}
@@ -657,9 +659,10 @@ const ExperienceDetails = () => {
                           variant="contained"
                           fullWidth
                           onClick={handleBookNow}
+                          disabled={!product.active}
                           sx={{ py: 1.5, fontWeight: 600 }}
                         >
-                          Book Now - ₹{experience.price}
+                          {product.active ? `Book Now - ₹${experience.price}` : 'Coming Soon'}
                         </Button>
                         
                         <Box sx={{ display: 'flex', gap: 1 }}>
@@ -891,9 +894,10 @@ const ExperienceDetails = () => {
                             variant="contained"
                             fullWidth
                             onClick={handleBookNow}
+                            disabled={!product.active}
                             sx={{ py: 1, fontWeight: 600 }}
                           >
-                            Book Now - ₹{experience.price}
+                            {product.active ? `Book Now - ₹${experience.price}` : 'Coming Soon'}
                           </Button>
                         </motion.div>
                         
@@ -1069,9 +1073,10 @@ const ExperienceDetails = () => {
                   <Button
                     variant="contained"
                     onClick={handleBookNow}
+                    disabled={!product.active}
                     sx={{ fontWeight: 600 }}
                   >
-                    Book Now
+                    {product.active ? 'Book Now' : 'Coming Soon'}
                   </Button>
                 </motion.div>
               </Box>
