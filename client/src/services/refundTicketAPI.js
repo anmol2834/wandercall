@@ -8,7 +8,7 @@ export const refundTicketAPI = {
         throw new Error('No authentication token found');
       }
       
-      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/refund-ticket/create-refund-ticket`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://api.wandercall.com'}/api/refund-ticket/create-refund-ticket`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
