@@ -868,24 +868,26 @@ const ExperienceDetails = () => {
                           <Paper variant="outlined" sx={{ p: 1, textAlign: 'center' }}>
                             <AccessTime color="primary" sx={{ fontSize: 16, mb: 0.5 }} />
                             <Typography variant="caption" display="block" color="text.secondary">
-                              Opening Time
+                              Experience Starts
                             </Typography>
                             <Typography variant="body2" fontWeight={600}>
                               {experience.timings.start}
                             </Typography>
                           </Paper>
                         </Grid>
-                        <Grid item xs={6}>
-                          <Paper variant="outlined" sx={{ p: 1, textAlign: 'center' }}>
-                            <Schedule color="primary" sx={{ fontSize: 16, mb: 0.5 }} />
-                            <Typography variant="caption" display="block" color="text.secondary">
-                              Closing Time
-                            </Typography>
-                            <Typography variant="body2" fontWeight={600}>
-                              {experience.timings.end}
-                            </Typography>
-                          </Paper>
-                        </Grid>
+                        {experience.timings.end && experience.timings.end.trim() && (
+                          <Grid item xs={6}>
+                            <Paper variant="outlined" sx={{ p: 1, textAlign: 'center' }}>
+                              <Schedule color="primary" sx={{ fontSize: 16, mb: 0.5 }} />
+                              <Typography variant="caption" display="block" color="text.secondary">
+                                Closing Time
+                              </Typography>
+                              <Typography variant="body2" fontWeight={600}>
+                                {experience.timings.end}
+                              </Typography>
+                            </Paper>
+                          </Grid>
+                        )}
                       </Grid>
 
                       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
@@ -980,14 +982,16 @@ const ExperienceDetails = () => {
                     </Box>
                     
                     <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                      <Typography variant="body2" color="text.secondary">Opening</Typography>
+                      <Typography variant="body2" color="text.secondary">Starts At</Typography>
                       <Typography variant="body2" fontWeight={600}>{experience.timings.start}</Typography>
                     </Box>
                     
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                      <Typography variant="body2" color="text.secondary">Closing</Typography>
-                      <Typography variant="body2" fontWeight={600}>{experience.timings.end}</Typography>
-                    </Box>
+                    {experience.timings.end && experience.timings.end.trim() && (
+                      <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                        <Typography variant="body2" color="text.secondary">Ends At</Typography>
+                        <Typography variant="body2" fontWeight={600}>{experience.timings.end}</Typography>
+                      </Box>
+                    )}
                     
                     <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
                       <Typography variant="body2" color="text.secondary">Language</Typography>

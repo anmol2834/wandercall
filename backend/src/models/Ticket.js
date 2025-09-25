@@ -10,6 +10,8 @@ const ticketSchema = new mongoose.Schema({
   // Booking Details
   selectedDate: { type: Date, required: true },
   participants: { type: Number, required: true },
+  openTime: { type: String },
+  closeTime: { type: String },
   
   // Pricing
   totalPrice: { type: Number, required: true },

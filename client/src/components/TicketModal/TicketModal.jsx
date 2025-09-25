@@ -27,25 +27,30 @@ const TicketModal = ({ open, onClose, ticketData }) => {
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
   if (!ticketData) return null;
+  
+  // Handle raw booking data like ticket page
+  const ticketNumber = ticketData.ticketNumber;
+  const title = ticketData.productId?.title || ticketData.title || 'Experience';
+  const userName = ticketData.guestInfo?.name || ticketData.userId?.name || 'Guest';
+  const userEmail = ticketData.guestInfo?.email || ticketData.userId?.email || 'guest@example.com';
+  const userPhone = ticketData.guestInfo?.phone || ticketData.userId?.phone || '+91 9999999999';
+  const selectedDate = ticketData.selectedDate;
+  const participants = ticketData.participants;
+  const productLocation = ticketData.productId?.location || {};
+  const location = `${productLocation.city || ticketData.city || 'City'}, ${productLocation.state || ticketData.state || 'State'}`;
+  const fullAddress = productLocation.address || `${ticketData.city || 'City'}, ${ticketData.state || 'State'}`;
+  const pincode = productLocation.pincode || '000000';
+  const providerPhone = ticketData.productId?.phone || 'N/A';
+  const totalPrice = ticketData.totalPrice || 0;
+  const gst = ticketData.gst || 0;
+  const discount = ticketData.discount || 0;
+  const basePrice = totalPrice - gst - discount;
+  const paymentId = ticketData.paymentId || 'Processing';
+  
+  // Direct timing access like ticket page
+  const openTime = ticketData.openTime || ticketData.productId?.openTime;
+  const closeTime = ticketData.closeTime || ticketData.productId?.closeTime;
 
-  const {
-    ticketNumber,
-    title,
-    userName,
-    userEmail,
-    userPhone,
-    selectedDate,
-    participants,
-    location,
-    fullAddress,
-    pincode,
-    providerPhone,
-    totalPrice,
-    basePrice,
-    gst,
-    discount,
-    paymentId
-  } = ticketData;
 
   // Generate QR code placeholder
   const qrCodeData = `data:image/svg+xml;base64,${btoa(`
@@ -232,8 +237,8 @@ const TicketModal = ({ open, onClose, ticketData }) => {
                   <Box
                     sx={{
                       display: 'grid',
-                      gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' },
-                      gap: { xs: 2, sm: 3 },
+                      gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' },
+                      gap: { xs: 2, md: 4 },
                       mb: 3
                     }}
                   >
@@ -305,15 +310,33 @@ const TicketModal = ({ open, onClose, ticketData }) => {
                       isMobile={isMobile}
                       fullWidth
                     />
+                    {openTime && (
+                      <DetailItem
+                        icon={<CalendarToday />}
+                        label="Experience Starts"
+                        value={openTime}
+                        isMobile={isMobile}
+                        fullWidth
+                      />
+                    )}
+                    {closeTime && closeTime.trim() && (
+                      <DetailItem
+                        icon={<CalendarToday />}
+                        label="Experience Ends"
+                        value={closeTime}
+                        isMobile={isMobile}
+                        fullWidth
+                      />
+                    )}
                   </Box>
 
                   {/* QR Code and Price Section */}
                   <Box
                     sx={{
                       display: 'grid',
-                      gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' },
-                      gap: 3,
-                      alignItems: 'center'
+                      gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' },
+                      gap: { xs: 3, md: 4 },
+                      alignItems: 'start'
                     }}
                   >
                     {/* QR Code */}

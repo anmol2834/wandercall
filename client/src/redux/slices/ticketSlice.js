@@ -9,7 +9,7 @@ export const fetchMyBookings = createAsyncThunk(
       const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
       const token = localStorage.getItem('token');
       
-      const response = await fetch(`${apiUrl}/api/bookings/my-bookings`, {
+      const response = await fetch(`${apiUrl}/api/tickets/my-bookings`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -22,7 +22,7 @@ export const fetchMyBookings = createAsyncThunk(
         throw new Error(data.message);
       }
       
-      return data.bookings;
+      return data.tickets;
     } catch (error) {
       return rejectWithValue(error.message || 'Failed to fetch bookings');
     }

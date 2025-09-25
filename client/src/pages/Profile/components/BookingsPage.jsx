@@ -59,7 +59,7 @@ const BookingsPage = () => {
   };
 
   const handleViewTicket = (booking) => {
-    setSelectedTicket(formatTicketData(booking));
+    setSelectedTicket(booking);
     setTicketModalOpen(true);
   };
 
@@ -214,6 +214,12 @@ const BookingsPage = () => {
   }, [bookings]);
 
   const formatTicketData = (booking) => {
+    console.log('BookingsPage formatTicketData - Raw booking:', booking);
+    console.log('BookingsPage formatTicketData - booking.openTime:', booking.openTime);
+    console.log('BookingsPage formatTicketData - booking.closeTime:', booking.closeTime);
+    console.log('BookingsPage formatTicketData - booking.productId?.openTime:', booking.productId?.openTime);
+    console.log('BookingsPage formatTicketData - booking.productId?.closeTime:', booking.productId?.closeTime);
+    
     const totalPrice = booking.totalPrice || 0;
     const gst = booking.gst || 0;
     const discount = booking.discount || 0;
@@ -236,7 +242,9 @@ const BookingsPage = () => {
       basePrice: basePrice > 0 ? basePrice : totalPrice,
       gst: gst,
       discount: discount,
-      paymentId: booking.paymentId || 'Processing'
+      paymentId: booking.paymentId || 'Processing',
+      openTime: booking.openTime || booking.productId?.openTime,
+      closeTime: booking.closeTime || booking.productId?.closeTime
     };
   };
 
