@@ -95,11 +95,11 @@ const getProviderAvailability = async (req, res) => {
       return res.json({ success: true, availability: [] });
     }
     
-    // Get date range (next 60 days)
+    // Get date range (next 60 days) - Use UTC to prevent timezone issues
     const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    today.setUTCHours(0, 0, 0, 0);
     const endDate = new Date(today);
-    endDate.setDate(today.getDate() + 60);
+    endDate.setUTCDate(today.getUTCDate() + 60);
     
     // Get booking counts from Ticket collection
     const Ticket = require('../models/Ticket');
@@ -127,11 +127,11 @@ const getProviderAvailability = async (req, res) => {
       bookingCounts[booking._id] = booking.count;
     });
     
-    // Generate availability data for 60 days
+    // Generate availability data for 60 days - Use UTC methods
     const availability = [];
-    for (let d = new Date(today); d < endDate; d.setDate(d.getDate() + 1)) {
+    for (let d = new Date(today); d < endDate; d.setUTCDate(d.getUTCDate() + 1)) {
       const dateStr = d.toISOString().split('T')[0];
-      const dayName = d.toLocaleDateString('en-US', { weekday: 'long' });
+      const dayName = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][d.getUTCDay()];
       
       // Check if day is in provider's available days
       const isProviderDay = availableDays.includes(dayName);

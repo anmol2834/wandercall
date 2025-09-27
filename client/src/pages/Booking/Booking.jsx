@@ -363,18 +363,18 @@ const Booking = () => {
   };
 
   const generateCalendar = () => {
-    const year = currentMonth.getFullYear();
-    const month = currentMonth.getMonth();
-    const firstDay = new Date(year, month, 1);
-    const lastDay = new Date(year, month + 1, 0);
+    const year = currentMonth.getUTCFullYear();
+    const month = currentMonth.getUTCMonth();
+    const firstDay = new Date(Date.UTC(year, month, 1));
+    const lastDay = new Date(Date.UTC(year, month + 1, 0));
     const startDate = new Date(firstDay);
-    startDate.setDate(startDate.getDate() - firstDay.getDay());
+    startDate.setUTCDate(startDate.getUTCDate() - firstDay.getUTCDay());
 
     const days = [];
     const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    today.setUTCHours(0, 0, 0, 0);
     const tomorrow = new Date(today);
-    tomorrow.setDate(tomorrow.getDate() + 1);
+    tomorrow.setUTCDate(tomorrow.getUTCDate() + 1);
 
     // Create availability map from detailed backend data
     const availabilityMap = {};
@@ -396,10 +396,10 @@ const Booking = () => {
     
     for (let i = 0; i < 42; i++) {
       const date = new Date(startDate);
-      date.setDate(startDate.getDate() + i);
+      date.setUTCDate(startDate.getUTCDate() + i);
 
       const dateStr = date.toISOString().split('T')[0];
-      const isCurrentMonth = date.getMonth() === month;
+      const isCurrentMonth = date.getUTCMonth() === month;
       const isPast = date < tomorrow;
       
       // Get availability data for this specific date from backend
@@ -424,7 +424,7 @@ const Booking = () => {
       days.push({
         date,
         dateStr,
-        day: date.getDate(),
+        day: date.getUTCDate(),
         isCurrentMonth,
         isPast,
         isAvailable: isDateAvailable,
@@ -626,13 +626,13 @@ const Booking = () => {
                             }}>
                               {/* Calendar Header */}
                               <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-                                <IconButton onClick={() => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1))}>
+                                <IconButton onClick={() => setCurrentMonth(new Date(Date.UTC(currentMonth.getUTCFullYear(), currentMonth.getUTCMonth() - 1, 1)))}>
                                   <ArrowBack />
                                 </IconButton>
                                 <Typography variant="h6" fontWeight={600}>
-                                  {currentMonth.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
+                                  {new Date(Date.UTC(currentMonth.getUTCFullYear(), currentMonth.getUTCMonth(), 1)).toLocaleDateString('en-US', { month: 'long', year: 'numeric', timeZone: 'UTC' })}
                                 </Typography>
-                                <IconButton onClick={() => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1))}>
+                                <IconButton onClick={() => setCurrentMonth(new Date(Date.UTC(currentMonth.getUTCFullYear(), currentMonth.getUTCMonth() + 1, 1)))}>
                                   <ArrowBack sx={{ transform: 'rotate(180deg)' }} />
                                 </IconButton>
                               </Box>
