@@ -95,11 +95,10 @@ const getProviderAvailability = async (req, res) => {
       return res.json({ success: true, availability: [] });
     }
     
-    // Get date range (next 60 days) - Use UTC to prevent timezone issues
+    // Get date range (current and next month only) - Use UTC to prevent timezone issues
     const today = new Date();
     today.setUTCHours(0, 0, 0, 0);
-    const endDate = new Date(today);
-    endDate.setUTCDate(today.getUTCDate() + 60);
+    const endDate = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth() + 2, 0)); // Last day of next month
     
     // Get booking counts from Ticket collection
     const Ticket = require('../models/Ticket');
@@ -127,7 +126,7 @@ const getProviderAvailability = async (req, res) => {
       bookingCounts[booking._id] = booking.count;
     });
     
-    // Generate availability data for 60 days - Use UTC methods
+    // Generate availability data for current and next month - Use UTC methods
     const availability = [];
     for (let d = new Date(today); d < endDate; d.setUTCDate(d.getUTCDate() + 1)) {
       const dateStr = d.toISOString().split('T')[0];
