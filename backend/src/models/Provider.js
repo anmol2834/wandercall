@@ -93,6 +93,11 @@ const providerSchema = new mongoose.Schema({
       message: 'Terms and conditions must be accepted'
     }
   },
+
+  perDaySlot : {
+    type : Number,
+    required : true
+  },
   
   // Cross-collection references
   products: [{

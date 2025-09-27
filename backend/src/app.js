@@ -59,10 +59,19 @@ app.use(cors(corsOptions));
 // Additional CORS headers for all responses
 app.use((req, res, next) => {
   const origin = req.headers.origin;
-  const allowedOrigins = ['https://wandercall.vercel.app', 'https://www.wandercall.com', 'http://localhost:5173', 'https://wandercall.com', 'http://localhost:3000'];
+  const allowedOrigins = [
+    'https://wandercall.com',
+    'https://www.wandercall.com', 
+    'https://wandercall.vercel.app',
+    'http://localhost:5173', 
+    'http://localhost:3000'
+  ];
 
-  if (!origin || allowedOrigins.includes(origin) || origin.includes('vercel.app')) {
-    res.header('Access-Control-Allow-Origin', origin || 'https://wandercall.vercel.app');
+  if (allowedOrigins.includes(origin) || origin?.includes('vercel.app')) {
+    res.header('Access-Control-Allow-Origin', origin);
+  } else if (!origin) {
+    // For requests without origin (like Postman, server-to-server)
+    res.header('Access-Control-Allow-Origin', 'https://wandercall.com');
   }
 
   res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,PATCH,OPTIONS');
@@ -77,6 +86,29 @@ app.use('/api/webhooks/cashfree-webhook', express.raw({ type: 'application/json'
 // Use JSON parser for all other routes
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+
+// Handle preflight OPTIONS requests
+app.options('*', (req, res) => {
+  const origin = req.headers.origin;
+  const allowedOrigins = [
+    'https://wandercall.com',
+    'https://www.wandercall.com',
+    'https://wandercall.vercel.app',
+    'http://localhost:5173',
+    'http://localhost:3000'
+  ];
+  
+  if (allowedOrigins.includes(origin) || origin?.includes('vercel.app')) {
+    res.header('Access-Control-Allow-Origin', origin);
+  } else {
+    res.header('Access-Control-Allow-Origin', 'https://wandercall.com');
+  }
+  
+  res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,PATCH,OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, Accept, Origin');
+  res.header('Access-Control-Allow-Credentials', 'true');
+  res.sendStatus(200);
+});
 
 // Rate limiting middleware
 const { generalApiLimiter, readOnlyLimiter } = require('./middleware/rateLimiter');
@@ -135,10 +167,18 @@ app.use((err, req, res, next) => {
 
   // Ensure CORS headers are present even on errors
   const origin = req.headers.origin;
-  const allowedOrigins = ['https://wandercall.vercel.app', 'http://wandercall.vercel.app', 'http://localhost:5173'];
+  const allowedOrigins = [
+    'https://wandercall.com',
+    'https://www.wandercall.com',
+    'https://wandercall.vercel.app', 
+    'http://wandercall.vercel.app', 
+    'http://localhost:5173'
+  ];
 
-  if (!origin || allowedOrigins.includes(origin) || origin.includes('vercel.app')) {
-    res.header('Access-Control-Allow-Origin', origin || 'https://wandercall.vercel.app');
+  if (allowedOrigins.includes(origin) || origin?.includes('vercel.app')) {
+    res.header('Access-Control-Allow-Origin', origin);
+  } else if (!origin) {
+    res.header('Access-Control-Allow-Origin', 'https://wandercall.com');
   }
 
   res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,PATCH,OPTIONS');

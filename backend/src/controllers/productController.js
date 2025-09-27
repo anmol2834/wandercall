@@ -82,33 +82,85 @@ const getProviderAvailability = async (req, res) => {
       return res.status(400).json({ success: false, message: 'Invalid product ID' });
     }
     
-    // Find the product
-    const product = await Product.findById(id);
-    if (!product) {
-      return res.status(404).json({ success: false, message: 'Product not found' });
+    // Find the product with provider
+    const product = await Product.findById(id).populate('providerId');
+    if (!product || !product.providerId) {
+      return res.status(404).json({ success: false, message: 'Product or provider not found' });
     }
     
-    // Find the provider
-    let availability = [];
-    if (product.providerId) {
-      const provider = await Provider.findById(product.providerId);
-      if (provider && provider.availableDays) {
-        availability = provider.availableDays;
+    const provider = product.providerId;
+    const { availableDays, perDaySlot } = provider;
+    
+    if (!availableDays || availableDays.length === 0) {
+      return res.json({ success: true, availability: [] });
+    }
+    
+    // Get date range (next 60 days)
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const endDate = new Date(today);
+    endDate.setDate(today.getDate() + 60);
+    
+    // Get booking counts from Ticket collection
+    const Ticket = require('../models/Ticket');
+    const bookings = await Ticket.aggregate([
+      {
+        $match: {
+          productId: product._id,
+          selectedDate: { $gte: today, $lt: endDate },
+          status: { $in: ['active', 'used'] }
+        }
+      },
+      {
+        $group: {
+          _id: {
+            $dateToString: { format: "%Y-%m-%d", date: "$selectedDate" }
+          },
+          count: { $sum: 1 }
+        }
+      }
+    ]);
+    
+    // Create booking count map
+    const bookingCounts = {};
+    bookings.forEach(booking => {
+      bookingCounts[booking._id] = booking.count;
+    });
+    
+    // Generate availability data for 60 days
+    const availability = [];
+    for (let d = new Date(today); d < endDate; d.setDate(d.getDate() + 1)) {
+      const dateStr = d.toISOString().split('T')[0];
+      const dayName = d.toLocaleDateString('en-US', { weekday: 'long' });
+      
+      // Check if day is in provider's available days
+      const isProviderDay = availableDays.includes(dayName);
+      
+      if (isProviderDay) {
+        // Get booking count for this date
+        const bookingCount = bookingCounts[dateStr] || 0;
+        const slotsAvailable = perDaySlot - bookingCount;
+        
+        availability.push({
+          date: dateStr,
+          isAvailable: slotsAvailable > 0,
+          dayName,
+          slotsAvailable: Math.max(0, slotsAvailable),
+          totalSlots: perDaySlot
+        });
       }
     }
     
-    // If no provider or availability found, return empty array (safe fallback)
     res.json({ 
       success: true, 
-      availability,
-      productId: id
+      availability
     });
   } catch (error) {
     console.error('Get provider availability error:', error);
     res.status(500).json({ 
       success: false, 
       message: 'Failed to fetch provider availability',
-      availability: [] // Safe fallback
+      availability: []
     });
   }
 };

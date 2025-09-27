@@ -70,9 +70,20 @@ const Booking = () => {
 
   useEffect(() => {
     if (id && product && (!providerAvailability || providerAvailability.length === 0) && !availabilityLoading) {
+      console.log('🔄 Fetching provider availability for product:', id);
       dispatch(fetchProviderAvailability(id));
     }
   }, [dispatch, id, product, providerAvailability, availabilityLoading]);
+
+  // Debug: Log availability data changes
+  useEffect(() => {
+    console.log('📊 Provider Availability Data:', {
+      loading: availabilityLoading,
+      error: availabilityError,
+      dataLength: providerAvailability?.length || 0,
+      sampleData: providerAvailability?.slice(0, 3)
+    });
+  }, [providerAvailability, availabilityLoading, availabilityError]);
 
   useEffect(() => {
     if (hasActiveDiscount) {
@@ -365,9 +376,24 @@ const Booking = () => {
     const tomorrow = new Date(today);
     tomorrow.setDate(tomorrow.getDate() + 1);
 
-    // Day name mapping
-    const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    // Create availability map from detailed backend data
+    const availabilityMap = {};
+    if (providerAvailability && providerAvailability.length > 0) {
+      providerAvailability.forEach(dayData => {
+        availabilityMap[dayData.date] = dayData;
+      });
+      console.log('📅 Calendar Generation - Availability Map Created:', {
+        totalDates: Object.keys(availabilityMap).length,
+        sampleDates: Object.keys(availabilityMap).slice(0, 5),
+        currentMonth: `${year}-${String(month + 1).padStart(2, '0')}`
+      });
+    } else {
+      console.log('⚠️ Calendar Generation - No availability data available');
+    }
 
+    let availableDaysCount = 0;
+    let fullDaysCount = 0;
+    
     for (let i = 0; i < 42; i++) {
       const date = new Date(startDate);
       date.setDate(startDate.getDate() + i);
@@ -376,36 +402,22 @@ const Booking = () => {
       const isCurrentMonth = date.getMonth() === month;
       const isPast = date < tomorrow;
       
-      // Check if this day is in provider's available days
-      const dayName = dayNames[date.getDay()];
-      const currentDate = new Date();
+      // Get availability data for this specific date from backend
+      const dayAvailability = availabilityMap[dateStr];
       
-      // Check if date is in current or next month based on availability
-      const isInCurrentMonth = date.getMonth() === currentDate.getMonth() && date.getFullYear() === currentDate.getFullYear();
-      const isInNextMonth = date.getMonth() === (currentDate.getMonth() + 1) % 12 && 
-        (currentDate.getMonth() === 11 ? date.getFullYear() === currentDate.getFullYear() + 1 : date.getFullYear() === currentDate.getFullYear());
+      // Use backend isAvailable property directly
+      const isDateAvailable = !isPast && dayAvailability && dayAvailability.isAvailable;
       
-      // If there's an error or no availability data, mark as unavailable for safety
-      const isProviderAvailable = availabilityError 
-        ? false 
-        : (providerAvailability.length === 0 || providerAvailability.includes(dayName));
-      
-      // Check if current month has any available dates
-      const currentMonthHasAvailableDates = (() => {
-        const currentMonthStart = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
-        const currentMonthEnd = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
-        
-        for (let d = new Date(Math.max(currentMonthStart, tomorrow)); d <= currentMonthEnd; d.setDate(d.getDate() + 1)) {
-          const dayName = dayNames[d.getDay()];
-          const isAvailable = isProviderAvailable && (providerAvailability.length === 0 || providerAvailability.includes(dayName));
-          if (isAvailable) return true;
+      // Count for debugging
+      if (isCurrentMonth && !isPast) {
+        if (dayAvailability) {
+          if (dayAvailability.isAvailable) {
+            availableDaysCount++;
+          } else if (dayAvailability.totalSlots > 0) {
+            fullDaysCount++;
+          }
         }
-        return false;
-      })();
-      
-      // Allow current month dates if available, or next month dates if current month has no availability
-      const isDateAvailable = !isPast && isProviderAvailable && 
-        (isInCurrentMonth || (!currentMonthHasAvailableDates && isInNextMonth));
+      }
       
       const isSelected = selectedDate && selectedDate.toDateString() === date.toDateString();
 
@@ -416,9 +428,18 @@ const Booking = () => {
         isCurrentMonth,
         isPast,
         isAvailable: isDateAvailable,
-        isSelected
+        isSelected,
+        slotsAvailable: dayAvailability?.slotsAvailable || 0,
+        totalSlots: dayAvailability?.totalSlots || 0
       });
     }
+    
+    console.log('📅 Calendar Generated:', {
+      month: `${year}-${String(month + 1).padStart(2, '0')}`,
+      availableDays: availableDaysCount,
+      fullDays: fullDaysCount,
+      totalCalendarDays: days.length
+    });
 
     return days;
   };
@@ -670,14 +691,18 @@ const Booking = () => {
                                             ? '#f5f5f5'
                                             : day.isAvailable
                                               ? '#e8f5e8'
-                                              : '#ffebee',
+                                              : day.slotsAvailable === 0 && day.totalSlots > 0
+                                                ? '#ffcdd2'
+                                                : '#f5f5f5',
                                         color: day.isSelected
                                           ? 'white'
                                           : day.isPast
                                             ? '#bdbdbd'
                                             : day.isAvailable
                                               ? '#2e7d32'
-                                              : '#c62828',
+                                              : day.slotsAvailable === 0 && day.totalSlots > 0
+                                                ? '#d32f2f'
+                                                : '#bdbdbd',
                                         opacity: day.isCurrentMonth ? 1 : 0.3,
                                         border: day.isSelected ? '2px solid #5a6fd8' : 'none',
                                         '&:hover': day.isAvailable ? {
@@ -720,8 +745,8 @@ const Booking = () => {
                                   <Typography variant="caption">Available</Typography>
                                 </Box>
                                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                                  <Box sx={{ width: 12, height: 12, backgroundColor: '#ffebee', borderRadius: 1 }} />
-                                  <Typography variant="caption">Unavailable</Typography>
+                                  <Box sx={{ width: 12, height: 12, backgroundColor: '#ffcdd2', borderRadius: 1 }} />
+                                  <Typography variant="caption">Full</Typography>
                                 </Box>
                                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
                                   <Box sx={{ width: 12, height: 12, backgroundColor: '#667eea', borderRadius: 1 }} />
@@ -1320,6 +1345,42 @@ const Booking = () => {
                         ₹{Math.round(totalPrice)}
                       </Typography>
                     </Box>
+                  </Box>
+
+                  {/* Debug Panel - Show availability system status */}
+                  <Box sx={{ mt: 3, p: 2, backgroundColor: 'rgba(0, 0, 0, 0.05)', borderRadius: 2 }}>
+                    <Typography variant="subtitle2" fontWeight={600} mb={1}>
+                      🔧 Debug Info
+                    </Typography>
+                    
+                    <Typography variant="caption" display="block" mb={0.5}>
+                      Availability Loading: {availabilityLoading ? '✅ Yes' : '❌ No'}
+                    </Typography>
+                    
+                    <Typography variant="caption" display="block" mb={0.5}>
+                      Availability Error: {availabilityError ? `❌ ${availabilityError}` : '✅ None'}
+                    </Typography>
+                    
+                    <Typography variant="caption" display="block" mb={0.5}>
+                      Total Available Dates: {providerAvailability?.length || 0}
+                    </Typography>
+                    
+                    {providerAvailability?.length > 0 && (
+                      <>
+                        <Typography variant="caption" display="block" mb={0.5}>
+                          Available Dates Sample:
+                        </Typography>
+                        {providerAvailability.slice(0, 3).map((day, index) => (
+                          <Typography key={index} variant="caption" display="block" sx={{ ml: 1, fontSize: '0.7rem' }}>
+                            {day.date}: {day.isAvailable ? '🟢' : '🔴'} ({day.slotsAvailable}/{day.totalSlots} slots)
+                          </Typography>
+                        ))}
+                      </>
+                    )}
+                    
+                    <Typography variant="caption" display="block" mt={1}>
+                      Current Month: {currentMonth.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
+                    </Typography>
                   </Box>
 
                   {/* Mobile Stepper */}
